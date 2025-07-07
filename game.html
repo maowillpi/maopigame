@@ -8,8 +8,8 @@
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     
-    <!-- ethers.js CDN -->
-    <script src="https://cdn.ethers.io/lib/ethers-5.7.2.umd.min.js"></script>
+    <!-- ethers.js CDN - 使用更稳定的版本 -->
+    <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
     
     <style>
         body {
@@ -277,6 +277,19 @@
 
     <!-- JavaScript -->
     <script>
+        // 等待ethers.js加载完成
+        window.addEventListener('load', function() {
+            // 检查ethers是否正确加载
+            if (typeof ethers === 'undefined') {
+                console.error('ethers.js未正确加载');
+                alert('正在加载区块链库，请稍候重试...');
+                setTimeout(() => location.reload(), 2000);
+                return;
+            }
+            
+            console.log('ethers.js加载成功:', ethers.version);
+        });
+
         // 智能合约配置
         const CONTRACTS = {
             WHEEL_GAME: "0xc27e29BCe41db77815435a9415329424849Daeb6",
@@ -343,6 +356,13 @@
         // 连接钱包
         async function connectWallet() {
             try {
+                // 检查ethers是否加载
+                if (typeof ethers === 'undefined') {
+                    alert('区块链库正在加载中，请稍候重试...');
+                    setTimeout(() => location.reload(), 2000);
+                    return;
+                }
+
                 if (!window.ethereum) {
                     alert('请使用支持Web3的钱包浏览器！\n推荐使用：TP钱包、Trust Wallet、MetaMask等');
                     return;
