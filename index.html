@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎰 MAO转盘游戏 - 正在加载...</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            color: white;
+        }
+        .container {
+            text-align: center;
+            padding: 40px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(31, 38, 135, 0.37);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            max-width: 500px;
+        }
+        .loading {
+            font-size: 3em;
+            margin-bottom: 20px;
+            animation: spin 2s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        p {
+            font-size: 1.2em;
+            margin-bottom: 15px;
+            opacity: 0.9;
+        }
+        .game-link {
+            display: inline-block;
+            background: #4CAF50;
+            color: white;
+            padding: 15px 30px;
+            border-radius: 25px;
+            text-decoration: none;
+            font-size: 1.1em;
+            font-weight: bold;
+            margin-top: 20px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
+        }
+        .game-link:hover {
+            background: #45a049;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(76, 175, 80, 0.4);
+        }
+        .status {
+            background: rgba(255, 193, 7, 0.2);
+            border: 1px solid #ffc107;
+            border-radius: 10px;
+            padding: 15px;
+            margin: 20px 0;
+        }
+        .redirect-message {
+            font-size: 0.9em;
+            opacity: 0.8;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="loading">🎰</div>
+        <h1>MAO转盘游戏</h1>
+        <p>基于AlveyChain的去中心化转盘游戏</p>
+        
+        <div class="status">
+            <p><strong>⚡ 游戏正在准备中...</strong></p>
+            <p>正在构建静态文件，请稍候片刻</p>
+        </div>
+        
+        <p>🎮 <strong>游戏特色：</strong></p>
+        <p>• 支持 MAO 和 PI 代币</p>
+        <p>• 6级奖励系统</p>
+        <p>• 最高奖励 3000 MAO / 300000 PI</p>
+        <p>• 10% 代币自动销毁</p>
+        
+        <a href="https://maowillpi.github.io/maopigame/" class="game-link" onclick="window.location.reload()">
+            🚀 刷新页面启动游戏
+        </a>
+        
+        <div class="redirect-message">
+            <p>如果页面没有自动更新，请手动刷新页面</p>
+            <p>游戏地址：<a href="https://maowillpi.github.io/maopigame/" style="color: #ffc107;">https://maowillpi.github.io/maopigame/</a></p>
+        </div>
+    </div>
+    
+    <script>
+        // 每10秒自动刷新一次，直到游戏加载完成
+        let refreshCount = 0;
+        const maxRefresh = 12; // 最多刷新12次 (2分钟)
+        
+        function checkAndRefresh() {
+            refreshCount++;
+            if (refreshCount < maxRefresh) {
+                setTimeout(() => {
+                    window.location.reload();
+                }, 10000);
+            }
+        }
+        
+        // 启动自动刷新
+        checkAndRefresh();
+        
+        // 如果用户点击任何地方，停止自动刷新
+        document.addEventListener('click', () => {
+            refreshCount = maxRefresh;
+        });
+    </script>
+</body>
+</html> 
