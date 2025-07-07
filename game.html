@@ -360,7 +360,7 @@
                         data-token="PI"
                     >
                         <div class="text-lg">PI</div>
-                        <div class="text-xs mt-1">1,000 PI/次</div>
+                        <div class="text-xs mt-1">10,000 PI/次</div>
                         <div class="text-xs text-yellow-400" id="piBalance">余额: 0</div>
                         <div class="text-xs text-orange-400 mt-1">⚠️ 奖池检查中</div>
                     </button>
@@ -460,7 +460,7 @@
                 <div class="glass-effect rounded-lg p-3 mb-4">
                     <div class="text-center">
                         <p class="text-blue-200 text-sm mb-2">
-                            本轮投注: <span class="text-yellow-400 font-bold text-lg" id="betAmount">1,000 PI</span>
+                            本轮投注: <span class="text-yellow-400 font-bold text-lg" id="betAmount">100 MAO</span>
                         </p>
                         <div class="flex justify-center gap-3 mb-3">
                             <div class="text-center">
@@ -508,7 +508,7 @@
                         id="approveBtn"
                         class="w-full bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white font-bold py-4 px-4 rounded-xl shadow-lg text-base"
                     >
-                        🔓 授权 PI 代币
+                        🔓 授权 MAO 代币
                     </button>
                     
                     <!-- 单个游戏按钮 -->
@@ -1097,67 +1097,94 @@
             startGameBtn.disabled = !isApproved;
         }
 
-        // 选择代币 - 修复切换问题
+        // 选择代币 - 移动端优化版本
         async function selectToken(token) {
-            // 已移除连续游戏模式，此部分不再执行
+            console.log(`点击切换代币: ${token}`);
+            
+            // 防止在游戏中切换
             if (isSpinning) {
-                alert('游戏进行中，无法切换代币！');
+                alert('🎮 游戏进行中，无法切换代币！');
                 return;
             }
             
-            // 先显示切换状态
+            // 防止重复切换
+            if (selectedToken === token) {
+                console.log(`已经选择了${token}，无需切换`);
+                return;
+            }
+            
+            // 立即更新UI反馈
             const oldToken = selectedToken;
             selectedToken = token;
             
-            console.log(`切换代币: ${oldToken} → ${token}`);
+            console.log(`代币切换: ${oldToken} → ${token}`);
             
-            // 更新按钮样式
-            maoBtn.className = 'token-btn py-4 px-4 rounded-xl font-semibold transition-all ' + 
-                (token === 'MAO' ? 'bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-lg scale-105' : 'bg-white/20 text-blue-200 hover:bg-white/30');
-            piBtn.className = 'token-btn py-4 px-4 rounded-xl font-semibold transition-all ' + 
-                (token === 'PI' ? 'bg-gradient-to-r from-purple-600 to-purple-700 text-white shadow-lg scale-105' : 'bg-white/20 text-blue-200 hover:bg-white/30');
+            // 立即更新按钮样式 - 移动端优化
+            updateTokenButtonStyles();
             
             // 更新投注金额显示
-            betAmount.textContent = token === 'MAO' ? '100 MAO' : '1,000 PI';
+            betAmount.textContent = token === 'MAO' ? '100 MAO' : '10,000 PI';
             
             // 更新转盘奖励显示
             updateWheelRewards();
             
-            // 先刷新余额
-            if (currentAccount) {
-                await loadBalances();
-                updateCurrentBalance();
-            }
+            // 显示切换成功提示
+            showToast(`✅ 已切换到 ${token} 游戏`);
             
-            // 重置授权状态，强制重新检查
-            isApproved = false;
-            
-            // 先显示需要检查状态
-            approveBtn.style.display = 'block';
-            approveBtn.textContent = `🔍 检查 ${token} 授权...`;
-            approveBtn.disabled = true;
-            startGameBtn.disabled = true;
-            // 已移除连续游戏模式，此部分不再执行
-            spinBtn.disabled = true;
-            spinBtn.innerHTML = '<div class="text-2xl">⏳</div><div class="text-[10px]">检查中</div>';
-            
-            // 异步检查新代币的授权状态
+            // 异步刷新余额和授权状态
             if (currentAccount) {
                 try {
-                    await checkApproval();
-                    console.log(`${token} 授权检查完成，isApproved: ${isApproved}`);
+                    // 显示加载状态
+                    spinBtn.disabled = true;
+                    spinBtn.innerHTML = '<div class="text-2xl animate-spin">⏳</div><div class="text-[10px]">切换中</div>';
                     
-                    // 显示切换成功提示
-                    if (isApproved) {
-                        alert(`✅ 切换成功！\n\n已切换到 ${token} 游戏\n授权状态：已授权\n可以开始游戏！`);
-                    } else {
-                        alert(`⚠️ 切换成功！\n\n已切换到 ${token} 游戏\n授权状态：需要授权\n请先授权${token}代币`);
-                    }
+                    await loadBalances();
+                    updateCurrentBalance();
+                    
+                    // 重置并检查授权状态
+                    isApproved = false;
+                    await checkApproval();
+                    
+                    console.log(`${token} 切换完成，授权状态: ${isApproved}`);
+                    
                 } catch (error) {
-                    console.error('检查授权错误:', error);
-                    alert(`❌ 切换 ${token} 时检查授权失败: ${error.message}`);
+                    console.error('切换代币错误:', error);
+                    showToast(`❌ 切换失败: ${error.message}`);
                 }
             }
+        }
+
+        // 更新代币按钮样式 - 移动端优化
+        function updateTokenButtonStyles() {
+            // 移除所有激活状态
+            maoBtn.className = 'token-btn py-4 px-4 rounded-xl font-semibold transition-all transform active:scale-95';
+            piBtn.className = 'token-btn py-4 px-4 rounded-xl font-semibold transition-all transform active:scale-95';
+            
+            // 添加选中状态
+            if (selectedToken === 'MAO') {
+                maoBtn.className += ' bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-lg scale-105 border-2 border-yellow-400';
+                piBtn.className += ' bg-white/20 text-blue-200 hover:bg-white/30';
+            } else {
+                piBtn.className += ' bg-gradient-to-r from-purple-600 to-purple-700 text-white shadow-lg scale-105 border-2 border-yellow-400';
+                maoBtn.className += ' bg-white/20 text-blue-200 hover:bg-white/30';
+            }
+        }
+
+        // 添加触摸反馈提示
+        function showToast(message) {
+            // 创建提示元素
+            const toast = document.createElement('div');
+            toast.className = 'fixed top-20 left-1/2 transform -translate-x-1/2 bg-black/80 text-white px-4 py-2 rounded-lg text-sm z-50 animate-pulse';
+            toast.textContent = message;
+            
+            document.body.appendChild(toast);
+            
+            // 3秒后移除
+            setTimeout(() => {
+                if (toast.parentNode) {
+                    toast.parentNode.removeChild(toast);
+                }
+            }, 3000);
         }
 
         // 余额测试函数 - 详细调试版本
@@ -1183,11 +1210,11 @@
                 const maoAllowanceFormatted = ethers.utils.formatEther(maoAllowance);
                 const piAllowanceFormatted = ethers.utils.formatEther(piAllowance);
                 
-                // 游戏要求
+                // 游戏要求 - 更正后的数值
                 const maoRequired = 100;
-                const piRequired = 1000;
+                const piRequired = 10000;  // 修正为10,000 PI
                 const maoAuthRequired = 1000;
-                const piAuthRequired = 10000;
+                const piAuthRequired = 100000;  // 修正为100,000 PI
                 
                 // 检查游戏可用性
                 const maoGameAvailable = maoBalance >= maoRequired && parseFloat(maoAllowanceFormatted) >= maoAuthRequired;
@@ -1220,6 +1247,53 @@
                 alert('❌ 余额测试失败: ' + error.message);
             }
         }
+
+        // 移动端触摸优化事件监听
+        connectBtn.addEventListener('click', connectWallet);
+        approveBtn.addEventListener('click', approveTokens);
+        spinBtn.addEventListener('click', startGame);
+        startGameBtn.addEventListener('click', startGame);
+        testBalanceBtn.addEventListener('click', testBalance);
+
+        // 代币选择按钮 - 移动端优化
+        maoBtn.addEventListener('click', async (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            console.log('MAO按钮被点击');
+            await selectToken('MAO');
+        });
+        
+        piBtn.addEventListener('click', async (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            console.log('PI按钮被点击');
+            await selectToken('PI');
+        });
+
+        // 添加触摸事件支持（移动端优化）
+        maoBtn.addEventListener('touchstart', (e) => {
+            console.log('MAO按钮触摸开始');
+            maoBtn.style.transform = 'scale(0.95)';
+        });
+        
+        maoBtn.addEventListener('touchend', async (e) => {
+            e.preventDefault();
+            console.log('MAO按钮触摸结束');
+            maoBtn.style.transform = '';
+            await selectToken('MAO');
+        });
+        
+        piBtn.addEventListener('touchstart', (e) => {
+            console.log('PI按钮触摸开始');
+            piBtn.style.transform = 'scale(0.95)';
+        });
+        
+        piBtn.addEventListener('touchend', async (e) => {
+            e.preventDefault();
+            console.log('PI按钮触摸结束');
+            piBtn.style.transform = '';
+            await selectToken('PI');
+        });
 
         // 事件监听
         connectBtn.addEventListener('click', connectWallet);
