@@ -6,7 +6,7 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <title>🎰 MAO转盘游戏 - AlveyChain 区块链游戏 v3.0</title>
+    <title>🎰 MAO转盘游戏 - AlveyChain 区块链游戏 v3.0.1</title>
     
     <!-- 强制缓存更新 -->
     <script>
@@ -40,11 +40,11 @@
         // 移动端兼容性修复
         document.addEventListener('DOMContentLoaded', function() {
             // 版本检查 - 强制清除缓存
-            const currentVersion = 'v3.0.20240708-fix';
+            const currentVersion = 'v3.0.1-professional';
             const lastVersion = localStorage.getItem('maogame_version');
             
             if (lastVersion !== currentVersion) {
-                console.log('🔄 检测到新版本v3.0，清除缓存...');
+                console.log('🔄 检测到v3.0.1专业版更新，清除缓存...');
                 localStorage.setItem('maogame_version', currentVersion);
                 
                 // 强制清除缓存的方法
@@ -58,7 +58,7 @@
                 
                 // 如果不是第一次加载，则刷新页面
                 if (lastVersion && lastVersion !== currentVersion) {
-                    alert('🎉 MAO转盘v3.0重大更新！\n\n🔥 全新特性：\n✅ PI投注：1,000 PI/次（修正）\n✅ 专业转盘设计：移除百分比\n✅ 40%中奖率：6级奖励系统\n✅ 移动端完美优化\n✅ 动画效果增强\n\n🚀 正在加载最新版本...');
+                    alert('🎉 MAO转盘v3.0.1专业修复版！\n\n✅ 关键修复：\n🔥 完全移除百分比显示\n🎨 纯专业转盘设计\n💎 奖励预览界面优化\n📱 移动端体验完善\n\n🚀 正在加载最新版本...');
                     setTimeout(() => {
                         window.location.href = window.location.href + '?v=' + Date.now();
                     }, 2000);
@@ -410,7 +410,7 @@
     
     <!-- 头部 -->
     <div class="glass-effect sticky top-0 z-50 px-4 py-3 text-center">
-        <h1 class="text-xl font-bold text-white">🎰 MAO转盘游戏 <span class="text-yellow-400 text-sm">v3.0</span></h1>
+        <h1 class="text-xl font-bold text-white">🎰 MAO转盘游戏 <span class="text-yellow-400 text-sm">v3.0.1</span></h1>
         <p class="text-xs text-blue-200">AlveyChain 区块链游戏 · 专业版</p>
     </div>
 
@@ -431,23 +431,23 @@
                 </button>
             </div>
             
-            <!-- 奖励预览 - 新奖励方案 -->
+            <!-- 奖励预览 - v3.0专业版（移除百分比） -->
             <div class="glass-effect rounded-xl p-4">
-                <h3 class="text-white font-semibold mb-3 text-center">💰 全新奖励方案 - 40%中奖率！</h3>
+                <h3 class="text-white font-semibold mb-3 text-center">💰 全新专业奖励系统！</h3>
                 <div class="grid grid-cols-2 gap-3 text-sm">
                     <div class="glass-effect rounded-lg p-3 text-center">
                         <div class="text-2xl mb-1">💫</div>
-                        <div class="text-yellow-400 font-bold">安慰奖 60%</div>
+                        <div class="text-yellow-400 font-bold">安慰奖</div>
                         <div class="text-white text-xs">50 MAO</div>
                     </div>
                     <div class="glass-effect rounded-lg p-3 text-center">
                         <div class="text-2xl mb-1">🎁</div>
-                        <div class="text-yellow-400 font-bold">小奖 20%</div>
+                        <div class="text-yellow-400 font-bold">小奖</div>
                         <div class="text-white text-xs">200 MAO</div>
                     </div>
                     <div class="glass-effect rounded-lg p-3 text-center">
                         <div class="text-2xl mb-1">🏆</div>
-                        <div class="text-yellow-400 font-bold">中奖 12%</div>
+                        <div class="text-yellow-400 font-bold">中奖</div>
                         <div class="text-white text-xs">500 MAO</div>
                     </div>
                     <div class="glass-effect rounded-lg p-3 text-center">
@@ -458,7 +458,7 @@
                 </div>
                 <div class="mt-3 text-center">
                     <p class="text-xs text-green-300">
-                        🎉 中奖率从15%提升到40%！最高奖励50倍！
+                        🎉 专业转盘设计 · 最高奖励50倍 · 即时到账！
                     </p>
                 </div>
             </div>
