@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>🎰 MAO转盘游戏 - AlveyChain 区块链游戏</title>
     
     <!-- Tailwind CSS CDN -->
@@ -10,6 +10,63 @@
     
     <!-- ethers.js CDN - 使用更稳定的版本 -->
     <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
+    
+    <!-- 移动端优化脚本 -->
+    <script>
+        // 移动端兼容性修复
+        document.addEventListener('DOMContentLoaded', function() {
+            // 禁用移动端的滚动弹性效果
+            document.body.style.overscrollBehavior = 'none';
+            
+            // 禁用双击缩放
+            let lastTouchEnd = 0;
+            document.addEventListener('touchend', function (event) {
+                let now = (new Date()).getTime();
+                if (now - lastTouchEnd <= 300) {
+                    event.preventDefault();
+                }
+                lastTouchEnd = now;
+            }, false);
+            
+            // 增强按钮点击响应
+            document.addEventListener('touchstart', function(e) {
+                if (e.target.tagName === 'BUTTON' || e.target.closest('button')) {
+                    e.target.style.opacity = '0.7';
+                }
+            });
+            
+            document.addEventListener('touchend', function(e) {
+                if (e.target.tagName === 'BUTTON' || e.target.closest('button')) {
+                    setTimeout(() => {
+                        e.target.style.opacity = '';
+                    }, 150);
+                }
+            });
+            
+            console.log('移动端优化脚本已加载');
+        });
+        
+        // 强制等待所有资源加载完成
+        window.addEventListener('load', function() {
+            console.log('页面完全加载完成');
+            
+            // 检查关键库是否加载
+            if (typeof ethers === 'undefined') {
+                console.error('ethers.js库未加载');
+                alert('⚠️ 正在加载区块链库...\n\n请稍等3秒后点击确定重试');
+                setTimeout(() => {
+                    location.reload();
+                }, 3000);
+                return;
+            }
+            
+            if (!window.ethereum) {
+                console.warn('未检测到Web3钱包');
+            }
+            
+            console.log('✅ 所有库加载完成，游戏准备就绪');
+        });
+    </script>
     
     <style>
         body {
@@ -299,6 +356,20 @@
                 </div>
             </div>
 
+            <!-- 移动端操作提示 -->
+            <div class="glass-effect rounded-xl p-4 bg-blue-500/20 border border-blue-400/30">
+                <div class="text-center">
+                    <div class="text-lg mb-2">📱</div>
+                    <h3 class="text-white font-semibold mb-2">移动端操作提示</h3>
+                    <ul class="text-blue-200 text-sm space-y-1 text-left">
+                        <li>• 确保使用支持Web3的钱包浏览器（如TP钱包）</li>
+                        <li>• 点击按钮时请稍等片刻等待响应</li>
+                        <li>• 如按钮无响应，请刷新页面重试</li>
+                        <li>• 建议在WiFi环境下使用</li>
+                    </ul>
+                </div>
+            </div>
+            
             <!-- 游戏说明 - 新奖励方案 -->
             <div class="glass-effect rounded-xl p-4">
                 <h3 class="text-white font-semibold mb-3 text-center">📖 游戏说明</h3>
@@ -1248,7 +1319,94 @@
             }
         }
 
-        // 移动端触摸优化事件监听
+        // 移动端触摸优化事件监听 - 增强版本
+        function addUniversalEventListener(element, callback, description) {
+            if (!element) {
+                console.error(`元素不存在: ${description}`);
+                return;
+            }
+            
+            console.log(`添加事件监听器: ${description}`);
+            
+            // 添加多种事件类型确保兼容性
+            ['click', 'touchend'].forEach(eventType => {
+                element.addEventListener(eventType, function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    console.log(`${description} 被${eventType}触发`);
+                    callback();
+                }, { passive: false });
+            });
+            
+            // 添加视觉反馈
+            element.addEventListener('touchstart', function(e) {
+                console.log(`${description} 触摸开始`);
+                e.target.style.transform = 'scale(0.95)';
+                e.target.style.opacity = '0.8';
+            }, { passive: true });
+            
+            element.addEventListener('touchend', function(e) {
+                console.log(`${description} 触摸结束`);
+                setTimeout(() => {
+                    e.target.style.transform = '';
+                    e.target.style.opacity = '';
+                }, 150);
+            }, { passive: true });
+        }
+
+        // 等待DOM加载完成后绑定事件
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('开始绑定按钮事件...');
+            
+            setTimeout(() => {
+                // 绑定所有按钮事件
+                addUniversalEventListener(
+                    document.getElementById('connectBtn'), 
+                    connectWallet, 
+                    '连接钱包按钮'
+                );
+                
+                addUniversalEventListener(
+                    document.getElementById('approveBtn'), 
+                    approveTokens, 
+                    '授权按钮'
+                );
+                
+                addUniversalEventListener(
+                    document.getElementById('spinBtn'), 
+                    startGame, 
+                    '转盘按钮'
+                );
+                
+                addUniversalEventListener(
+                    document.getElementById('startGameBtn'), 
+                    startGame, 
+                    '开始游戏按钮'
+                );
+                
+                addUniversalEventListener(
+                    document.getElementById('testBalanceBtn'), 
+                    testBalance, 
+                    '测试余额按钮'
+                );
+                
+                // 代币选择按钮 - 特殊处理
+                addUniversalEventListener(
+                    document.getElementById('maoBtn'), 
+                    () => selectToken('MAO'), 
+                    'MAO代币按钮'
+                );
+                
+                addUniversalEventListener(
+                    document.getElementById('piBtn'), 
+                    () => selectToken('PI'), 
+                    'PI代币按钮'
+                );
+                
+                console.log('✅ 所有按钮事件绑定完成');
+            }, 500);
+        });
+
         connectBtn.addEventListener('click', connectWallet);
         approveBtn.addEventListener('click', approveTokens);
         spinBtn.addEventListener('click', startGame);
