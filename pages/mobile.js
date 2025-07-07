@@ -2,19 +2,19 @@ import { useState, useEffect } from 'react';
 import { ethers } from 'ethers';
 
 // 智能合约ABI
-const WHEEL_GAME_ABI = [
+  const WHEEL_GAME_ABI = [
   "function playMAOGame() external",
   "function playPIGame() external",
-  "function getPlayerHistory(address player) external view returns (tuple(address player, uint8 tokenType, uint256 betAmount, uint256 rewardAmount, uint8 rewardLevel, uint256 timestamp, uint256 randomSeed)[])",
-  "function getRewardLevelName(uint8 level) external pure returns (string)",
-  "event GamePlayed(address indexed player, uint8 tokenType, uint256 betAmount, uint256 rewardAmount, uint8 rewardLevel, uint256 randomSeed)"
-];
+    "function getPlayerHistory(address player) external view returns (tuple(address player, uint8 tokenType, uint256 betAmount, uint256 rewardAmount, uint8 rewardLevel, uint256 timestamp, uint256 randomSeed)[])",
+    "function getRewardLevelName(uint8 level) external pure returns (string)",
+    "event GamePlayed(address indexed player, uint8 tokenType, uint256 betAmount, uint256 rewardAmount, uint8 rewardLevel, uint256 randomSeed)"
+  ];
 
-const ERC20_ABI = [
-  "function balanceOf(address owner) view returns (uint256)",
-  "function approve(address spender, uint256 amount) returns (bool)",
-  "function allowance(address owner, address spender) view returns (uint256)"
-];
+  const ERC20_ABI = [
+    "function balanceOf(address owner) view returns (uint256)",
+    "function approve(address spender, uint256 amount) returns (bool)",
+    "function allowance(address owner, address spender) view returns (uint256)"
+  ];
 
 // 合约地址
 const CONTRACTS = {
@@ -117,10 +117,10 @@ export default function MobileGame() {
         const signer = await provider.getSigner();
         
         setAccount(accounts[0]);
-        setProvider(provider);
-        setSigner(signer);
-
-        await initializeContracts(signer);
+      setProvider(provider);
+      setSigner(signer);
+      
+      await initializeContracts(signer);
         await loadBalances(accounts[0], signer);
         await loadGameHistory(accounts[0]);
         await checkApproval(accounts[0], signer);
@@ -300,7 +300,7 @@ export default function MobileGame() {
 
       // 保存游戏历史
       const newGame = {
-        id: Date.now(),
+      id: Date.now(),
         token: selectedToken,
         betAmount: selectedToken === 'MAO' ? 100 : 10000,
         rewardAmount: gameResult.amount,
@@ -439,7 +439,7 @@ export default function MobileGame() {
               </div>
             </div>
 
-            {/* 代币选择 */}
+        {/* 代币选择 */}
             <div className="bg-white/10 backdrop-blur-lg rounded-xl p-4">
               <h3 className="text-white font-semibold mb-3 text-center">选择游戏代币</h3>
               <div className="grid grid-cols-2 gap-3">
@@ -515,9 +515,9 @@ export default function MobileGame() {
                     {/* 转盘指针 */}
                     <div className="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-2 z-10">
                       <div className="w-0 h-0 border-l-6 border-r-6 border-b-12 border-l-transparent border-r-transparent border-b-yellow-400 drop-shadow-lg"></div>
-                    </div>
-                  </div>
-                  
+          </div>
+        </div>
+
                   {/* 中心按钮 */}
                   <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
                     <button
@@ -610,7 +610,7 @@ export default function MobileGame() {
                   </div>
                 ))}
               </div>
-            </div>
+        </div>
 
             {/* 功能按钮 */}
             <div className="grid grid-cols-2 gap-3">
@@ -638,19 +638,19 @@ export default function MobileGame() {
                   <div className="space-y-2 max-h-60 overflow-y-auto">
                     {gameHistory.slice(0, 10).map((game) => (
                       <div key={game.id} className="bg-white/10 rounded-lg p-3">
-                        <div className="flex justify-between items-center">
+                      <div className="flex justify-between items-center">
                           <div className="flex items-center">
                             <div className="text-lg mr-2">
                               {REWARD_LEVELS[game.rewardLevel]?.emoji || '🎰'}
                             </div>
-                            <div>
+                        <div>
                               <div className="text-white font-medium text-sm">
                                 {REWARD_LEVELS[game.rewardLevel]?.name || '未知'}
                               </div>
                               <div className="text-blue-300 text-xs">
                                 {game.token} · {new Date(game.timestamp).toLocaleTimeString()}
-                              </div>
-                            </div>
+                          </div>
+                        </div>
                           </div>
                           <div className="text-right">
                             <div className={`font-bold ${
@@ -671,9 +671,9 @@ export default function MobileGame() {
                             查看交易 →
                           </button>
                         )}
-                      </div>
-                    ))}
-                  </div>
+                    </div>
+                  ))}
+                </div>
                 ) : (
                   <p className="text-blue-200 text-center py-8">
                     暂无游戏记录
@@ -685,9 +685,9 @@ export default function MobileGame() {
             )}
           </div>
         )}
-      </div>
+        </div>
 
-      {/* 底部信息 */}
+        {/* 底部信息 */}
       <div className="fixed bottom-0 left-0 right-0 bg-black/50 backdrop-blur-lg p-3 text-center">
         <p className="text-blue-200 text-xs">
           基于 AlveyChain 智能合约 · 公平透明 · 立即到账
