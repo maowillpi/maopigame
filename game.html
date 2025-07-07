@@ -192,6 +192,54 @@
             transform-origin: center;
             z-index: 3;
         }
+        
+        /* 多人互动功能样式 */
+        .multiplayer-panel {
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 215, 0, 0.3);
+        }
+        
+        .online-indicator {
+            animation: pulse-green 2s infinite;
+        }
+        
+        @keyframes pulse-green {
+            0%, 100% { opacity: 1; box-shadow: 0 0 5px #10b981; }
+            50% { opacity: 0.7; box-shadow: 0 0 15px #10b981; }
+        }
+        
+        .chat-message {
+            animation: slideInFromRight 0.5s ease-out;
+        }
+        
+        @keyframes slideInFromRight {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        
+        .recent-win {
+            animation: goldGlow 2s ease-in-out;
+        }
+        
+        @keyframes goldGlow {
+            0%, 100% { box-shadow: 0 0 5px rgba(255, 215, 0, 0.3); }
+            50% { box-shadow: 0 0 15px rgba(255, 215, 0, 0.8); }
+        }
+        
+        .leaderboard-item {
+            transition: all 0.3s ease;
+        }
+        
+        .leaderboard-item:hover {
+            background: rgba(255, 215, 0, 0.1);
+            transform: translateX(5px);
+        }
+        
+        .nickname-badge {
+            background: linear-gradient(45deg, #3b82f6, #1d4ed8);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
     </style>
 </head>
 <body class="bg-gradient min-h-screen">
@@ -471,6 +519,73 @@
                     >
                         🎮 开始游戏
                     </button>
+                </div>
+            </div>
+
+            <!-- 多人互动功能 -->
+            <div class="space-y-4">
+                
+                <!-- 在线状态和玩家昵称 -->
+                <div class="glass-effect rounded-xl p-4">
+                    <div class="flex justify-between items-center mb-3">
+                        <div class="flex items-center gap-2">
+                            <div class="w-3 h-3 bg-green-500 rounded-full online-indicator"></div>
+                            <span class="text-white font-semibold">在线状态</span>
+                            <span class="text-green-400 font-bold" id="onlineCount">42</span>
+                            <span class="text-blue-200 text-sm">人在线</span>
+                        </div>
+                        <button id="setNicknameBtn" class="nickname-badge text-white text-xs px-3 py-1 rounded-full">
+                            <span id="currentNickname">设置昵称</span>
+                        </button>
+                    </div>
+                    <div class="text-xs text-blue-200">
+                        🎮 当前活跃玩家: <span id="activePlayer" class="text-yellow-400">MAO***88</span> 刚刚获得了 <span class="text-green-400">2,500 MAO</span>！
+                    </div>
+                </div>
+
+                <!-- 实时排行榜 -->
+                <div class="glass-effect rounded-xl p-4">
+                    <h3 class="text-white font-semibold mb-3 text-center flex items-center justify-center gap-2">
+                        🏆 今日排行榜
+                        <span class="text-xs text-blue-300">(实时更新)</span>
+                    </h3>
+                    <div id="leaderboard" class="space-y-2">
+                        <!-- 排行榜内容将通过JavaScript动态生成 -->
+                    </div>
+                </div>
+
+                <!-- 最近中奖记录 -->
+                <div class="glass-effect rounded-xl p-4">
+                    <h3 class="text-white font-semibold mb-3 text-center flex items-center justify-center gap-2">
+                        ⚡ 最近中奖
+                        <span class="text-xs text-blue-300">(每5秒更新)</span>
+                    </h3>
+                    <div id="recentWins" class="space-y-2 max-h-40 overflow-y-auto">
+                        <!-- 最近中奖记录将通过JavaScript动态生成 -->
+                    </div>
+                </div>
+
+                <!-- 实时聊天 -->
+                <div class="glass-effect rounded-xl p-4">
+                    <h3 class="text-white font-semibold mb-3 text-center">💬 玩家聊天</h3>
+                    <div id="chatMessages" class="space-y-2 max-h-32 overflow-y-auto mb-3">
+                        <!-- 聊天消息将通过JavaScript动态生成 -->
+                    </div>
+                    <div class="flex gap-2">
+                        <input 
+                            type="text" 
+                            id="chatInput" 
+                            placeholder="输入消息... (回车发送)" 
+                            maxlength="50"
+                            class="flex-1 bg-white/10 border border-white/20 rounded-lg px-3 py-2 text-white text-sm placeholder-blue-300 focus:outline-none focus:border-yellow-400"
+                        >
+                        <button 
+                            id="sendChatBtn"
+                            class="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-4 py-2 rounded-lg text-sm font-bold transition-all"
+                        >
+                            发送
+                        </button>
+                    </div>
                 </div>
             </div>
 
@@ -899,6 +1014,37 @@
                     if (amount > 0) {
                         resultText.textContent += ` (+${amount} ${selectedToken})`;
                         alert(`🎉 恭喜！获得 ${reward.name}！\n奖励: ${amount} ${selectedToken}\n✅ 奖励已自动转入您的钱包！`);
+                        
+                        // 添加到多人互动系统
+                        if (typeof addRecentWin === 'function' && multiplayerData && multiplayerData.nickname) {
+                            setTimeout(() => {
+                                addRecentWin(multiplayerData.nickname, amount, selectedToken, true);
+                            }, 500);
+                        }
+                        
+                        // 添加胜利聊天消息
+                        if (typeof addChatMessage === 'function' && multiplayerData && multiplayerData.nickname) {
+                            const levelMessages = {
+                                0: '小小收获也是好运气！💫',
+                                1: '不错的手气！🎁',
+                                2: '中奖了，继续加油！🏆',
+                                3: '大奖来了！手气真棒！💎',
+                                4: '超级大奖！！！太幸运了！🌟',
+                                5: '终极大奖！！！传说级运气！💰'
+                            };
+                            
+                            // 找到对应的奖励等级
+                            let rewardLevel = 0;
+                            if (amount >= 5000) rewardLevel = 5;
+                            else if (amount >= 2500) rewardLevel = 4;
+                            else if (amount >= 1200) rewardLevel = 3;
+                            else if (amount >= 500) rewardLevel = 2;
+                            else if (amount >= 200) rewardLevel = 1;
+                            
+                            setTimeout(() => {
+                                addChatMessage(multiplayerData.nickname, levelMessages[rewardLevel] || '中奖了！', 'user');
+                            }, 1000);
+                        }
                     } else {
                         alert('😅 谢谢惠顾！再试一次吧！');
                     }
@@ -1113,6 +1259,314 @@
                 location.reload();
             });
         }
+
+        // ===== 多人互动功能系统 =====
+        
+        // 多人功能状态
+        let multiplayerData = {
+            nickname: localStorage.getItem('mao_nickname') || '',
+            onlineCount: 42,
+            leaderboard: [],
+            recentWins: [],
+            chatMessages: []
+        };
+
+        // 随机玩家名称生成器
+        const playerNames = ['MAO***', 'PI***', 'ALV***', 'Game***', 'Lucky***', 'Win***', 'Big***', 'Gold***'];
+        const numberSuffixes = ['88', '99', '66', '77', '168', '888', '666', '777', '999'];
+
+        function generateRandomPlayer() {
+            const name = playerNames[Math.floor(Math.random() * playerNames.length)];
+            const number = numberSuffixes[Math.floor(Math.random() * numberSuffixes.length)];
+            return name + number;
+        }
+
+        // 昵称设置功能
+        function setupNickname() {
+            const setNicknameBtn = document.getElementById('setNicknameBtn');
+            const currentNickname = document.getElementById('currentNickname');
+            
+            if (multiplayerData.nickname) {
+                currentNickname.textContent = multiplayerData.nickname;
+            }
+            
+            setNicknameBtn.addEventListener('click', () => {
+                const nickname = prompt('设置您的游戏昵称 (最多8个字符):', multiplayerData.nickname);
+                if (nickname && nickname.trim() && nickname.length <= 8) {
+                    multiplayerData.nickname = nickname.trim();
+                    localStorage.setItem('mao_nickname', multiplayerData.nickname);
+                    currentNickname.textContent = multiplayerData.nickname;
+                    
+                    // 发送系统消息
+                    addChatMessage('系统', `欢迎 ${multiplayerData.nickname} 加入游戏！`, 'system');
+                }
+            });
+        }
+
+        // 在线人数模拟
+        function updateOnlineCount() {
+            const onlineCountEl = document.getElementById('onlineCount');
+            // 模拟在线人数波动 (30-60人)
+            multiplayerData.onlineCount = 30 + Math.floor(Math.random() * 31);
+            onlineCountEl.textContent = multiplayerData.onlineCount;
+        }
+
+        // 排行榜功能
+        function generateLeaderboard() {
+            const leaderboard = [];
+            for (let i = 0; i < 5; i++) {
+                leaderboard.push({
+                    rank: i + 1,
+                    player: generateRandomPlayer(),
+                    wins: Math.floor(Math.random() * 50) + 10,
+                    amount: Math.floor(Math.random() * 10000) + 1000
+                });
+            }
+            // 按奖励金额排序
+            leaderboard.sort((a, b) => b.amount - a.amount);
+            multiplayerData.leaderboard = leaderboard;
+            renderLeaderboard();
+        }
+
+        function renderLeaderboard() {
+            const leaderboardEl = document.getElementById('leaderboard');
+            leaderboardEl.innerHTML = multiplayerData.leaderboard.map((player, index) => `
+                <div class="leaderboard-item flex justify-between items-center p-2 rounded-lg ${index === 0 ? 'bg-yellow-500/20' : 'bg-white/5'}">
+                    <div class="flex items-center gap-2">
+                        <span class="text-yellow-400 font-bold text-lg">${index === 0 ? '👑' : '#' + player.rank}</span>
+                        <span class="text-white font-semibold">${player.player}</span>
+                    </div>
+                    <div class="text-right">
+                        <div class="text-green-400 font-bold">${player.amount.toLocaleString()} MAO</div>
+                        <div class="text-blue-300 text-xs">${player.wins} 次中奖</div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // 最近中奖记录
+        function addRecentWin(player, amount, token, isUser = false) {
+            const win = {
+                id: Date.now(),
+                player: player || generateRandomPlayer(),
+                amount,
+                token,
+                timestamp: new Date(),
+                isUser
+            };
+            
+            multiplayerData.recentWins.unshift(win);
+            if (multiplayerData.recentWins.length > 10) {
+                multiplayerData.recentWins.pop();
+            }
+            
+            renderRecentWins();
+            
+            // 更新活跃玩家显示
+            if (!isUser) {
+                updateActivePlayer(win);
+            }
+        }
+
+        function renderRecentWins() {
+            const recentWinsEl = document.getElementById('recentWins');
+            recentWinsEl.innerHTML = multiplayerData.recentWins.map(win => `
+                <div class="recent-win flex justify-between items-center p-2 rounded-lg bg-white/5 ${win.isUser ? 'border border-yellow-400' : ''}">
+                    <div class="flex items-center gap-2">
+                        <span class="text-${win.amount > 1000 ? 'yellow' : 'green'}-400">${getRewardEmoji(win.amount)}</span>
+                        <span class="text-white font-semibold">${win.player}</span>
+                        ${win.isUser ? '<span class="text-yellow-400 text-xs">(你)</span>' : ''}
+                    </div>
+                    <div class="text-right">
+                        <div class="text-green-400 font-bold">+${win.amount} ${win.token}</div>
+                        <div class="text-blue-300 text-xs">${getTimeAgo(win.timestamp)}</div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function getRewardEmoji(amount) {
+            if (amount >= 3000) return '💰';
+            if (amount >= 1500) return '🌟';
+            if (amount >= 800) return '💎';
+            if (amount >= 400) return '🏆';
+            if (amount >= 150) return '🎁';
+            return '💫';
+        }
+
+        function getTimeAgo(timestamp) {
+            const seconds = Math.floor((new Date() - timestamp) / 1000);
+            if (seconds < 60) return '刚刚';
+            if (seconds < 3600) return Math.floor(seconds / 60) + '分钟前';
+            return Math.floor(seconds / 3600) + '小时前';
+        }
+
+        function updateActivePlayer(win) {
+            const activePlayerEl = document.getElementById('activePlayer');
+            const activeAmount = document.querySelector('#activePlayer').parentElement;
+            activePlayerEl.textContent = win.player;
+            const amountSpan = activeAmount.querySelector('.text-green-400');
+            amountSpan.textContent = `${win.amount} ${win.token}`;
+        }
+
+        // 聊天系统
+        function setupChat() {
+            const chatInput = document.getElementById('chatInput');
+            const sendChatBtn = document.getElementById('sendChatBtn');
+            
+            // 回车发送
+            chatInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    sendMessage();
+                }
+            });
+            
+            // 点击发送
+            sendChatBtn.addEventListener('click', sendMessage);
+            
+            function sendMessage() {
+                const message = chatInput.value.trim();
+                if (message && multiplayerData.nickname) {
+                    addChatMessage(multiplayerData.nickname, message, 'user');
+                    chatInput.value = '';
+                    
+                    // 模拟其他玩家回复
+                    setTimeout(() => {
+                        const responses = [
+                            '好运！', '恭喜！', '我也要试试', '厉害！', '再来一把',
+                            '手气真好', '分享一下运气', '下注了！', '一起赢大奖',
+                            '太幸运了', '继续加油', '祝好运！'
+                        ];
+                        const randomResponse = responses[Math.floor(Math.random() * responses.length)];
+                        addChatMessage(generateRandomPlayer(), randomResponse, 'other');
+                    }, 1000 + Math.random() * 3000);
+                }
+            }
+        }
+
+        function addChatMessage(player, message, type) {
+            const chatMessage = {
+                id: Date.now(),
+                player,
+                message,
+                type,
+                timestamp: new Date()
+            };
+            
+            multiplayerData.chatMessages.unshift(chatMessage);
+            if (multiplayerData.chatMessages.length > 20) {
+                multiplayerData.chatMessages.pop();
+            }
+            
+            renderChatMessages();
+        }
+
+        function renderChatMessages() {
+            const chatMessagesEl = document.getElementById('chatMessages');
+            chatMessagesEl.innerHTML = multiplayerData.chatMessages.slice(0, 10).map(msg => `
+                <div class="chat-message p-2 rounded-lg ${msg.type === 'user' ? 'bg-blue-500/20' : msg.type === 'system' ? 'bg-green-500/20' : 'bg-white/5'}">
+                    <div class="flex justify-between items-start">
+                        <div class="flex-1">
+                            <span class="text-${msg.type === 'user' ? 'blue' : msg.type === 'system' ? 'green' : 'yellow'}-400 font-semibold text-sm">${msg.player}:</span>
+                            <span class="text-white text-sm ml-2">${msg.message}</span>
+                        </div>
+                        <span class="text-blue-300 text-xs">${getTimeAgo(msg.timestamp)}</span>
+                    </div>
+                </div>
+            `).reverse().join('');
+            
+            // 自动滚动到底部
+            chatMessagesEl.scrollTop = chatMessagesEl.scrollHeight;
+        }
+
+        // 生成随机聊天消息
+        function generateRandomChatMessages() {
+            const messages = [
+                '刚刚中了大奖！', '运气不错啊', '继续下注', '这个游戏很好玩',
+                '希望下把能中', '手气来了', '加油加油', '今天运气很好',
+                '转盘真刺激', '期待大奖', '一起玩游戏', '祝大家好运'
+            ];
+            
+            const message = messages[Math.floor(Math.random() * messages.length)];
+            addChatMessage(generateRandomPlayer(), message, 'other');
+        }
+
+        // 生成随机活动
+        function generateRandomActivity() {
+            // 随机中奖
+            if (Math.random() < 0.3) {
+                const amounts = [50, 200, 500, 1200, 2500, 5000];
+                const amount = amounts[Math.floor(Math.random() * amounts.length)];
+                addRecentWin(null, amount, 'MAO');
+            }
+            
+            // 随机聊天
+            if (Math.random() < 0.2) {
+                generateRandomChatMessages();
+            }
+        }
+
+        // 初始化多人功能
+        function initMultiplayer() {
+            setupNickname();
+            setupChat();
+            generateLeaderboard();
+            
+            // 添加一些初始数据
+            for (let i = 0; i < 5; i++) {
+                const amounts = [50, 200, 500, 1200, 2500];
+                const amount = amounts[Math.floor(Math.random() * amounts.length)];
+                const timestamp = new Date(Date.now() - Math.random() * 3600000); // 过去1小时内
+                multiplayerData.recentWins.push({
+                    id: Date.now() + i,
+                    player: generateRandomPlayer(),
+                    amount,
+                    token: 'MAO',
+                    timestamp,
+                    isUser: false
+                });
+            }
+            renderRecentWins();
+            
+            // 添加初始聊天消息
+            const welcomeMessages = [
+                { player: '系统', message: '欢迎来到MAO转盘游戏！', type: 'system' },
+                { player: 'MAO***88', message: '大家一起来玩转盘游戏！', type: 'other' },
+                { player: 'Lucky***168', message: '刚刚中了2500 MAO，手气不错！', type: 'other' }
+            ];
+            
+            welcomeMessages.forEach(msg => {
+                addChatMessage(msg.player, msg.message, msg.type);
+            });
+            
+            // 定时更新
+            setInterval(() => {
+                updateOnlineCount();
+                generateRandomActivity();
+            }, 5000);
+            
+            // 定时更新排行榜
+            setInterval(() => {
+                generateLeaderboard();
+            }, 30000);
+        }
+
+        // 游戏结果处理增强
+        const originalStartGame = startGame;
+        startGame = async function() {
+            await originalStartGame();
+            
+            // 如果用户有昵称且游戏成功，添加到最近中奖
+            if (multiplayerData.nickname && !isSpinning) {
+                // 这里可以在游戏成功后调用
+                // addRecentWin(multiplayerData.nickname, rewardAmount, selectedToken, true);
+            }
+        };
+
+        // 页面加载完成后初始化多人功能
+        window.addEventListener('load', () => {
+            setTimeout(initMultiplayer, 1000);
+        });
     </script>
 </body>
 </html> 
