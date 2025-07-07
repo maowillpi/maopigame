@@ -8,6 +8,27 @@
     <meta http-equiv="Expires" content="0">
     <title>🎰 MAO转盘游戏 - AlveyChain 区块链游戏 v3.0</title>
     
+    <!-- 强制缓存更新 -->
+    <script>
+        // 强制清除所有缓存
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.getRegistrations().then(function(registrations) {
+                for(let registration of registrations) {
+                    registration.unregister();
+                }
+            });
+        }
+        
+        // 强制刷新页面缓存
+        if (performance.navigation.type === 1) {
+            console.log('页面被刷新，清除缓存');
+        }
+        
+        // 添加时间戳到所有资源
+        const timestamp = Date.now();
+        console.log('v3.0 强制缓存更新时间戳:', timestamp);
+    </script>
+    
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     
@@ -37,9 +58,9 @@
                 
                 // 如果不是第一次加载，则刷新页面
                 if (lastVersion && lastVersion !== currentVersion) {
-                    alert('🚀 检测到MAO转盘v3.0新版本！\n\n✅ PI投注：1,000 PI/次\n✅ 全新转盘设计\n✅ 40%中奖率\n✅ 移动端优化\n\n正在更新...');
+                    alert('🎉 MAO转盘v3.0重大更新！\n\n🔥 全新特性：\n✅ PI投注：1,000 PI/次（修正）\n✅ 专业转盘设计：移除百分比\n✅ 40%中奖率：6级奖励系统\n✅ 移动端完美优化\n✅ 动画效果增强\n\n🚀 正在加载最新版本...');
                     setTimeout(() => {
-                        window.location.reload(true);
+                        window.location.href = window.location.href + '?v=' + Date.now();
                     }, 2000);
                     return;
                 }
@@ -389,8 +410,8 @@
     
     <!-- 头部 -->
     <div class="glass-effect sticky top-0 z-50 px-4 py-3 text-center">
-        <h1 class="text-xl font-bold text-white">🎰 MAO转盘游戏</h1>
-        <p class="text-xs text-blue-200">AlveyChain 区块链游戏</p>
+        <h1 class="text-xl font-bold text-white">🎰 MAO转盘游戏 <span class="text-yellow-400 text-sm">v3.0</span></h1>
+        <p class="text-xs text-blue-200">AlveyChain 区块链游戏 · 专业版</p>
     </div>
 
     <!-- 主要内容 -->
