@@ -6,7 +6,7 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <title>🎰 MAO转盘游戏 - AlveyChain 区块链游戏 v2.1</title>
+    <title>🎰 MAO转盘游戏 - AlveyChain 区块链游戏 v3.0</title>
     
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -19,11 +19,11 @@
         // 移动端兼容性修复
         document.addEventListener('DOMContentLoaded', function() {
             // 版本检查 - 强制清除缓存
-            const currentVersion = 'v2.1.20240708';
+            const currentVersion = 'v3.0.20240708-fix';
             const lastVersion = localStorage.getItem('maogame_version');
             
             if (lastVersion !== currentVersion) {
-                console.log('🔄 检测到新版本，清除缓存...');
+                console.log('🔄 检测到新版本v3.0，清除缓存...');
                 localStorage.setItem('maogame_version', currentVersion);
                 
                 // 强制清除缓存的方法
@@ -37,10 +37,10 @@
                 
                 // 如果不是第一次加载，则刷新页面
                 if (lastVersion && lastVersion !== currentVersion) {
-                    alert('🔄 检测到新版本，正在更新...');
+                    alert('🚀 检测到MAO转盘v3.0新版本！\n\n✅ PI投注：1,000 PI/次\n✅ 全新转盘设计\n✅ 40%中奖率\n✅ 移动端优化\n\n正在更新...');
                     setTimeout(() => {
                         window.location.reload(true);
-                    }, 1000);
+                    }, 2000);
                     return;
                 }
             }
@@ -140,144 +140,200 @@
             border: 1px solid rgba(255, 255, 255, 0.2);
         }
         
-        /* 专业转盘设计 */
+        /* 专业转盘设计v3.0 - 更高级和有趣 */
         .professional-wheel {
             background: conic-gradient(
                 from 0deg,
-                #1e3a8a 0deg 60deg,
-                #fbbf24 60deg 120deg,
-                #dc2626 120deg 180deg,
-                #7c3aed 180deg 240deg,
-                #059669 240deg 300deg,
-                #ea580c 300deg 360deg
+                #FF6B6B 0deg 60deg,   /* 安慰奖 - 温暖红色 */
+                #4ECDC4 60deg 120deg, /* 小奖 - 青绿色 */
+                #45B7D1 120deg 180deg, /* 中奖 - 蓝色 */
+                #96CEB4 180deg 240deg, /* 大奖 - 薄荷绿 */
+                #FFEAA7 240deg 300deg, /* 超级大奖 - 金黄色 */
+                #DDA0DD 300deg 360deg  /* 终极大奖 - 紫色 */
             );
-            border: 6px solid #ffd700;
+            border: 8px solid #FFD700;
             box-shadow: 
-                0 0 30px rgba(255, 215, 0, 0.5),
-                inset 0 0 20px rgba(0, 0, 0, 0.3),
-                0 0 60px rgba(255, 215, 0, 0.3);
+                0 0 40px rgba(255, 215, 0, 0.6),
+                inset 0 0 30px rgba(0, 0, 0, 0.2),
+                0 0 80px rgba(255, 215, 0, 0.4),
+                0 0 120px rgba(255, 255, 255, 0.1);
             position: relative;
+            animation: wheelGlow 3s ease-in-out infinite alternate;
+        }
+        
+        @keyframes wheelGlow {
+            0% { 
+                box-shadow: 
+                    0 0 40px rgba(255, 215, 0, 0.6),
+                    inset 0 0 30px rgba(0, 0, 0, 0.2),
+                    0 0 80px rgba(255, 215, 0, 0.4);
+            }
+            100% { 
+                box-shadow: 
+                    0 0 60px rgba(255, 215, 0, 0.8),
+                    inset 0 0 30px rgba(0, 0, 0, 0.2),
+                    0 0 100px rgba(255, 215, 0, 0.6);
+            }
         }
         
         .professional-wheel::before {
             content: '';
             position: absolute;
-            top: 10px;
-            left: 10px;
-            right: 10px;
-            bottom: 10px;
+            top: 15px;
+            left: 15px;
+            right: 15px;
+            bottom: 15px;
             border-radius: 50%;
-            border: 2px solid rgba(255, 255, 255, 0.3);
+            border: 3px solid rgba(255, 255, 255, 0.4);
             z-index: 1;
+            box-shadow: inset 0 0 20px rgba(255, 255, 255, 0.2);
         }
         
-        /* MAO Logo 设计 */
+        /* MAO Logo 设计v3.0 */
         .mao-logo {
             position: absolute;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            width: 60px;
-            height: 60px;
-            background: linear-gradient(135deg, #3b82f6, #1d4ed8, #1e40af);
-            border-radius: 12px;
+            width: 70px;
+            height: 70px;
+            background: linear-gradient(135deg, #667eea, #764ba2, #f093fb);
+            border-radius: 15px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 28px;
+            font-size: 32px;
             font-weight: 900;
             color: white;
             text-shadow: 
-                0 2px 4px rgba(0, 0, 0, 0.5),
-                0 0 10px rgba(59, 130, 246, 0.5);
+                0 3px 6px rgba(0, 0, 0, 0.6),
+                0 0 15px rgba(102, 126, 234, 0.8);
             box-shadow: 
-                0 8px 16px rgba(0, 0, 0, 0.3),
-                inset 0 2px 4px rgba(255, 255, 255, 0.2),
-                0 0 20px rgba(59, 130, 246, 0.4);
-            border: 2px solid rgba(255, 255, 255, 0.3);
+                0 10px 20px rgba(0, 0, 0, 0.4),
+                inset 0 3px 6px rgba(255, 255, 255, 0.3),
+                0 0 30px rgba(102, 126, 234, 0.5);
+            border: 3px solid rgba(255, 255, 255, 0.5);
             z-index: 15;
+            animation: logoSpin 8s linear infinite;
+        }
+        
+        @keyframes logoSpin {
+            0% { transform: translate(-50%, -50%) rotate(0deg); }
+            100% { transform: translate(-50%, -50%) rotate(360deg); }
         }
         
         .mao-logo::before {
             content: '';
             position: absolute;
-            top: -3px;
-            left: -3px;
-            right: -3px;
-            bottom: -3px;
-            background: linear-gradient(45deg, #ffd700, #ffed4e);
-            border-radius: 15px;
+            top: -4px;
+            left: -4px;
+            right: -4px;
+            bottom: -4px;
+            background: linear-gradient(45deg, #FFD700, #FFA500, #FFD700);
+            border-radius: 20px;
             z-index: -1;
+            animation: goldRing 2s ease-in-out infinite alternate;
         }
         
-        /* 转盘区域增强 */
+        @keyframes goldRing {
+            0% { opacity: 0.6; transform: scale(1); }
+            100% { opacity: 1; transform: scale(1.05); }
+        }
+        
+        /* 转盘区域增强v3.0 */
         .wheel-section {
             position: absolute;
             color: white;
             font-weight: bold;
-            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
+            text-shadow: 0 3px 6px rgba(0, 0, 0, 0.8);
             z-index: 5;
+            transition: all 0.3s ease;
+        }
+        
+        .wheel-section:hover {
+            transform: scale(1.1);
         }
         
         .wheel-section .emoji {
-            font-size: 32px;
-            margin-bottom: 4px;
-            text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+            font-size: 36px;
+            margin-bottom: 6px;
+            text-shadow: 0 0 15px rgba(255, 255, 255, 0.8);
+            animation: emojiFloat 2s ease-in-out infinite alternate;
+        }
+        
+        @keyframes emojiFloat {
+            0% { transform: translateY(0px); }
+            100% { transform: translateY(-3px); }
         }
         
         .wheel-section .reward-badge {
-            background: rgba(0, 0, 0, 0.8);
-            border: 2px solid #ffd700;
-            border-radius: 8px;
-            padding: 2px 6px;
-            font-size: 12px;
-            color: #ffd700;
-            font-weight: bold;
-            text-shadow: 0 0 5px rgba(255, 215, 0, 0.8);
-            box-shadow: 0 0 10px rgba(255, 215, 0, 0.3);
+            background: linear-gradient(135deg, rgba(0, 0, 0, 0.9), rgba(0, 0, 0, 0.7));
+            border: 3px solid #FFD700;
+            border-radius: 12px;
+            padding: 4px 8px;
+            font-size: 14px;
+            font-weight: 900;
+            color: #FFD700;
+            text-shadow: 0 0 8px rgba(255, 215, 0, 1);
+            box-shadow: 
+                0 0 15px rgba(255, 215, 0, 0.5),
+                inset 0 2px 4px rgba(255, 255, 255, 0.2);
+            animation: badgePulse 2s ease-in-out infinite;
         }
         
-        /* 专业指针设计 */
+        @keyframes badgePulse {
+            0%, 100% { box-shadow: 0 0 15px rgba(255, 215, 0, 0.5); }
+            50% { box-shadow: 0 0 25px rgba(255, 215, 0, 0.8); }
+        }
+        
+        /* 专业指针设计v3.0 */
         .professional-pointer {
             position: absolute;
-            top: -8px;
+            top: -12px;
             left: 50%;
             transform: translateX(-50%);
             z-index: 20;
+            animation: pointerBounce 1s ease-in-out infinite alternate;
+        }
+        
+        @keyframes pointerBounce {
+            0% { transform: translateX(-50%) translateY(0px); }
+            100% { transform: translateX(-50%) translateY(-2px); }
         }
         
         .professional-pointer::before {
             content: '';
             width: 0;
             height: 0;
-            border-left: 20px solid transparent;
-            border-right: 20px solid transparent;
-            border-bottom: 40px solid #ffd700;
+            border-left: 25px solid transparent;
+            border-right: 25px solid transparent;
+            border-bottom: 50px solid #FFD700;
             display: block;
-            filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.5));
+            filter: drop-shadow(0 6px 12px rgba(0, 0, 0, 0.6));
         }
         
         .professional-pointer::after {
             content: '';
             position: absolute;
-            top: 35px;
+            top: 45px;
             left: 50%;
             transform: translateX(-50%);
-            width: 16px;
-            height: 16px;
-            background: #ffd700;
+            width: 20px;
+            height: 20px;
+            background: radial-gradient(circle, #FFD700, #FFA500);
             border-radius: 50%;
-            border: 3px solid #fff;
-            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+            border: 4px solid #fff;
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.5);
         }
         
-        /* 转盘分割线优化 */
+        /* 转盘分割线优化v3.0 */
         .wheel-divider {
             position: absolute;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.8), transparent);
-            height: 2px;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.9), transparent);
+            height: 3px;
             transform-origin: center;
             z-index: 3;
+            box-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
         }
         
         /* 多人互动功能样式 */
@@ -484,43 +540,43 @@
                             id="wheel"
                             class="w-80 h-80 rounded-full professional-wheel wheel-animation shadow-2xl relative overflow-hidden"
                         >
-                            <!-- 转盘奖项区域 - 专业设计 -->
-                            <!-- 区域1: 再试一次 (0-60度) -->
+                            <!-- 转盘奖项区域 - v3.0专业设计，无百分比 -->
+                            <!-- 区域1: 安慰奖 (0-60度) - 60%概率 -->
                             <div class="wheel-section absolute top-6 left-1/2 transform -translate-x-1/2 text-center">
                                 <div class="emoji">💫</div>
-                                <div class="text-sm font-bold mb-1">再试一次</div>
+                                <div class="text-sm font-bold mb-1">安慰奖</div>
                                 <div class="reward-badge" id="reward0">50</div>
                             </div>
                             
-                            <!-- 区域2: 小奖 (60-120度) -->
+                            <!-- 区域2: 小奖 (60-120度) - 20%概率 -->
                             <div class="wheel-section absolute top-12 right-6 transform text-center">
                                 <div class="emoji">🎁</div>
                                 <div class="text-sm font-bold mb-1">小奖</div>
                                 <div class="reward-badge" id="reward1">200</div>
                             </div>
                             
-                            <!-- 区域3: 中奖 (120-180度) -->
+                            <!-- 区域3: 中奖 (120-180度) - 12%概率 -->
                             <div class="wheel-section absolute bottom-12 right-6 transform text-center">
                                 <div class="emoji">🏆</div>
                                 <div class="text-sm font-bold mb-1">中奖</div>
                                 <div class="reward-badge" id="reward2">500</div>
                             </div>
                             
-                            <!-- 区域4: 大奖 (180-240度) -->
+                            <!-- 区域4: 大奖 (180-240度) - 5%概率 -->
                             <div class="wheel-section absolute bottom-6 left-1/2 transform -translate-x-1/2 text-center">
                                 <div class="emoji">💎</div>
                                 <div class="text-sm font-bold mb-1">大奖</div>
                                 <div class="reward-badge" id="reward3">1,200</div>
                             </div>
                             
-                            <!-- 区域5: 超级大奖 (240-300度) -->
+                            <!-- 区域5: 超级大奖 (240-300度) - 2.5%概率 -->
                             <div class="wheel-section absolute bottom-12 left-6 transform text-center">
                                 <div class="emoji">🌟</div>
                                 <div class="text-sm font-bold mb-1">超级</div>
                                 <div class="reward-badge" id="reward4">2,500</div>
                             </div>
                             
-                            <!-- 区域6: 终极大奖 (300-360度) -->
+                            <!-- 区域6: 终极大奖 (300-360度) - 0.5%概率 -->
                             <div class="wheel-section absolute top-12 left-6 transform text-center">
                                 <div class="emoji">💰</div>
                                 <div class="text-sm font-bold mb-1">终极</div>
@@ -751,7 +807,7 @@
         ];
 
         const REWARDS = [
-            { name: '再试一次', mao: 50, pi: 500, emoji: '💫' },        // 60% - 安慰奖 0.5倍
+            { name: '安慰奖', mao: 50, pi: 500, emoji: '💫' },        // 60% - 安慰奖 0.5倍
             { name: '小奖', mao: 200, pi: 2000, emoji: '🎁' },          // 20% - 小奖 2倍  
             { name: '中奖', mao: 500, pi: 5000, emoji: '🏆' },          // 12% - 中奖 5倍
             { name: '大奖', mao: 1200, pi: 12000, emoji: '💎' },        // 5% - 大奖 12倍
