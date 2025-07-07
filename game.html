@@ -431,7 +431,7 @@
                         data-token="PI"
                     >
                         <div class="text-lg">PI</div>
-                        <div class="text-xs mt-1">10,000 PI/次</div>
+                        <div class="text-xs mt-1">1,000 PI/次</div>
                         <div class="text-xs text-yellow-400" id="piBalance">余额: 0</div>
                         <div class="text-xs text-orange-400 mt-1">⚠️ 奖池检查中</div>
                     </button>
@@ -1194,7 +1194,7 @@
             updateTokenButtonStyles();
             
             // 更新投注金额显示
-            betAmount.textContent = token === 'MAO' ? '100 MAO' : '10,000 PI';
+            betAmount.textContent = token === 'MAO' ? '100 MAO' : '1,000 PI';
             
             // 更新转盘奖励显示
             updateWheelRewards();
@@ -1283,9 +1283,9 @@
                 
                 // 游戏要求 - 更正后的数值
                 const maoRequired = 100;
-                const piRequired = 10000;  // 修正为10,000 PI
+                const piRequired = 1000;  // 修正为1,000 PI
                 const maoAuthRequired = 1000;
-                const piAuthRequired = 100000;  // 修正为100,000 PI
+                const piAuthRequired = 10000;  // 修正为10,000 PI授权
                 
                 // 检查游戏可用性
                 const maoGameAvailable = maoBalance >= maoRequired && parseFloat(maoAllowanceFormatted) >= maoAuthRequired;
@@ -1798,6 +1798,81 @@
         // 页面加载完成后初始化多人功能
         window.addEventListener('load', () => {
             setTimeout(initMultiplayer, 1000);
+        });
+
+        // === 强制移动端兼容性修复 ===
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🔧 启动移动端强制修复...');
+            
+            // 等待3秒确保所有元素都已渲染
+            setTimeout(() => {
+                console.log('🔧 开始强制绑定所有按钮事件...');
+                
+                // 获取所有按钮并强制绑定事件
+                const buttons = [
+                    { id: 'connectBtn', action: connectWallet, name: '连接钱包' },
+                    { id: 'approveBtn', action: approveTokens, name: '授权代币' },
+                    { id: 'spinBtn', action: startGame, name: '转盘游戏' },
+                    { id: 'startGameBtn', action: startGame, name: '开始游戏' },
+                    { id: 'testBalanceBtn', action: testBalance, name: '测试余额' },
+                    { id: 'maoBtn', action: () => selectToken('MAO'), name: 'MAO代币' },
+                    { id: 'piBtn', action: () => selectToken('PI'), name: 'PI代币' }
+                ];
+                
+                buttons.forEach(btn => {
+                    const element = document.getElementById(btn.id);
+                    if (element) {
+                        console.log(`✅ 找到按钮: ${btn.name}`);
+                        
+                        // 移除所有现有事件监听器
+                        element.replaceWith(element.cloneNode(true));
+                        const newElement = document.getElementById(btn.id);
+                        
+                        // 添加多种事件类型
+                        ['click', 'touchend', 'touchstart'].forEach(eventType => {
+                            newElement.addEventListener(eventType, function(e) {
+                                if (eventType === 'touchstart') {
+                                    console.log(`📱 ${btn.name} 被触摸`);
+                                    this.style.opacity = '0.7';
+                                    this.style.transform = 'scale(0.95)';
+                                } else if (eventType === 'touchend' || eventType === 'click') {
+                                    e.preventDefault();
+                                    e.stopPropagation();
+                                    console.log(`🎯 ${btn.name} 被${eventType}触发`);
+                                    
+                                    // 重置样式
+                                    this.style.opacity = '';
+                                    this.style.transform = '';
+                                    
+                                    // 延迟执行动作
+                                    setTimeout(() => {
+                                        try {
+                                            btn.action();
+                                        } catch (error) {
+                                            console.error(`❌ ${btn.name} 执行错误:`, error);
+                                        }
+                                    }, 100);
+                                }
+                            }, { passive: false });
+                        });
+                        
+                        console.log(`🔧 ${btn.name} 事件绑定完成`);
+                    } else {
+                        console.warn(`⚠️ 未找到按钮: ${btn.name} (${btn.id})`);
+                    }
+                });
+                
+                console.log('🎉 移动端强制修复完成！');
+                
+                // 添加操作提示
+                if (window.innerWidth <= 768) {
+                    setTimeout(() => {
+                        console.log('📱 检测到移动设备，显示操作提示');
+                        // 不显示alert，避免干扰用户体验
+                    }, 2000);
+                }
+                
+            }, 3000);
         });
     </script>
 </body>
