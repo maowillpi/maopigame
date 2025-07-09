@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MAO游戏版本测试 - v3.2.0</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: rgba(255,255,255,0.1);
+            padding: 20px;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+        }
+        .version-info {
+            background: rgba(0,0,0,0.3);
+            padding: 15px;
+            border-radius: 10px;
+            margin: 10px 0;
+        }
+        .correct { color: #10b981; }
+        .incorrect { color: #ef4444; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎰 MAO转盘游戏 - 版本测试</h1>
+        
+        <div class="version-info">
+            <h2>✅ v3.2.0 正确配置</h2>
+            <ul>
+                <li class="correct">✅ 游戏投注: 100 MAO / 1,000 PI</li>
+                <li class="correct">✅ 奖励系统: 7级（谢谢惠顾 + 6个奖励级别）</li>
+                <li class="correct">✅ 安慰奖: 25 MAO / 250 PI</li>
+                <li class="correct">✅ 小奖: 80 MAO / 800 PI</li>
+                <li class="correct">✅ 中奖: 200 MAO / 2,000 PI</li>
+                <li class="correct">✅ 大奖: 500 MAO / 5,000 PI</li>
+                <li class="correct">✅ 超级大奖: 1,000 MAO / 10,000 PI</li>
+                <li class="correct">✅ 终极大奖: 2,000 MAO / 20,000 PI</li>
+                <li class="correct">✅ 最高奖励倍数: 20倍</li>
+            </ul>
+        </div>
+
+        <div class="version-info">
+            <h2>❌ 如果您还看到以下内容说明缓存未清除</h2>
+            <ul>
+                <li class="incorrect">❌ "10,000 PI/次" 投注</li>
+                <li class="incorrect">❌ "6级奖励系统"</li>
+                <li class="incorrect">❌ "最高奖励50倍"</li>
+                <li class="incorrect">❌ "5,000 MAO" 终极大奖</li>
+                <li class="incorrect">❌ "85%" 或 "60%" 概率显示</li>
+            </ul>
+        </div>
+
+        <div class="version-info">
+            <h2>🔧 清除缓存方法</h2>
+            <ol>
+                <li>🌐 <strong>最简单</strong>: 访问 <a href="https://maowillpi.github.io/maopigame/?v=3.2.0&t=" style="color:#fbbf24" target="_blank">https://maowillpi.github.io/maopigame/?v=3.2.0&t=<span id="timestamp"></span></a></li>
+                <li>📱 <strong>手机</strong>: 关闭浏览器app，重新打开</li>
+                <li>💻 <strong>电脑</strong>: Ctrl+F5 强制刷新</li>
+                <li>🔄 <strong>终极方案</strong>: 清除浏览器所有缓存</li>
+            </ol>
+        </div>
+
+        <div class="version-info">
+            <h2>📱 访问链接</h2>
+            <p>
+                ✅ <strong>主页面</strong>: <a href="index.html" style="color:#10b981">index.html</a><br>
+                🎮 <strong>游戏页面</strong>: <a href="game.html" style="color:#10b981">game.html</a><br>
+                🌐 <strong>GitHub Pages</strong>: <a href="https://maowillpi.github.io/maopigame/" style="color:#10b981" target="_blank">maowillpi.github.io/maopigame</a>
+            </p>
+        </div>
+
+        <div style="text-align: center; margin-top: 30px;">
+            <p><strong>⏰ 测试时间: <span id="currentTime"></span></strong></p>
+            <p style="font-size: 12px; opacity: 0.8;">如果您还看到老版本，请按上述方法清除缓存</p>
+        </div>
+    </div>
+
+    <script>
+        // 显示当前时间戳
+        const now = new Date();
+        document.getElementById('currentTime').textContent = now.toLocaleString('zh-CN');
+        document.getElementById('timestamp').textContent = Date.now();
+    </script>
+</body>
+</html> 

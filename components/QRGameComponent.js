@@ -66,7 +66,7 @@ const QRGameComponent = ({ gameType, onGameResult }) => {
         <div className="bg-blue-600 text-white px-4 py-2 rounded-lg mb-4">
           <p className="font-semibold">{gameType} 游戏</p>
           <p className="text-sm opacity-90">
-            投注: {gameType === 'MAO' ? '100 MAO' : '10,000 PI'}
+            投注: {gameType === 'MAO' ? '100 MAO' : '1,000 PI'}
           </p>
         </div>
 

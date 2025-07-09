@@ -469,7 +469,7 @@ export default function Home() {
                       <div className="flex items-center justify-between">
                         <span>{token}</span>
                         <span className="text-sm">
-                          {token === 'MAO' ? '100 MAO' : '10,000 PI'}
+                          {token === 'MAO' ? '100 MAO' : '1,000 PI'}
                         </span>
                       </div>
                     </button>
