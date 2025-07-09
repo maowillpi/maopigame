@@ -21,14 +21,14 @@ const MobileWheelGame = ({ account, contract, balances, selectedToken, onUpdateB
       ]
     },
     PI: {
-      betAmount: 10000,
+      betAmount: 1000,
       rewards: [
         { level: 0, name: '谢谢惠顾', amount: 0, color: '#6B7280', textColor: '#FFFFFF' },
-        { level: 1, name: '小奖', amount: 15000, color: '#F59E0B', textColor: '#FFFFFF' },
-        { level: 2, name: '中奖', amount: 40000, color: '#EF4444', textColor: '#FFFFFF' },
-        { level: 3, name: '大奖', amount: 80000, color: '#8B5CF6', textColor: '#FFFFFF' },
-        { level: 4, name: '超级大奖', amount: 150000, color: '#10B981', textColor: '#FFFFFF' },
-        { level: 5, name: '终极大奖', amount: 300000, color: '#F97316', textColor: '#FFFFFF' }
+        { level: 1, name: '小奖', amount: 1500, color: '#F59E0B', textColor: '#FFFFFF' },
+        { level: 2, name: '中奖', amount: 4000, color: '#EF4444', textColor: '#FFFFFF' },
+        { level: 3, name: '大奖', amount: 8000, color: '#8B5CF6', textColor: '#FFFFFF' },
+        { level: 4, name: '超级大奖', amount: 15000, color: '#10B981', textColor: '#FFFFFF' },
+        { level: 5, name: '终极大奖', amount: 30000, color: '#F97316', textColor: '#FFFFFF' }
       ]
     }
   };

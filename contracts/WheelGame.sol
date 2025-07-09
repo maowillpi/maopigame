@@ -15,7 +15,7 @@ contract WheelGame is ReentrancyGuard, Ownable {
     
     // 游戏参数
     uint256 public constant MAO_BET_AMOUNT = 100 * 10**18; // 100 MAO
-    uint256 public constant PI_BET_AMOUNT = 10000 * 10**18; // 10,000 PI
+    uint256 public constant PI_BET_AMOUNT = 1000 * 10**18; // 1,000 PI
     
     // MAO奖励配置
     uint256[6] public maoRewards = [
@@ -30,11 +30,11 @@ contract WheelGame is ReentrancyGuard, Ownable {
     // PI奖励配置
     uint256[6] public piRewards = [
         0,              // 谢谢惠顾 85%
-        15000 * 10**18,  // 小奖 15,000 PI (8%)
-        40000 * 10**18,  // 中奖 40,000 PI (4%)
-        80000 * 10**18,  // 大奖 80,000 PI (2%)
-        150000 * 10**18, // 超级大奖 150,000 PI (0.8%)
-        300000 * 10**18  // 终极大奖 300,000 PI (0.2%)
+        1500 * 10**18,  // 小奖 1,500 PI (8%)
+        4000 * 10**18,  // 中奖 4,000 PI (4%)
+        8000 * 10**18,  // 大奖 8,000 PI (2%)
+        15000 * 10**18, // 超级大奖 15,000 PI (0.8%)
+        30000 * 10**18  // 终极大奖 30,000 PI (0.2%)
     ];
     
     // 概率区间
@@ -168,9 +168,9 @@ contract WheelGame is ReentrancyGuard, Ownable {
         require(piToken.transferFrom(msg.sender, address(this), PI_BET_AMOUNT), "PI transfer failed");
         
         // 新的资金分配: 70%奖金池 + 10%销毁 + 20%营销
-        uint256 toPrizePool = (PI_BET_AMOUNT * 70) / 100;   // 7000 PI
-        uint256 toBurn = (PI_BET_AMOUNT * 10) / 100;        // 1000 PI
-        uint256 toMarketing = (PI_BET_AMOUNT * 20) / 100;   // 2000 PI
+        uint256 toPrizePool = (PI_BET_AMOUNT * 70) / 100;   // 700 PI
+        uint256 toBurn = (PI_BET_AMOUNT * 10) / 100;        // 100 PI
+        uint256 toMarketing = (PI_BET_AMOUNT * 20) / 100;   // 200 PI
         
         require(piToken.transfer(prizePool, toPrizePool), "Prize pool transfer failed");
         require(piToken.transfer(BURN_ADDRESS, toBurn), "Burn transfer failed");
