@@ -184,19 +184,19 @@
                                 <div class="text-center text-white font-bold">
                                     <div class="text-lg">😊</div>
                                     <div class="text-[10px]">谢谢惠顾</div>
-                                </div>
+                            </div>
                             </div>
                             <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 rotate-[90deg] translate-y-[-120px] -rotate-[90deg]">
                                 <div class="text-center text-white font-bold">
                                     <div class="text-lg">🎁</div>
                                     <div class="text-[10px]">小奖</div>
-                                </div>
+                            </div>
                             </div>
                             <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 rotate-[150deg] translate-y-[-120px] -rotate-[150deg]">
                                 <div class="text-center text-white font-bold">
                                     <div class="text-lg">🏆</div>
                                     <div class="text-[10px]">中奖</div>
-                                </div>
+                            </div>
                             </div>
                             <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 rotate-[210deg] translate-y-[-120px] -rotate-[210deg]">
                                 <div class="text-center text-white font-bold">
@@ -249,12 +249,12 @@
                 </div>
 
                 <!-- 授权/游戏按钮 -->
-                <button
-                    id="approveBtn"
+                    <button
+                        id="approveBtn"
                     class="w-full bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white font-bold py-4 px-4 rounded-xl mb-4 shadow-lg"
-                >
-                    🔓 授权 MAO 代币
-                </button>
+                    >
+                        🔓 授权 MAO 代币
+                    </button>
             </div>
 
             <!-- 游戏记录 -->
@@ -485,7 +485,7 @@
                 isSpinning = true;
                 spinBtn.innerHTML = '<div class="animate-spin text-2xl">🎰</div><div class="text-xs">转动中</div>';
                 spinBtn.disabled = true;
-
+                
                 // 检查余额
                 const required = selectedToken === 'MAO' ? 100 : 10000;
                 if (parseFloat(balances[selectedToken]) < required) {
@@ -546,7 +546,7 @@
             } catch (error) {
                 console.error('游戏错误:', error);
                 alert('游戏失败: ' + error.message);
-                isSpinning = false;
+            isSpinning = false;
                 spinBtn.innerHTML = '<div class="text-2xl">🎲</div><div class="text-xs">开始游戏</div>';
                 spinBtn.disabled = false;
             }
@@ -566,8 +566,8 @@
             betAmount.textContent = token === 'MAO' ? '100 MAO' : '10,000 PI';
             
             // 更新余额显示
-            updateCurrentBalance();
-            
+                    updateCurrentBalance();
+                    
             // 重新检查授权
             if (currentAccount) {
                 checkApproval();
