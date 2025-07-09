@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>🎰 MAO转盘游戏 - AlveyChain 区块链游戏</title>
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- ethers.js CDN -->
+    <script src="https://cdn.ethers.io/lib/ethers-5.7.2.umd.min.js"></script>
+    
+    <style>
+        body {
+            font-family: 'PingFang SC', 'Helvetica Neue', Arial, sans-serif;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            overflow-x: hidden;
+        }
+        
+        .wheel-animation {
+            transition: transform 4s cubic-bezier(0.23, 1, 0.32, 1);
+        }
+        
+        .pulse-animation {
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        .bounce-animation {
+            animation: bounce 1s infinite;
+        }
+        
+        @keyframes bounce {
+            0%, 20%, 53%, 80%, 100% { transform: translate3d(0,0,0); }
+            40%, 43% { transform: translate3d(0, -30px, 0); }
+            70% { transform: translate3d(0, -15px, 0); }
+            90% { transform: translate3d(0, -4px, 0); }
+        }
+        
+        .bg-gradient {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+    </style>
+</head>
+<body class="bg-gradient min-h-screen">
+    
+    <!-- 头部 -->
+    <div class="glass-effect sticky top-0 z-50 px-4 py-3 text-center">
+        <h1 class="text-xl font-bold text-white">🎰 MAO转盘游戏</h1>
+        <p class="text-xs text-blue-200">AlveyChain 区块链游戏</p>
+    </div>
+
+    <!-- 主要内容 -->
+    <div class="px-4 py-4 space-y-4 pb-20" id="app">
+        
+        <!-- 连接钱包界面 -->
+        <div id="walletConnect" class="text-center space-y-6">
+            <div class="glass-effect rounded-2xl p-6">
+                <div class="text-6xl mb-4 bounce-animation">🎰</div>
+                <h2 class="text-2xl font-bold text-white mb-3">欢迎来到MAO转盘</h2>
+                <p class="text-blue-200 text-sm mb-6">连接您的钱包开始转盘之旅</p>
+                <button 
+                    id="connectBtn" 
+                    class="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-bold py-4 px-6 rounded-xl text-lg transition-all duration-200 transform hover:scale-105 shadow-lg"
+                >
+                    🔗 连接钱包开始游戏
+                </button>
+            </div>
+            
+            <!-- 奖励预览 -->
+            <div class="glass-effect rounded-xl p-4">
+                <h3 class="text-white font-semibold mb-3 text-center">💰 丰厚奖励等你来拿</h3>
+                <div class="grid grid-cols-2 gap-3 text-sm">
+                    <div class="glass-effect rounded-lg p-3 text-center">
+                        <div class="text-2xl mb-1">🎁</div>
+                        <div class="text-yellow-400 font-bold">小奖 8%</div>
+                        <div class="text-white text-xs">150 MAO</div>
+                    </div>
+                    <div class="glass-effect rounded-lg p-3 text-center">
+                        <div class="text-2xl mb-1">🏆</div>
+                        <div class="text-yellow-400 font-bold">大奖 2%</div>
+                        <div class="text-white text-xs">800 MAO</div>
+                    </div>
+                    <div class="glass-effect rounded-lg p-3 text-center">
+                        <div class="text-2xl mb-1">🌟</div>
+                        <div class="text-yellow-400 font-bold">超级大奖</div>
+                        <div class="text-white text-xs">1,500 MAO</div>
+                    </div>
+                    <div class="glass-effect rounded-lg p-3 text-center">
+                        <div class="text-2xl mb-1">💰</div>
+                        <div class="text-yellow-400 font-bold">终极大奖</div>
+                        <div class="text-white text-xs">3,000 MAO</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 游戏说明 -->
+            <div class="glass-effect rounded-xl p-4">
+                <h3 class="text-white font-semibold mb-3 text-center">📖 游戏说明</h3>
+                <ul class="text-blue-200 text-sm space-y-2">
+                    <li>• 每次游戏消耗 100 MAO 或 10,000 PI</li>
+                    <li>• 6级奖励系统，最高奖励3,000倍</li>
+                    <li>• 基于AlveyChain智能合约，公平透明</li>
+                    <li>• 支持TP钱包、Trust Wallet等主流钱包</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- 游戏界面 -->
+        <div id="gameInterface" class="space-y-4" style="display: none;">
+            
+            <!-- 用户信息 -->
+            <div class="glass-effect rounded-xl p-4">
+                <div class="flex justify-between items-center">
+                    <div>
+                        <p class="text-blue-200 text-xs">钱包地址</p>
+                        <p class="text-white text-sm font-mono" id="userAddress">未连接</p>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-blue-200 text-xs">当前余额</p>
+                        <p class="text-white font-bold text-lg" id="userBalance">0 MAO</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 代币选择 -->
+            <div class="glass-effect rounded-xl p-4">
+                <h3 class="text-white font-semibold mb-3 text-center">选择游戏代币</h3>
+                <div class="grid grid-cols-2 gap-3">
+                    <button 
+                        id="maoBtn" 
+                        class="token-btn py-4 px-4 rounded-xl font-semibold transition-all bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-lg scale-105"
+                        data-token="MAO"
+                    >
+                        <div class="text-lg">MAO</div>
+                        <div class="text-xs mt-1">100 MAO/次</div>
+                        <div class="text-xs text-yellow-400" id="maoBalance">余额: 0</div>
+                    </button>
+                    <button 
+                        id="piBtn" 
+                        class="token-btn py-4 px-4 rounded-xl font-semibold transition-all bg-white/20 text-blue-200 hover:bg-white/30"
+                        data-token="PI"
+                    >
+                        <div class="text-lg">PI</div>
+                        <div class="text-xs mt-1">10,000 PI/次</div>
+                        <div class="text-xs text-yellow-400" id="piBalance">余额: 0</div>
+                    </button>
+                </div>
+            </div>
+
+            <!-- 转盘游戏 -->
+            <div class="glass-effect rounded-xl p-6">
+                <h3 class="text-white font-bold text-center mb-4 text-lg">🎰 幸运转盘</h3>
+                
+                <!-- 转盘 -->
+                <div class="flex justify-center mb-6">
+                    <div class="relative">
+                        <div 
+                            id="wheel"
+                            class="w-72 h-72 rounded-full border-4 border-yellow-400 wheel-animation shadow-2xl"
+                            style="background: conic-gradient(
+                                #6B7280 0deg 60deg,
+                                #F59E0B 60deg 120deg,
+                                #EF4444 120deg 180deg,
+                                #8B5CF6 180deg 240deg,
+                                #10B981 240deg 300deg,
+                                #F97316 300deg 360deg
+                            )"
+                        >
+                            <!-- 转盘奖项 -->
+                            <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 rotate-[30deg] translate-y-[-120px] -rotate-[30deg]">
+                                <div class="text-center text-white font-bold">
+                                    <div class="text-lg">😊</div>
+                                    <div class="text-[10px]">谢谢惠顾</div>
+                                </div>
+                            </div>
+                            <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 rotate-[90deg] translate-y-[-120px] -rotate-[90deg]">
+                                <div class="text-center text-white font-bold">
+                                    <div class="text-lg">🎁</div>
+                                    <div class="text-[10px]">小奖</div>
+                                </div>
+                            </div>
+                            <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 rotate-[150deg] translate-y-[-120px] -rotate-[150deg]">
+                                <div class="text-center text-white font-bold">
+                                    <div class="text-lg">🏆</div>
+                                    <div class="text-[10px]">中奖</div>
+                                </div>
+                            </div>
+                            <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 rotate-[210deg] translate-y-[-120px] -rotate-[210deg]">
+                                <div class="text-center text-white font-bold">
+                                    <div class="text-lg">💎</div>
+                                    <div class="text-[10px]">大奖</div>
+                                </div>
+                            </div>
+                            <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 rotate-[270deg] translate-y-[-120px] -rotate-[270deg]">
+                                <div class="text-center text-white font-bold">
+                                    <div class="text-lg">🌟</div>
+                                    <div class="text-[10px]">超级大奖</div>
+                                </div>
+                            </div>
+                            <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 rotate-[330deg] translate-y-[-120px] -rotate-[330deg]">
+                                <div class="text-center text-white font-bold">
+                                    <div class="text-lg">💰</div>
+                                    <div class="text-[10px]">终极大奖</div>
+                                </div>
+                            </div>
+                            
+                            <!-- 指针 */
+                            <div class="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-2 z-10">
+                                <div class="w-0 h-0 border-l-[12px] border-r-[12px] border-b-[24px] border-l-transparent border-r-transparent border-b-yellow-400 drop-shadow-lg"></div>
+                            </div>
+                        </div>
+                        
+                        <!-- 中心按钮 -->
+                        <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+                            <button
+                                id="spinBtn"
+                                class="w-24 h-24 rounded-full font-bold text-sm transition-all shadow-2xl bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 transform hover:scale-110 text-white"
+                            >
+                                <div class="text-2xl">🎲</div>
+                                <div class="text-xs">开始游戏</div>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 游戏状态 -->
+                <div class="glass-effect rounded-lg p-4 mb-4">
+                    <div class="text-center">
+                        <p class="text-blue-200 text-sm mb-2">
+                            本轮投注: <span class="text-yellow-400 font-bold text-lg" id="betAmount">100 MAO</span>
+                        </p>
+                        <div id="lastResult" class="hidden bg-black/30 rounded-lg p-3">
+                            <p class="text-green-400 text-sm" id="resultText"></p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 授权/游戏按钮 -->
+                <button
+                    id="approveBtn"
+                    class="w-full bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white font-bold py-4 px-4 rounded-xl mb-4 shadow-lg"
+                >
+                    🔓 授权 MAO 代币
+                </button>
+            </div>
+
+            <!-- 游戏记录 -->
+            <div class="glass-effect rounded-xl p-4">
+                <h3 class="text-white font-semibold mb-3 text-center">🎮 游戏记录</h3>
+                <div id="gameHistory" class="text-center py-8">
+                    <p class="text-blue-200">暂无游戏记录</p>
+                    <p class="text-xs text-blue-300 mt-1">开始您的第一次游戏吧！</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 底部信息 -->
+    <div class="fixed bottom-0 left-0 right-0 glass-effect p-3 text-center">
+        <p class="text-blue-200 text-xs">
+            基于 AlveyChain 智能合约 · 公平透明 · 立即到账
+        </p>
+    </div>
+
+    <!-- JavaScript -->
+    <script>
+        // 智能合约配置
+        const CONTRACTS = {
+            WHEEL_GAME: "0xc27e29BCe41db77815435a9415329424849Daeb6",
+            MAO_TOKEN: "0x22f49bcb3dad370a9268ba3fca33cb037ca3d022",
+            PI_TOKEN: "0xfd4680e25e05b3435c7f698668d1ce80d2a9f444"
+        };
+
+        const ALVEY_NETWORK = {
+            chainId: '0xED5',
+            chainName: 'AlveyChain Mainnet',
+            nativeCurrency: { name: 'ALV', symbol: 'ALV', decimals: 18 },
+            rpcUrls: ['https://elves-core1.alvey.io'],
+            blockExplorerUrls: ['https://alveyscan.com'],
+        };
+
+        const WHEEL_GAME_ABI = [
+            "function playMAOGame() external",
+            "function playPIGame() external",
+            "event GamePlayed(address indexed player, uint8 tokenType, uint256 betAmount, uint256 rewardAmount, uint8 rewardLevel, uint256 randomSeed)"
+        ];
+
+        const ERC20_ABI = [
+            "function balanceOf(address owner) view returns (uint256)",
+            "function approve(address spender, uint256 amount) returns (bool)",
+            "function allowance(address owner, address spender) view returns (uint256)"
+        ];
+
+        const REWARDS = [
+            { name: '谢谢惠顾', mao: 0, pi: 0, emoji: '😊' },
+            { name: '小奖', mao: 150, pi: 15000, emoji: '🎁' },
+            { name: '中奖', mao: 400, pi: 40000, emoji: '🏆' },
+            { name: '大奖', mao: 800, pi: 80000, emoji: '💎' },
+            { name: '超级大奖', mao: 1500, pi: 150000, emoji: '🌟' },
+            { name: '终极大奖', mao: 3000, pi: 300000, emoji: '💰' }
+        ];
+
+        // 游戏状态
+        let currentAccount = null;
+        let provider = null;
+        let signer = null;
+        let contracts = {};
+        let selectedToken = 'MAO';
+        let isSpinning = false;
+        let isApproved = false;
+        let balances = { MAO: '0', PI: '0' };
+
+        // DOM 元素
+        const connectBtn = document.getElementById('connectBtn');
+        const walletConnect = document.getElementById('walletConnect');
+        const gameInterface = document.getElementById('gameInterface');
+        const spinBtn = document.getElementById('spinBtn');
+        const approveBtn = document.getElementById('approveBtn');
+        const wheel = document.getElementById('wheel');
+        const userAddress = document.getElementById('userAddress');
+        const userBalance = document.getElementById('userBalance');
+        const maoBalance = document.getElementById('maoBalance');
+        const piBalance = document.getElementById('piBalance');
+        const betAmount = document.getElementById('betAmount');
+        const lastResult = document.getElementById('lastResult');
+        const resultText = document.getElementById('resultText');
+        const maoBtn = document.getElementById('maoBtn');
+        const piBtn = document.getElementById('piBtn');
+
+        // 连接钱包
+        async function connectWallet() {
+            try {
+                if (!window.ethereum) {
+                    alert('请使用支持Web3的钱包浏览器！\n推荐使用：TP钱包、Trust Wallet、MetaMask等');
+                    return;
+                }
+
+                connectBtn.textContent = '连接中...';
+                connectBtn.disabled = true;
+
+                // 检查并切换网络
+                const chainId = await window.ethereum.request({ method: 'eth_chainId' });
+                if (chainId !== ALVEY_NETWORK.chainId) {
+                    try {
+                        await window.ethereum.request({
+                            method: 'wallet_switchEthereumChain',
+                            params: [{ chainId: ALVEY_NETWORK.chainId }],
+                        });
+                    } catch (switchError) {
+                        if (switchError.code === 4902) {
+                            await window.ethereum.request({
+                                method: 'wallet_addEthereumChain',
+                                params: [ALVEY_NETWORK],
+                            });
+                        }
+                    }
+                }
+
+                // 请求账户连接
+                const accounts = await window.ethereum.request({
+                    method: 'eth_requestAccounts',
+                });
+
+                if (accounts.length > 0) {
+                    currentAccount = accounts[0];
+                    provider = new ethers.providers.Web3Provider(window.ethereum);
+                    signer = provider.getSigner();
+
+                    // 初始化合约
+                    contracts.wheelGame = new ethers.Contract(CONTRACTS.WHEEL_GAME, WHEEL_GAME_ABI, signer);
+                    contracts.maoToken = new ethers.Contract(CONTRACTS.MAO_TOKEN, ERC20_ABI, signer);
+                    contracts.piToken = new ethers.Contract(CONTRACTS.PI_TOKEN, ERC20_ABI, signer);
+
+                    // 更新界面
+                    userAddress.textContent = currentAccount.slice(0, 6) + '...' + currentAccount.slice(-4);
+                    
+                    // 加载余额
+                    await loadBalances();
+                    await checkApproval();
+
+                    // 显示游戏界面
+                    walletConnect.style.display = 'none';
+                    gameInterface.style.display = 'block';
+                }
+            } catch (error) {
+                console.error('连接钱包错误:', error);
+                alert('连接钱包失败: ' + error.message);
+                connectBtn.textContent = '🔗 连接钱包开始游戏';
+                connectBtn.disabled = false;
+            }
+        }
+
+        // 加载余额
+        async function loadBalances() {
+            try {
+                const [maoBalanceWei, piBalanceWei] = await Promise.all([
+                    contracts.maoToken.balanceOf(currentAccount),
+                    contracts.piToken.balanceOf(currentAccount)
+                ]);
+
+                balances.MAO = ethers.utils.formatEther(maoBalanceWei);
+                balances.PI = ethers.utils.formatEther(piBalanceWei);
+
+                maoBalance.textContent = `余额: ${parseFloat(balances.MAO).toFixed(2)}`;
+                piBalance.textContent = `余额: ${parseFloat(balances.PI).toFixed(2)}`;
+                
+                updateCurrentBalance();
+            } catch (error) {
+                console.error('加载余额错误:', error);
+            }
+        }
+
+        // 更新当前余额显示
+        function updateCurrentBalance() {
+            userBalance.textContent = `${parseFloat(balances[selectedToken]).toFixed(2)} ${selectedToken}`;
+        }
+
+        // 检查授权状态
+        async function checkApproval() {
+            try {
+                const tokenContract = selectedToken === 'MAO' ? contracts.maoToken : contracts.piToken;
+                const allowance = await tokenContract.allowance(currentAccount, CONTRACTS.WHEEL_GAME);
+                const required = ethers.utils.parseEther(selectedToken === 'MAO' ? '1000' : '100000');
+                
+                isApproved = allowance.gte(required);
+                updateApproveButton();
+            } catch (error) {
+                console.error('检查授权错误:', error);
+            }
+        }
+
+        // 更新授权按钮
+        function updateApproveButton() {
+            if (isApproved) {
+                approveBtn.style.display = 'none';
+                spinBtn.disabled = false;
+                spinBtn.className = spinBtn.className.replace('bg-red-600', 'bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 transform hover:scale-110');
+            } else {
+                approveBtn.style.display = 'block';
+                approveBtn.textContent = `🔓 授权 ${selectedToken} 代币`;
+                spinBtn.disabled = true;
+                spinBtn.className = spinBtn.className.replace('bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 transform hover:scale-110', 'bg-red-600 cursor-not-allowed');
+            }
+        }
+
+        // 授权代币
+        async function approveTokens() {
+            try {
+                approveBtn.textContent = '授权中...';
+                approveBtn.disabled = true;
+
+                const tokenContract = selectedToken === 'MAO' ? contracts.maoToken : contracts.piToken;
+                const tx = await tokenContract.approve(CONTRACTS.WHEEL_GAME, ethers.constants.MaxUint256);
+                await tx.wait();
+
+                isApproved = true;
+                updateApproveButton();
+                alert('代币授权成功！现在可以开始游戏了。');
+            } catch (error) {
+                console.error('授权错误:', error);
+                alert('授权失败: ' + error.message);
+                approveBtn.textContent = `🔓 授权 ${selectedToken} 代币`;
+                approveBtn.disabled = false;
+            }
+        }
+
+        // 开始游戏
+        async function startGame() {
+            if (isSpinning || !isApproved) return;
+
+            try {
+                isSpinning = true;
+                spinBtn.innerHTML = '<div class="animate-spin text-2xl">🎰</div><div class="text-xs">转动中</div>';
+                spinBtn.disabled = true;
+
+                // 检查余额
+                const required = selectedToken === 'MAO' ? 100 : 10000;
+                if (parseFloat(balances[selectedToken]) < required) {
+                    alert(`余额不足！需要至少 ${required} ${selectedToken}`);
+                    return;
+                }
+
+                // 开始转盘动画
+                const randomSpins = 2160 + Math.random() * 360; // 6圈 + 随机角度
+                wheel.style.transform = `rotate(${randomSpins}deg)`;
+
+                // 调用智能合约
+                const gameFunction = selectedToken === 'MAO' ? 'playMAOGame' : 'playPIGame';
+                const tx = await contracts.wheelGame[gameFunction]();
+                const receipt = await tx.wait();
+
+                // 解析结果
+                let rewardLevel = 0;
+                for (const log of receipt.logs) {
+                    try {
+                        const parsed = contracts.wheelGame.interface.parseLog(log);
+                        if (parsed.name === 'GamePlayed') {
+                            rewardLevel = parsed.args.rewardLevel.toNumber();
+                            break;
+                        }
+                    } catch (e) {}
+                }
+
+                // 调整转盘到最终位置
+                const finalAngle = rewardLevel * 60;
+                const finalRotation = randomSpins - (randomSpins % 360) + finalAngle;
+                wheel.style.transform = `rotate(${finalRotation}deg)`;
+
+                // 显示结果
+                setTimeout(() => {
+                    const reward = REWARDS[rewardLevel];
+                    const amount = selectedToken === 'MAO' ? reward.mao : reward.pi;
+                    
+                    resultText.textContent = `${reward.emoji} 结果: ${reward.name}`;
+                    if (amount > 0) {
+                        resultText.textContent += ` (+${amount} ${selectedToken})`;
+                        alert(`🎉 恭喜！获得 ${reward.name}！\n奖励: ${amount} ${selectedToken}`);
+                    } else {
+                        alert('😅 谢谢惠顾！继续努力！');
+                    }
+                    
+                    lastResult.classList.remove('hidden');
+                    
+                    // 刷新余额
+                    loadBalances();
+                    
+                    // 重置按钮
+                    isSpinning = false;
+                    spinBtn.innerHTML = '<div class="text-2xl">🎲</div><div class="text-xs">开始游戏</div>';
+                    spinBtn.disabled = false;
+                }, 4000);
+
+            } catch (error) {
+                console.error('游戏错误:', error);
+                alert('游戏失败: ' + error.message);
+                isSpinning = false;
+                spinBtn.innerHTML = '<div class="text-2xl">🎲</div><div class="text-xs">开始游戏</div>';
+                spinBtn.disabled = false;
+            }
+        }
+
+        // 选择代币
+        function selectToken(token) {
+            selectedToken = token;
+            
+            // 更新按钮样式
+            maoBtn.className = 'token-btn py-4 px-4 rounded-xl font-semibold transition-all ' + 
+                (token === 'MAO' ? 'bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-lg scale-105' : 'bg-white/20 text-blue-200 hover:bg-white/30');
+            piBtn.className = 'token-btn py-4 px-4 rounded-xl font-semibold transition-all ' + 
+                (token === 'PI' ? 'bg-gradient-to-r from-purple-600 to-purple-700 text-white shadow-lg scale-105' : 'bg-white/20 text-blue-200 hover:bg-white/30');
+            
+            // 更新投注金额显示
+            betAmount.textContent = token === 'MAO' ? '100 MAO' : '10,000 PI';
+            
+            // 更新余额显示
+            updateCurrentBalance();
+            
+            // 重新检查授权
+            if (currentAccount) {
+                checkApproval();
+            }
+        }
+
+        // 事件监听
+        connectBtn.addEventListener('click', connectWallet);
+        approveBtn.addEventListener('click', approveTokens);
+        spinBtn.addEventListener('click', startGame);
+        maoBtn.addEventListener('click', () => selectToken('MAO'));
+        piBtn.addEventListener('click', () => selectToken('PI'));
+
+        // 自动连接已连接的钱包
+        window.addEventListener('load', async () => {
+            if (window.ethereum) {
+                try {
+                    const accounts = await window.ethereum.request({ method: 'eth_accounts' });
+                    if (accounts.length > 0) {
+                        await connectWallet();
+                    }
+                } catch (error) {
+                    console.log('自动连接失败:', error);
+                }
+            }
+        });
+
+        // 监听账户变化
+        if (window.ethereum) {
+            window.ethereum.on('accountsChanged', (accounts) => {
+                if (accounts.length === 0) {
+                    location.reload();
+                } else if (accounts[0] !== currentAccount) {
+                    location.reload();
+                }
+            });
+
+            window.ethereum.on('chainChanged', () => {
+                location.reload();
+            });
+        }
+    </script>
+</body>
+</html> 

@@ -1,0 +1,1440 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <title>🎰 MAO转盘游戏 - AlveyChain 区块链游戏 v3.0.1</title>
+    
+    <!-- 强制缓存更新 -->
+    <script>
+        // 强制清除所有缓存
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.getRegistrations().then(function(registrations) {
+                for(let registration of registrations) {
+                    registration.unregister();
+                }
+            });
+        }
+        
+        // 强制刷新页面缓存
+        if (performance.navigation.type === 1) {
+            console.log('页面被刷新，清除缓存');
+        }
+        
+        // 添加时间戳到所有资源
+        const timestamp = Date.now();
+        console.log('v3.0 强制缓存更新时间戳:', timestamp);
+    </script>
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- ethers.js CDN - 使用更稳定的版本 -->
+    <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
+    
+    <!-- 移动端优化脚本 -->
+    <script>
+        // 移动端兼容性修复
+        document.addEventListener('DOMContentLoaded', function() {
+            // 版本检查 - 强制清除缓存
+            const currentVersion = 'v3.0.1-professional';
+            const lastVersion = localStorage.getItem('maogame_version');
+            
+            if (lastVersion !== currentVersion) {
+                console.log('🔄 检测到v3.0.1专业版更新，清除缓存...');
+                localStorage.setItem('maogame_version', currentVersion);
+                
+                // 强制清除缓存的方法
+                if ('caches' in window) {
+                    caches.keys().then(names => {
+                        names.forEach(name => {
+                            caches.delete(name);
+                        });
+                    });
+                }
+                
+                // 如果不是第一次加载，则刷新页面
+                if (lastVersion && lastVersion !== currentVersion) {
+                    alert('🎉 MAO转盘v3.0.1专业修复版！\n\n✅ 关键修复：\n🔥 完全移除百分比显示\n🎨 纯专业转盘设计\n💎 奖励预览界面优化\n📱 移动端体验完善\n\n🚀 正在加载最新版本...');
+                    setTimeout(() => {
+                        window.location.href = window.location.href + '?v=' + Date.now();
+                    }, 2000);
+                    return;
+                }
+            }
+            
+            // 禁用移动端的滚动弹性效果
+            document.body.style.overscrollBehavior = 'none';
+            
+            // 禁用双击缩放
+            let lastTouchEnd = 0;
+            document.addEventListener('touchend', function (event) {
+                let now = (new Date()).getTime();
+                if (now - lastTouchEnd <= 300) {
+                    event.preventDefault();
+                }
+                lastTouchEnd = now;
+            }, false);
+            
+            // 增强按钮点击响应
+            document.addEventListener('touchstart', function(e) {
+                if (e.target.tagName === 'BUTTON' || e.target.closest('button')) {
+                    e.target.style.opacity = '0.7';
+                }
+            });
+            
+            document.addEventListener('touchend', function(e) {
+                if (e.target.tagName === 'BUTTON' || e.target.closest('button')) {
+                    setTimeout(() => {
+                        e.target.style.opacity = '';
+                    }, 150);
+                }
+            });
+            
+            console.log('移动端优化脚本已加载');
+        });
+        
+        // 强制等待所有资源加载完成
+        window.addEventListener('load', function() {
+            console.log('页面完全加载完成');
+            
+            // 检查关键库是否加载
+            if (typeof ethers === 'undefined') {
+                console.error('ethers.js库未加载');
+                alert('⚠️ 正在加载区块链库...\n\n请稍等3秒后点击确定重试');
+                setTimeout(() => {
+                    location.reload();
+                }, 3000);
+                return;
+            }
+            
+            if (!window.ethereum) {
+                console.warn('未检测到Web3钱包');
+            }
+            
+            console.log('✅ 所有库加载完成，游戏准备就绪');
+        });
+    </script>
+    
+    <style>
+        body {
+            font-family: 'PingFang SC', 'Helvetica Neue', Arial, sans-serif;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            overflow-x: hidden;
+        }
+        
+        .wheel-animation {
+            transition: transform 4s cubic-bezier(0.23, 1, 0.32, 1);
+        }
+        
+        .pulse-animation {
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        .bounce-animation {
+            animation: bounce 1s infinite;
+        }
+        
+        @keyframes bounce {
+            0%, 20%, 53%, 80%, 100% { transform: translate3d(0,0,0); }
+            40%, 43% { transform: translate3d(0, -30px, 0); }
+            70% { transform: translate3d(0, -15px, 0); }
+            90% { transform: translate3d(0, -4px, 0); }
+        }
+        
+        .bg-gradient {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        /* 专业转盘设计v3.0 - 更高级和有趣 */
+        .professional-wheel {
+            background: conic-gradient(
+                from 0deg,
+                #FF6B6B 0deg 60deg,   /* 安慰奖 - 温暖红色 */
+                #4ECDC4 60deg 120deg, /* 小奖 - 青绿色 */
+                #45B7D1 120deg 180deg, /* 中奖 - 蓝色 */
+                #96CEB4 180deg 240deg, /* 大奖 - 薄荷绿 */
+                #FFEAA7 240deg 300deg, /* 超级大奖 - 金黄色 */
+                #DDA0DD 300deg 360deg  /* 终极大奖 - 紫色 */
+            );
+            border: 8px solid #FFD700;
+            box-shadow: 
+                0 0 40px rgba(255, 215, 0, 0.6),
+                inset 0 0 30px rgba(0, 0, 0, 0.2),
+                0 0 80px rgba(255, 215, 0, 0.4),
+                0 0 120px rgba(255, 255, 255, 0.1);
+            position: relative;
+            animation: wheelGlow 3s ease-in-out infinite alternate;
+        }
+        
+        @keyframes wheelGlow {
+            0% { 
+                box-shadow: 
+                    0 0 40px rgba(255, 215, 0, 0.6),
+                    inset 0 0 30px rgba(0, 0, 0, 0.2),
+                    0 0 80px rgba(255, 215, 0, 0.4);
+            }
+            100% { 
+                box-shadow: 
+                    0 0 60px rgba(255, 215, 0, 0.8),
+                    inset 0 0 30px rgba(0, 0, 0, 0.2),
+                    0 0 100px rgba(255, 215, 0, 0.6);
+            }
+        }
+        
+        .professional-wheel::before {
+            content: '';
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            right: 15px;
+            bottom: 15px;
+            border-radius: 50%;
+            border: 3px solid rgba(255, 255, 255, 0.4);
+            z-index: 1;
+            box-shadow: inset 0 0 20px rgba(255, 255, 255, 0.2);
+        }
+        
+        /* MAO Logo 设计v3.0 */
+        .mao-logo {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 70px;
+            height: 70px;
+            background: linear-gradient(135deg, #667eea, #764ba2, #f093fb);
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            font-weight: 900;
+            color: white;
+            text-shadow: 
+                0 3px 6px rgba(0, 0, 0, 0.6),
+                0 0 15px rgba(102, 126, 234, 0.8);
+            box-shadow: 
+                0 10px 20px rgba(0, 0, 0, 0.4),
+                inset 0 3px 6px rgba(255, 255, 255, 0.3),
+                0 0 30px rgba(102, 126, 234, 0.5);
+            border: 3px solid rgba(255, 255, 255, 0.5);
+            z-index: 15;
+            animation: logoSpin 8s linear infinite;
+        }
+        
+        @keyframes logoSpin {
+            0% { transform: translate(-50%, -50%) rotate(0deg); }
+            100% { transform: translate(-50%, -50%) rotate(360deg); }
+        }
+        
+        .mao-logo::before {
+            content: '';
+            position: absolute;
+            top: -4px;
+            left: -4px;
+            right: -4px;
+            bottom: -4px;
+            background: linear-gradient(45deg, #FFD700, #FFA500, #FFD700);
+            border-radius: 20px;
+            z-index: -1;
+            animation: goldRing 2s ease-in-out infinite alternate;
+        }
+        
+        @keyframes goldRing {
+            0% { opacity: 0.6; transform: scale(1); }
+            100% { opacity: 1; transform: scale(1.05); }
+        }
+        
+        /* 转盘区域增强v3.0 */
+        .wheel-section {
+            position: absolute;
+            color: white;
+            font-weight: bold;
+            text-shadow: 0 3px 6px rgba(0, 0, 0, 0.8);
+            z-index: 5;
+            transition: all 0.3s ease;
+        }
+        
+        .wheel-section:hover {
+            transform: scale(1.1);
+        }
+        
+        .wheel-section .emoji {
+            font-size: 36px;
+            margin-bottom: 6px;
+            text-shadow: 0 0 15px rgba(255, 255, 255, 0.8);
+            animation: emojiFloat 2s ease-in-out infinite alternate;
+        }
+        
+        @keyframes emojiFloat {
+            0% { transform: translateY(0px); }
+            100% { transform: translateY(-3px); }
+        }
+        
+        .wheel-section .reward-badge {
+            background: linear-gradient(135deg, rgba(0, 0, 0, 0.9), rgba(0, 0, 0, 0.7));
+            border: 3px solid #FFD700;
+            border-radius: 12px;
+            padding: 4px 8px;
+            font-size: 14px;
+            font-weight: 900;
+            color: #FFD700;
+            text-shadow: 0 0 8px rgba(255, 215, 0, 1);
+            box-shadow: 
+                0 0 15px rgba(255, 215, 0, 0.5),
+                inset 0 2px 4px rgba(255, 255, 255, 0.2);
+            animation: badgePulse 2s ease-in-out infinite;
+        }
+        
+        @keyframes badgePulse {
+            0%, 100% { box-shadow: 0 0 15px rgba(255, 215, 0, 0.5); }
+            50% { box-shadow: 0 0 25px rgba(255, 215, 0, 0.8); }
+        }
+        
+        /* 专业指针设计v3.0 */
+        .professional-pointer {
+            position: absolute;
+            top: -12px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 20;
+            animation: pointerBounce 1s ease-in-out infinite alternate;
+        }
+        
+        @keyframes pointerBounce {
+            0% { transform: translateX(-50%) translateY(0px); }
+            100% { transform: translateX(-50%) translateY(-2px); }
+        }
+        
+        .professional-pointer::before {
+            content: '';
+            width: 0;
+            height: 0;
+            border-left: 25px solid transparent;
+            border-right: 25px solid transparent;
+            border-bottom: 50px solid #FFD700;
+            display: block;
+            filter: drop-shadow(0 6px 12px rgba(0, 0, 0, 0.6));
+        }
+        
+        .professional-pointer::after {
+            content: '';
+            position: absolute;
+            top: 45px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 20px;
+            height: 20px;
+            background: radial-gradient(circle, #FFD700, #FFA500);
+            border-radius: 50%;
+            border: 4px solid #fff;
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.5);
+        }
+        
+        /* 转盘分割线优化v3.0 */
+        .wheel-divider {
+            position: absolute;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.9), transparent);
+            height: 3px;
+            transform-origin: center;
+            z-index: 3;
+            box-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
+        }
+        
+        /* 多人互动功能样式 */
+        .multiplayer-panel {
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 215, 0, 0.3);
+        }
+        
+        .online-indicator {
+            animation: pulse-green 2s infinite;
+        }
+        
+        @keyframes pulse-green {
+            0%, 100% { opacity: 1; box-shadow: 0 0 5px #10b981; }
+            50% { opacity: 0.7; box-shadow: 0 0 15px #10b981; }
+        }
+        
+        .chat-message {
+            animation: slideInFromRight 0.5s ease-out;
+        }
+        
+        @keyframes slideInFromRight {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        
+        .recent-win {
+            animation: goldGlow 2s ease-in-out;
+        }
+        
+        @keyframes goldGlow {
+            0%, 100% { box-shadow: 0 0 5px rgba(255, 215, 0, 0.3); }
+            50% { box-shadow: 0 0 15px rgba(255, 215, 0, 0.8); }
+        }
+        
+        .leaderboard-item {
+            transition: all 0.3s ease;
+        }
+        
+        .leaderboard-item:hover {
+            background: rgba(255, 215, 0, 0.1);
+            transform: translateX(5px);
+        }
+        
+        .nickname-badge {
+            background: linear-gradient(45deg, #3b82f6, #1d4ed8);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+    </style>
+</head>
+<body class="bg-gradient min-h-screen">
+    
+    <!-- 头部 -->
+    <div class="glass-effect sticky top-0 z-50 px-4 py-3 text-center">
+        <h1 class="text-xl font-bold text-white">🎰 MAO转盘游戏 <span class="text-yellow-400 text-sm">v3.0.1</span></h1>
+        <p class="text-xs text-blue-200">AlveyChain 区块链游戏 · 专业版</p>
+    </div>
+
+    <!-- 主要内容 -->
+    <div class="px-4 py-4 space-y-4 pb-20" id="app">
+        
+        <!-- 连接钱包界面 -->
+        <div id="walletConnect" class="text-center space-y-6">
+            <div class="glass-effect rounded-2xl p-6">
+                <div class="text-6xl mb-4 bounce-animation">🎰</div>
+                <h2 class="text-2xl font-bold text-white mb-3">欢迎来到MAO转盘</h2>
+                <p class="text-blue-200 text-sm mb-6">连接您的钱包开始转盘之旅</p>
+                <button 
+                    id="connectBtn" 
+                    class="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-bold py-4 px-6 rounded-xl text-lg transition-all duration-200 transform hover:scale-105 shadow-lg"
+                >
+                    🔗 连接钱包开始游戏
+                </button>
+            </div>
+            
+            <!-- 奖励预览 - v3.0专业版（移除百分比） -->
+            <div class="glass-effect rounded-xl p-4">
+                <h3 class="text-white font-semibold mb-3 text-center">💰 全新专业奖励系统！</h3>
+                <div class="grid grid-cols-2 gap-3 text-sm">
+                    <div class="glass-effect rounded-lg p-3 text-center">
+                        <div class="text-2xl mb-1">💫</div>
+                        <div class="text-yellow-400 font-bold">安慰奖</div>
+                        <div class="text-white text-xs">50 MAO</div>
+                    </div>
+                    <div class="glass-effect rounded-lg p-3 text-center">
+                        <div class="text-2xl mb-1">🎁</div>
+                        <div class="text-yellow-400 font-bold">小奖</div>
+                        <div class="text-white text-xs">200 MAO</div>
+                    </div>
+                    <div class="glass-effect rounded-lg p-3 text-center">
+                        <div class="text-2xl mb-1">🏆</div>
+                        <div class="text-yellow-400 font-bold">中奖</div>
+                        <div class="text-white text-xs">500 MAO</div>
+                    </div>
+                    <div class="glass-effect rounded-lg p-3 text-center">
+                        <div class="text-2xl mb-1">💰</div>
+                        <div class="text-yellow-400 font-bold">终极大奖</div>
+                        <div class="text-white text-xs">5,000 MAO</div>
+                    </div>
+                </div>
+                <div class="mt-3 text-center">
+                    <p class="text-xs text-green-300">
+                        🎉 专业转盘设计 · 最高奖励50倍 · 即时到账！
+                    </p>
+                </div>
+            </div>
+
+            <!-- 移动端操作提示 -->
+            <div class="glass-effect rounded-xl p-4 bg-blue-500/20 border border-blue-400/30">
+                <div class="text-center">
+                    <div class="text-lg mb-2">📱</div>
+                    <h3 class="text-white font-semibold mb-2">移动端操作提示</h3>
+                    <ul class="text-blue-200 text-sm space-y-1 text-left">
+                        <li>• 确保使用支持Web3的钱包浏览器（如TP钱包）</li>
+                        <li>• 点击按钮时请稍等片刻等待响应</li>
+                        <li>• 如按钮无响应，请刷新页面重试</li>
+                        <li>• 建议在WiFi环境下使用</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <!-- 游戏说明 - 新奖励方案 -->
+            <div class="glass-effect rounded-xl p-4">
+                <h3 class="text-white font-semibold mb-3 text-center">📖 游戏说明</h3>
+                <ul class="text-blue-200 text-sm space-y-2">
+                    <li>• 每次游戏消耗 100 MAO 或 1,000 PI</li>
+                    <li>• 全新6级奖励系统，40%总中奖率</li>
+                    <li>• 最高奖励提升至50倍（5,000 MAO / 50,000 PI）</li>
+                    <li>• 基于AlveyChain智能合约，公平透明</li>
+                    <li>• 支持TP钱包、Trust Wallet等主流钱包</li>
+                    <li>• 奖励自动转账，即时到账</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- 游戏界面 -->
+        <div id="gameInterface" class="space-y-4" style="display: none;">
+            
+            <!-- 用户信息 -->
+            <div class="glass-effect rounded-xl p-4">
+                <div class="flex justify-between items-center mb-3">
+                    <div>
+                        <p class="text-blue-200 text-xs">钱包地址</p>
+                        <p class="text-white text-sm font-mono" id="userAddress">未连接</p>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-blue-200 text-xs">当前余额</p>
+                        <p class="text-white font-bold text-lg" id="userBalance">0 MAO</p>
+                    </div>
+                </div>
+                
+                <!-- 余额测试按钮 -->
+                <button 
+                    id="testBalanceBtn"
+                    class="w-full bg-gradient-to-r from-green-500 to-blue-500 hover:from-green-600 hover:to-blue-600 text-white font-bold py-2 px-4 rounded-lg text-sm transition-all duration-200"
+                    onclick="testBalance()"
+                    style="display: none;"
+                >
+                    🔍 测试余额验证
+                </button>
+            </div>
+
+            <!-- 代币选择 -->
+            <div class="glass-effect rounded-xl p-4">
+                <h3 class="text-white font-semibold mb-3 text-center">选择游戏代币</h3>
+                <div class="grid grid-cols-2 gap-3">
+                    <button 
+                        id="maoBtn" 
+                        class="token-btn py-4 px-4 rounded-xl font-semibold transition-all bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-lg scale-105"
+                        data-token="MAO"
+                    >
+                        <div class="text-lg">MAO</div>
+                        <div class="text-xs mt-1">100 MAO/次</div>
+                        <div class="text-xs text-yellow-400" id="maoBalance">余额: 0</div>
+                        <div class="text-xs text-green-400 mt-1">✅ 稳定运行</div>
+                    </button>
+                    <button 
+                        id="piBtn" 
+                        class="token-btn py-4 px-4 rounded-xl font-semibold transition-all bg-white/20 text-blue-200 hover:bg-white/30"
+                        data-token="PI"
+                    >
+                        <div class="text-lg">PI</div>
+                        <div class="text-xs mt-1">1,000 PI/次</div>
+                        <div class="text-xs text-yellow-400" id="piBalance">余额: 0</div>
+                        <div class="text-xs text-orange-400 mt-1">⚠️ 奖池检查中</div>
+                    </button>
+                </div>
+                <div class="mt-3 text-center">
+                    <p class="text-xs text-blue-300">
+                        💡 建议优先选择MAO游戏，PI游戏可能因奖池问题暂时不可用
+                    </p>
+                </div>
+            </div>
+
+            <!-- 转盘游戏 -->
+            <div class="glass-effect rounded-xl p-6">
+                <h3 class="text-white font-bold text-center mb-4 text-lg">🎰 幸运转盘</h3>
+                
+                <!-- 专业转盘设计 -->
+                <div class="flex justify-center mb-4">
+                    <div class="relative">
+                        <div 
+                            id="wheel"
+                            class="w-80 h-80 rounded-full professional-wheel wheel-animation shadow-2xl relative overflow-hidden"
+                        >
+                            <!-- 转盘奖项区域 - v3.0专业设计，无百分比 -->
+                            <!-- 区域1: 安慰奖 (0-60度) - 60%概率 -->
+                            <div class="wheel-section absolute top-6 left-1/2 transform -translate-x-1/2 text-center">
+                                <div class="emoji">💫</div>
+                                <div class="text-sm font-bold mb-1">安慰奖</div>
+                                <div class="reward-badge" id="reward0">50</div>
+                            </div>
+                            
+                            <!-- 区域2: 小奖 (60-120度) - 20%概率 -->
+                            <div class="wheel-section absolute top-12 right-6 transform text-center">
+                                <div class="emoji">🎁</div>
+                                <div class="text-sm font-bold mb-1">小奖</div>
+                                <div class="reward-badge" id="reward1">200</div>
+                            </div>
+                            
+                            <!-- 区域3: 中奖 (120-180度) - 12%概率 -->
+                            <div class="wheel-section absolute bottom-12 right-6 transform text-center">
+                                <div class="emoji">🏆</div>
+                                <div class="text-sm font-bold mb-1">中奖</div>
+                                <div class="reward-badge" id="reward2">500</div>
+                            </div>
+                            
+                            <!-- 区域4: 大奖 (180-240度) - 5%概率 -->
+                            <div class="wheel-section absolute bottom-6 left-1/2 transform -translate-x-1/2 text-center">
+                                <div class="emoji">💎</div>
+                                <div class="text-sm font-bold mb-1">大奖</div>
+                                <div class="reward-badge" id="reward3">1,200</div>
+                            </div>
+                            
+                            <!-- 区域5: 超级大奖 (240-300度) - 2.5%概率 -->
+                            <div class="wheel-section absolute bottom-12 left-6 transform text-center">
+                                <div class="emoji">🌟</div>
+                                <div class="text-sm font-bold mb-1">超级</div>
+                                <div class="reward-badge" id="reward4">2,500</div>
+                            </div>
+                            
+                            <!-- 区域6: 终极大奖 (300-360度) - 0.5%概率 -->
+                            <div class="wheel-section absolute top-12 left-6 transform text-center">
+                                <div class="emoji">💰</div>
+                                <div class="text-sm font-bold mb-1">终极</div>
+                                <div class="reward-badge" id="reward5">5,000</div>
+                            </div>
+                            
+                            <!-- 专业分割线 -->
+                            <div class="wheel-divider top-0 left-1/2 w-full transform -translate-x-1/2"></div>
+                            <div class="wheel-divider top-1/2 left-0 w-full transform -translate-y-1/2 rotate-60"></div>
+                            <div class="wheel-divider top-1/2 left-0 w-full transform -translate-y-1/2 rotate-120"></div>
+                            
+                            <!-- MAO Logo 中心 -->
+                            <div class="mao-logo">
+                                M
+                            </div>
+                        </div>
+                        
+                        <!-- 专业指针 -->
+                        <div class="professional-pointer"></div>
+                        
+                        <!-- 游戏控制按钮 -->
+                        <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 translate-y-16 z-10">
+                            <button
+                                id="spinBtn"
+                                class="w-28 h-28 rounded-full font-bold text-sm transition-all shadow-2xl bg-gradient-to-r from-yellow-500 via-yellow-600 to-orange-500 hover:from-yellow-600 hover:via-yellow-700 hover:to-orange-600 transform hover:scale-110 text-white border-4 border-white relative overflow-hidden"
+                            >
+                                <div class="relative z-10">
+                                    <div class="text-3xl mb-1">🎲</div>
+                                    <div class="text-xs font-bold">开始游戏</div>
+                                </div>
+                                <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent transform -skew-x-12 animate-pulse"></div>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 游戏状态和连续游戏控制 -->
+                <div class="glass-effect rounded-lg p-3 mb-4">
+                    <div class="text-center">
+                        <p class="text-blue-200 text-sm mb-2">
+                            本轮投注: <span class="text-yellow-400 font-bold text-lg" id="betAmount">100 MAO</span>
+                        </p>
+                        <div class="flex justify-center gap-3 mb-3">
+                            <div class="text-center">
+                                <div class="text-xs text-blue-300">游戏次数</div>
+                                <div class="text-yellow-400 font-bold" id="gameCount">0</div>
+                            </div>
+                            <div class="text-center">
+                                <div class="text-xs text-blue-300">总投注</div>
+                                <div class="text-yellow-400 font-bold" id="totalBet">0</div>
+                            </div>
+                            <div class="text-center">
+                                <div class="text-xs text-blue-300">总奖励</div>
+                                <div class="text-green-400 font-bold" id="totalReward">0</div>
+                            </div>
+                        </div>
+                        <div id="lastResult" class="hidden bg-black/30 rounded-lg p-3">
+                            <p class="text-green-400 text-sm" id="resultText"></p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 奖励验证区域 -->
+                <div class="glass-effect rounded-lg p-3 mb-4">
+                    <h4 class="text-white font-semibold text-center mb-2 text-sm">💰 奖励自动转账验证</h4>
+                    <div class="text-xs text-blue-200 text-center mb-2">
+                        智能合约将自动将奖励转入您的钱包地址
+                    </div>
+                    <div class="flex justify-between text-xs">
+                        <span class="text-blue-300">游戏前余额:</span>
+                        <span class="text-white" id="balanceBefore">-</span>
+                    </div>
+                    <div class="flex justify-between text-xs">
+                        <span class="text-blue-300">游戏后余额:</span>
+                        <span class="text-green-400" id="balanceAfter">-</span>
+                    </div>
+                    <div class="flex justify-between text-xs">
+                        <span class="text-blue-300">奖励差额:</span>
+                        <span class="text-yellow-400 font-bold" id="balanceDiff">-</span>
+                    </div>
+                </div>
+
+                <!-- 授权/游戏按钮 - 移除连续游戏功能 -->
+                <div class="space-y-3">
+                    <button
+                        id="approveBtn"
+                        class="w-full bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white font-bold py-4 px-4 rounded-xl shadow-lg text-base"
+                    >
+                        🔓 授权 MAO 代币
+                    </button>
+                    
+                    <!-- 单个游戏按钮 -->
+                    <button
+                        id="startGameBtn" 
+                        class="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-bold py-4 px-6 rounded-xl text-lg transition-all duration-200 transform hover:scale-105 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                        disabled
+                    >
+                        🎮 开始游戏
+                    </button>
+                </div>
+            </div>
+
+            <!-- 多人互动功能 -->
+            <div class="space-y-4">
+                
+                <!-- 在线状态和玩家昵称 -->
+                <div class="glass-effect rounded-xl p-4">
+                    <div class="flex justify-between items-center mb-3">
+                        <div class="flex items-center gap-2">
+                            <div class="w-3 h-3 bg-green-500 rounded-full online-indicator"></div>
+                            <span class="text-white font-semibold">在线状态</span>
+                            <span class="text-green-400 font-bold" id="onlineCount">42</span>
+                            <span class="text-blue-200 text-sm">人在线</span>
+                        </div>
+                        <button id="setNicknameBtn" class="nickname-badge text-white text-xs px-3 py-1 rounded-full">
+                            <span id="currentNickname">设置昵称</span>
+                        </button>
+                    </div>
+                    <div class="text-xs text-blue-200">
+                        🎮 当前活跃玩家: <span id="activePlayer" class="text-yellow-400">MAO***88</span> 刚刚获得了 <span class="text-green-400">2,500 MAO</span>！
+                    </div>
+                </div>
+
+                <!-- 实时排行榜 -->
+                <div class="glass-effect rounded-xl p-4">
+                    <h3 class="text-white font-semibold mb-3 text-center flex items-center justify-center gap-2">
+                        🏆 今日排行榜
+                        <span class="text-xs text-blue-300">(实时更新)</span>
+                    </h3>
+                    <div id="leaderboard" class="space-y-2">
+                        <!-- 排行榜内容将通过JavaScript动态生成 -->
+                    </div>
+                </div>
+
+                <!-- 最近中奖记录 -->
+                <div class="glass-effect rounded-xl p-4">
+                    <h3 class="text-white font-semibold mb-3 text-center flex items-center justify-center gap-2">
+                        ⚡ 最近中奖
+                        <span class="text-xs text-blue-300">(每5秒更新)</span>
+                    </h3>
+                    <div id="recentWins" class="space-y-2 max-h-40 overflow-y-auto">
+                        <!-- 最近中奖记录将通过JavaScript动态生成 -->
+                    </div>
+                </div>
+
+                <!-- 实时聊天 -->
+                <div class="glass-effect rounded-xl p-4">
+                    <h3 class="text-white font-semibold mb-3 text-center">💬 玩家聊天</h3>
+                    <div id="chatMessages" class="space-y-2 max-h-32 overflow-y-auto mb-3">
+                        <!-- 聊天消息将通过JavaScript动态生成 -->
+                    </div>
+                    <div class="flex gap-2">
+                        <input 
+                            type="text" 
+                            id="chatInput" 
+                            placeholder="输入消息... (回车发送)" 
+                            maxlength="50"
+                            class="flex-1 bg-white/10 border border-white/20 rounded-lg px-3 py-2 text-white text-sm placeholder-blue-300 focus:outline-none focus:border-yellow-400"
+                        >
+                        <button 
+                            id="sendChatBtn"
+                            class="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-4 py-2 rounded-lg text-sm font-bold transition-all"
+                        >
+                            发送
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 游戏记录 -->
+            <div class="glass-effect rounded-xl p-4">
+                <h3 class="text-white font-semibold mb-3 text-center">🎮 游戏记录</h3>
+                <div id="gameHistory" class="text-center py-8">
+                    <p class="text-blue-200">暂无游戏记录</p>
+                    <p class="text-xs text-blue-300 mt-1">开始您的第一次游戏吧！</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 底部信息 -->
+    <div class="fixed bottom-0 left-0 right-0 glass-effect p-3 text-center">
+        <p class="text-blue-200 text-xs">
+            基于 AlveyChain 智能合约 · 公平透明 · 立即到账
+        </p>
+    </div>
+
+    <!-- JavaScript -->
+    <script>
+        // 等待ethers.js加载完成
+        window.addEventListener('load', function() {
+            // 检查ethers是否正确加载
+            if (typeof ethers === 'undefined') {
+                console.error('ethers.js未正确加载');
+                alert('正在加载区块链库，请稍候重试...');
+                setTimeout(() => location.reload(), 2000);
+                return;
+            }
+            
+            console.log('ethers.js加载成功:', ethers.version);
+        });
+
+        // 智能合约配置
+        const CONTRACTS = {
+            WHEEL_GAME: "0xc27e29BCe41db77815435a9415329424849Daeb6",
+            MAO_TOKEN: "0x22f49bcb3dad370a9268ba3fca33cb037ca3d022",
+            PI_TOKEN: "0xfd4680e25e05b3435c7f698668d1ce80d2a9f444"
+        };
+
+        const ALVEY_NETWORK = {
+            chainId: '0xED5',
+            chainName: 'AlveyChain Mainnet',
+            nativeCurrency: { name: 'ALV', symbol: 'ALV', decimals: 18 },
+            rpcUrls: ['https://elves-core1.alvey.io'],
+            blockExplorerUrls: ['https://alveyscan.com'],
+        };
+
+        const WHEEL_GAME_ABI = [
+            "function playMAOGame() external",
+            "function playPIGame() external",
+            "event GamePlayed(address indexed player, uint8 tokenType, uint256 betAmount, uint256 rewardAmount, uint8 rewardLevel, uint256 randomSeed)"
+        ];
+
+        const ERC20_ABI = [
+            "function balanceOf(address owner) view returns (uint256)",
+            "function approve(address spender, uint256 amount) returns (bool)",
+            "function allowance(address owner, address spender) view returns (uint256)"
+        ];
+
+        const REWARDS = [
+            { name: '安慰奖', mao: 50, pi: 500, emoji: '💫' },        // 60% - 安慰奖 0.5倍
+            { name: '小奖', mao: 200, pi: 2000, emoji: '🎁' },          // 20% - 小奖 2倍  
+            { name: '中奖', mao: 500, pi: 5000, emoji: '🏆' },          // 12% - 中奖 5倍
+            { name: '大奖', mao: 1200, pi: 12000, emoji: '💎' },        // 5% - 大奖 12倍
+            { name: '超级大奖', mao: 2500, pi: 25000, emoji: '🌟' },    // 2.5% - 超级 25倍
+            { name: '终极大奖', mao: 5000, pi: 50000, emoji: '💰' }     // 0.5% - 终极 50倍
+        ];
+
+        // 游戏状态 - 简化版本（移除连续游戏）
+        let currentAccount = null;
+        let provider = null;
+        let signer = null;
+        let contracts = {};
+        let selectedToken = 'MAO';
+        let isSpinning = false;
+        let isApproved = false;
+        let balances = { MAO: '0', PI: '0' };
+        let gameStats = { count: 0, totalBet: 0, totalReward: 0 };
+        // 已移除：isContinuousMode - 取消连续游戏功能
+
+        // DOM 元素（移除连续游戏）
+        const connectBtn = document.getElementById('connectBtn');
+        const walletConnect = document.getElementById('walletConnect');
+        const gameInterface = document.getElementById('gameInterface');
+        const spinBtn = document.getElementById('spinBtn');
+        const startGameBtn = document.getElementById('startGameBtn');
+        // 已移除：continuousBtn - 取消连续游戏功能
+        const approveBtn = document.getElementById('approveBtn');
+        const wheel = document.getElementById('wheel');
+        const userAddress = document.getElementById('userAddress');
+        const userBalance = document.getElementById('userBalance');
+        const maoBalance = document.getElementById('maoBalance');
+        const piBalance = document.getElementById('piBalance');
+        const betAmount = document.getElementById('betAmount');
+        const lastResult = document.getElementById('lastResult');
+        const resultText = document.getElementById('resultText');
+        const maoBtn = document.getElementById('maoBtn');
+        const piBtn = document.getElementById('piBtn');
+        const testBalanceBtn = document.getElementById('testBalanceBtn');
+
+        // 新增游戏统计元素
+        const gameCount = document.getElementById('gameCount');
+        const totalBet = document.getElementById('totalBet');
+        const totalReward = document.getElementById('totalReward');
+        const balanceBefore = document.getElementById('balanceBefore');
+        const balanceAfter = document.getElementById('balanceAfter');
+        const balanceDiff = document.getElementById('balanceDiff');
+
+        // 转盘奖励显示元素
+        const reward0 = document.getElementById('reward0');
+        const reward1 = document.getElementById('reward1');
+        const reward2 = document.getElementById('reward2');
+        const reward3 = document.getElementById('reward3');
+        const reward4 = document.getElementById('reward4');
+        const reward5 = document.getElementById('reward5');
+
+        // 连接钱包
+        async function connectWallet() {
+            try {
+                // 检查ethers是否加载
+                if (typeof ethers === 'undefined') {
+                    alert('区块链库正在加载中，请稍候重试...');
+                    setTimeout(() => location.reload(), 2000);
+                    return;
+                }
+
+                if (!window.ethereum) {
+                    alert('请使用支持Web3的钱包浏览器！\n推荐使用：TP钱包、Trust Wallet、MetaMask等');
+                    return;
+                }
+
+                connectBtn.textContent = '连接中...';
+                connectBtn.disabled = true;
+
+                // 检查并切换网络
+                const chainId = await window.ethereum.request({ method: 'eth_chainId' });
+                if (chainId !== ALVEY_NETWORK.chainId) {
+                    try {
+                        await window.ethereum.request({
+                            method: 'wallet_switchEthereumChain',
+                            params: [{ chainId: ALVEY_NETWORK.chainId }],
+                        });
+                    } catch (switchError) {
+                        if (switchError.code === 4902) {
+                            await window.ethereum.request({
+                                method: 'wallet_addEthereumChain',
+                                params: [ALVEY_NETWORK],
+                            });
+                        }
+                    }
+                }
+
+                // 请求账户连接
+                const accounts = await window.ethereum.request({
+                    method: 'eth_requestAccounts',
+                });
+
+                if (accounts.length > 0) {
+                    currentAccount = accounts[0];
+                    provider = new ethers.providers.Web3Provider(window.ethereum);
+                    signer = provider.getSigner();
+
+                    // 初始化合约
+                    contracts.wheelGame = new ethers.Contract(CONTRACTS.WHEEL_GAME, WHEEL_GAME_ABI, signer);
+                    contracts.maoToken = new ethers.Contract(CONTRACTS.MAO_TOKEN, ERC20_ABI, signer);
+                    contracts.piToken = new ethers.Contract(CONTRACTS.PI_TOKEN, ERC20_ABI, signer);
+
+                    // 更新界面
+                    userAddress.textContent = currentAccount.slice(0, 6) + '...' + currentAccount.slice(-4);
+                    
+                    // 加载余额
+                    await loadBalances();
+                    await checkApproval();
+                    updateWheelRewards();
+
+                    // 显示游戏界面
+                    walletConnect.style.display = 'none';
+                    gameInterface.style.display = 'block';
+                    
+                    // 显示余额测试按钮
+                    testBalanceBtn.style.display = 'block';
+                }
+            } catch (error) {
+                console.error('连接钱包错误:', error);
+                alert('连接钱包失败: ' + error.message);
+                connectBtn.textContent = '🔗 连接钱包开始游戏';
+                connectBtn.disabled = false;
+            }
+        }
+
+        // 加载余额
+        async function loadBalances() {
+            try {
+                const [maoBalanceWei, piBalanceWei] = await Promise.all([
+                    contracts.maoToken.balanceOf(currentAccount),
+                    contracts.piToken.balanceOf(currentAccount)
+                ]);
+
+                balances.MAO = ethers.utils.formatEther(maoBalanceWei);
+                balances.PI = ethers.utils.formatEther(piBalanceWei);
+
+                maoBalance.textContent = `余额: ${parseFloat(balances.MAO).toFixed(2)}`;
+                piBalance.textContent = `余额: ${parseFloat(balances.PI).toFixed(2)}`;
+                
+                updateCurrentBalance();
+            } catch (error) {
+                console.error('加载余额错误:', error);
+            }
+        }
+
+        // 更新当前余额显示
+        function updateCurrentBalance() {
+            userBalance.textContent = `${parseFloat(balances[selectedToken]).toFixed(2)} ${selectedToken}`;
+        }
+
+        // 更新转盘奖励显示 - 新奖励方案
+        function updateWheelRewards() {
+            if (selectedToken === 'MAO') {
+                reward0.textContent = '50';      // 安慰奖
+                reward1.textContent = '200';     // 小奖
+                reward2.textContent = '500';     // 中奖
+                reward3.textContent = '1,200';   // 大奖
+                reward4.textContent = '2,500';   // 超级大奖
+                reward5.textContent = '5,000';   // 终极大奖
+            } else {
+                reward0.textContent = '500';     // 安慰奖
+                reward1.textContent = '2K';      // 小奖
+                reward2.textContent = '5K';      // 中奖
+                reward3.textContent = '12K';     // 大奖
+                reward4.textContent = '25K';     // 超级大奖
+                reward5.textContent = '50K';     // 终极大奖
+            }
+        }
+
+        // 更新游戏统计
+        function updateGameStats() {
+            gameCount.textContent = gameStats.count;
+            totalBet.textContent = `${gameStats.totalBet} ${selectedToken}`;
+            totalReward.textContent = `${gameStats.totalReward} ${selectedToken}`;
+        }
+
+        // 检查授权状态
+        async function checkApproval() {
+            try {
+                const tokenContract = selectedToken === 'MAO' ? contracts.maoToken : contracts.piToken;
+                const allowance = await tokenContract.allowance(currentAccount, CONTRACTS.WHEEL_GAME);
+                const required = ethers.utils.parseEther(selectedToken === 'MAO' ? '1000' : '10000');
+                
+                isApproved = allowance.gte(required);
+                updateApproveButton();
+            } catch (error) {
+                console.error('检查授权错误:', error);
+            }
+        }
+
+        // 更新授权按钮 - 增强版本（移除连续游戏）
+        function updateApproveButton() {
+            // 重置授权按钮状态
+            approveBtn.disabled = false;
+            
+            if (isApproved) {
+                approveBtn.style.display = 'none';
+                startGameBtn.disabled = false;
+                spinBtn.disabled = false;
+                spinBtn.innerHTML = '<div class="text-2xl">🎲</div><div class="text-[10px]">开始游戏</div>';
+                startGameBtn.textContent = '🎮 开始游戏';
+                
+                console.log(`${selectedToken} 授权状态：已授权，游戏可用`);
+            } else {
+                approveBtn.style.display = 'block';
+                approveBtn.textContent = `🔓 授权 ${selectedToken} 代币`;
+                startGameBtn.disabled = true;
+                spinBtn.disabled = true;
+                spinBtn.innerHTML = '<div class="text-2xl">🔒</div><div class="text-[10px]">需要授权</div>';
+                startGameBtn.textContent = `🔒 需先授权${selectedToken}`;
+                
+                console.log(`${selectedToken} 授权状态：未授权，需要授权`);
+            }
+        }
+
+        // 授权代币
+        async function approveTokens() {
+            try {
+                approveBtn.textContent = '授权中...';
+                approveBtn.disabled = true;
+
+                const tokenContract = selectedToken === 'MAO' ? contracts.maoToken : contracts.piToken;
+                const tx = await tokenContract.approve(CONTRACTS.WHEEL_GAME, ethers.constants.MaxUint256);
+                await tx.wait();
+
+                isApproved = true;
+                updateApproveButton();
+                alert('代币授权成功！现在可以开始游戏了。');
+            } catch (error) {
+                console.error('授权错误:', error);
+                alert('授权失败: ' + error.message);
+                approveBtn.textContent = `🔓 授权 ${selectedToken} 代币`;
+                approveBtn.disabled = false;
+            }
+        }
+
+        // 记录游戏前余额
+        async function recordBalanceBefore() {
+            const currentBalance = parseFloat(balances[selectedToken]);
+            balanceBefore.textContent = `${currentBalance.toFixed(2)} ${selectedToken}`;
+            return currentBalance;
+        }
+
+        // 记录游戏后余额并显示差额
+        async function recordBalanceAfter(beforeBalance) {
+            await loadBalances();
+            const afterBalance = parseFloat(balances[selectedToken]);
+            const diff = afterBalance - beforeBalance;
+            
+            balanceAfter.textContent = `${afterBalance.toFixed(2)} ${selectedToken}`;
+            balanceDiff.textContent = diff > 0 ? `+${diff.toFixed(2)} ${selectedToken}` : `${diff.toFixed(2)} ${selectedToken}`;
+            
+            return diff;
+        }
+
+        // 开始游戏 - 简化稳定版本
+        async function startGame() {
+            if (isSpinning || !isApproved) {
+                if (!isApproved) {
+                    alert('请先授权代币！');
+                }
+                return;
+            }
+
+            try {
+                // 先刷新余额，确保是最新的
+                await loadBalances();
+                
+                // 检查余额
+                const required = selectedToken === 'MAO' ? 100 : 1000;
+                const currentBalance = parseFloat(balances[selectedToken]) || 0;
+                
+                console.log(`检查余额: ${currentBalance} ${selectedToken}, 需要: ${required} ${selectedToken}`);
+                
+                if (currentBalance < required) {
+                    alert(`❌ 余额不足！\n\n当前余额: ${currentBalance.toFixed(2)} ${selectedToken}\n需要余额: ${required} ${selectedToken}\n\n请先充值足够的${selectedToken}代币到您的钱包！`);
+                    return;
+                }
+
+                isSpinning = true;
+                
+                // 记录游戏前余额
+                const beforeBalance = await recordBalanceBefore();
+                
+                // 更新按钮状态
+                spinBtn.innerHTML = '<div class="animate-spin text-2xl">🎰</div><div class="text-[10px]">转动中</div>';
+                spinBtn.disabled = true;
+                startGameBtn.textContent = '🎰 转盘运行中...';
+                startGameBtn.disabled = true;
+                // 已移除连续游戏模式，此部分不再执行
+
+                // 开始转盘动画 - 简单版本
+                const randomSpins = 1800 + Math.random() * 720; // 5-7圈
+                wheel.style.transition = 'transform 4s cubic-bezier(0.23, 1, 0.32, 1)';
+                wheel.style.transform = `rotate(${randomSpins}deg)`;
+
+                // 调用智能合约
+                const gameFunction = selectedToken === 'MAO' ? 'playMAOGame' : 'playPIGame';
+                const gasLimit = selectedToken === 'PI' ? 500000 : 300000;
+                
+                let tx;
+                try {
+                    tx = await contracts.wheelGame[gameFunction]({ gasLimit });
+                } catch (gasError) {
+                    console.error('Gas估算错误:', gasError);
+                    
+                    let errorMsg = '游戏调用失败';
+                    if (selectedToken === 'PI' && gasError.message.includes('prize pool')) {
+                        errorMsg = 'PI游戏奖池不足，请选择MAO游戏';
+                    } else if (gasError.message.includes('insufficient funds')) {
+                        errorMsg = '账户ALV余额不足支付gas费用';
+                    } else if (gasError.message.includes('allowance')) {
+                        errorMsg = '代币授权不足，请重新授权';
+                        isApproved = false;
+                        updateApproveButton();
+                    }
+                    
+                    alert('❌ ' + errorMsg);
+                    resetGameButtons();
+                    return;
+                }
+                
+                const receipt = await tx.wait();
+
+                // 解析结果
+                let rewardLevel = 0;
+                for (const log of receipt.logs) {
+                    try {
+                        const parsed = contracts.wheelGame.interface.parseLog(log);
+                        if (parsed.name === 'GamePlayed') {
+                            rewardLevel = parsed.args.rewardLevel.toNumber();
+                            break;
+                        }
+                    } catch (e) {}
+                }
+
+                // 调整转盘到最终位置
+                const finalAngle = rewardLevel * 60;
+                const finalRotation = randomSpins - (randomSpins % 360) + finalAngle;
+                wheel.style.transform = `rotate(${finalRotation}deg)`;
+
+                // 显示结果
+                setTimeout(async () => {
+                    const reward = REWARDS[rewardLevel];
+                    const amount = selectedToken === 'MAO' ? reward.mao : reward.pi;
+                    
+                    // 更新游戏统计
+                    gameStats.count++;
+                    gameStats.totalBet += required;
+                    gameStats.totalReward += amount;
+                    updateGameStats();
+
+                    // 记录游戏后余额
+                    const balanceDiff = await recordBalanceAfter(beforeBalance);
+                    
+                    resultText.textContent = `${reward.emoji} 结果: ${reward.name}`;
+                    if (amount > 0) {
+                        resultText.textContent += ` (+${amount} ${selectedToken})`;
+                        alert(`🎉 恭喜！获得 ${reward.name}！\n奖励: ${amount} ${selectedToken}\n✅ 奖励已自动转入您的钱包！`);
+                        
+                        // 添加到多人互动系统
+                        if (typeof addRecentWin === 'function' && multiplayerData && multiplayerData.nickname) {
+                            setTimeout(() => {
+                                addRecentWin(multiplayerData.nickname, amount, selectedToken, true);
+                            }, 500);
+                        }
+                        
+                        // 添加胜利聊天消息
+                        if (typeof addChatMessage === 'function' && multiplayerData && multiplayerData.nickname) {
+                            const levelMessages = {
+                                0: '小小收获也是好运气！💫',
+                                1: '不错的手气！🎁',
+                                2: '中奖了，继续加油！🏆',
+                                3: '大奖来了！手气真棒！💎',
+                                4: '超级大奖！！！太幸运了！🌟',
+                                5: '终极大奖！！！传说级运气！💰'
+                            };
+                            
+                            // 找到对应的奖励等级
+                            let rewardLevel = 0;
+                            if (amount >= 5000) rewardLevel = 5;
+                            else if (amount >= 2500) rewardLevel = 4;
+                            else if (amount >= 1200) rewardLevel = 3;
+                            else if (amount >= 500) rewardLevel = 2;
+                            else if (amount >= 200) rewardLevel = 1;
+                            
+                            setTimeout(() => {
+                                addChatMessage(multiplayerData.nickname, levelMessages[rewardLevel] || '中奖了！', 'user');
+                            }, 1000);
+                        }
+                    } else {
+                        alert('😅 谢谢惠顾！再试一次吧！');
+                    }
+                    
+                    lastResult.classList.remove('hidden');
+                    
+                    // 重置按钮
+                    resetGameButtons();
+                    
+                    // 连续游戏模式
+                    // 已移除连续游戏模式，此部分不再执行
+                }, 4000);
+
+            } catch (error) {
+                console.error('游戏错误:', error);
+                
+                let errorMessage = '游戏失败';
+                if (error.message.includes('user rejected')) {
+                    errorMessage = '用户取消了交易';
+                } else if (error.message.includes('insufficient funds')) {
+                    errorMessage = '余额不足支付gas费用';
+                } else if (error.message.includes('prize pool')) {
+                    errorMessage = `${selectedToken}游戏奖池暂时不可用，请尝试其他代币`;
+                } else if (error.message.includes('allowance')) {
+                    errorMessage = '代币授权不足，请重新授权';
+                } else {
+                    errorMessage = `游戏执行失败: ${error.reason || error.message}`;
+                }
+                
+                alert('❌ ' + errorMessage);
+                resetGameButtons();
+            }
+        }
+
+        // 连续游戏模式
+        function toggleContinuousMode() {
+            // 已移除连续游戏模式，此部分不再执行
+            alert('连续游戏功能已移除！');
+        }
+
+        // 重置游戏按钮状态 - 移除连续游戏功能
+        function resetGameButtons() {
+            isSpinning = false;
+            // 重置转盘样式
+            wheel.style.transition = 'transform 0.5s ease';
+            
+            spinBtn.innerHTML = '<div class="text-2xl">🎲</div><div class="text-[10px]">开始游戏</div>';
+            spinBtn.disabled = !isApproved;
+            startGameBtn.textContent = '🎮 开始游戏';
+            startGameBtn.disabled = !isApproved;
+        }
+
+        // 选择代币 - 移动端优化版本
+        async function selectToken(token) {
+            console.log(`点击切换代币: ${token}`);
+            
+            // 防止在游戏中切换
+            if (isSpinning) {
+                alert('🎮 游戏进行中，无法切换代币！');
+                return;
+            }
+            
+            // 防止重复切换
+            if (selectedToken === token) {
+                console.log(`已经选择了${token}，无需切换`);
+                return;
+            }
+            
+            // 立即更新UI反馈
+            const oldToken = selectedToken;
+            selectedToken = token;
+            
+            console.log(`代币切换: ${oldToken} → ${token}`);
+            
+            // 立即更新按钮样式 - 移动端优化
+            updateTokenButtonStyles();
+            
+            // 更新投注金额显示
+            betAmount.textContent = token === 'MAO' ? '100 MAO' : '1,000 PI';
+            
+            // 更新转盘奖励显示
+            updateWheelRewards();
+            
+            // 显示切换成功提示
+            showToast(`✅ 已切换到 ${token} 游戏`);
+            
+            // 异步刷新余额和授权状态
+            if (currentAccount) {
+                try {
+                    // 显示加载状态
+                    spinBtn.disabled = true;
+                    spinBtn.innerHTML = '<div class="text-2xl animate-spin">⏳</div><div class="text-[10px]">切换中</div>';
+                    
+                    await loadBalances();
+                    updateCurrentBalance();
+                    
+                    // 重置并检查授权状态
+                    isApproved = false;
+                    await checkApproval();
+                    
+                    console.log(`${token} 切换完成，授权状态: ${isApproved}`);
+                    
+                } catch (error) {
+                    console.error('切换代币错误:', error);
+                    showToast(`❌ 切换失败: ${error.message}`);
+                }
+            }
+        }
+
+        // 更新代币按钮样式 - 移动端优化
+        function updateTokenButtonStyles() {
+            // 移除所有激活状态
+            maoBtn.className = 'token-btn py-4 px-4 rounded-xl font-semibold transition-all transform active:scale-95';
+            piBtn.className = 'token-btn py-4 px-4 rounded-xl font-semibold transition-all transform active:scale-95';
+            
+            // 添加选中状态
+            if (selectedToken === 'MAO') {
+                maoBtn.className += ' bg-gradient-to-r from-blue-600 to-blue-700 text-white shadow-lg scale-105 border-2 border-yellow-400';
+                piBtn.className += ' bg-white/20 text-blue-200 hover:bg-white/30';
+            } else {
+                piBtn.className += ' bg-gradient-to-r from-purple-600 to-purple-700 text-white shadow-lg scale-105 border-2 border-yellow-400';
+                maoBtn.className += ' bg-white/20 text-blue-200 hover:bg-white/30';
+            }
+        }
+
+        // 添加触摸反馈提示
+        function showToast(message) {
+            // 创建提示元素
+            const toast = document.createElement('div');
+            toast.className = 'fixed top-20 left-1/2 transform -translate-x-1/2 bg-black/80 text-white px-4 py-2 rounded-lg text-sm z-50 animate-pulse';
+            toast.textContent = message;
+            
+            document.body.appendChild(toast);
+            
+            // 3秒后移除
+            setTimeout(() => {
+                if (toast.parentNode) {
+                    toast.parentNode.removeChild(toast);
+                }
+            }, 3000);
+        }
+
+        // 余额测试函数 - 详细调试版本
+        async function testBalance() {
+            if (!currentAccount) {
+                alert('❌ 请先连接钱包！');
+                return;
+            }
+            
+            try {
+                // 先刷新余额
+                await loadBalances();
+                
+                const maoBalance = parseFloat(balances.MAO) || 0;
+                const piBalance = parseFloat(balances.PI) || 0;
+                
+                // 检查授权状态
+                const maoContract = contracts.maoToken;
+                const piContract = contracts.piToken;
+                const maoAllowance = await maoContract.allowance(currentAccount, CONTRACTS.WHEEL_GAME);
+                const piAllowance = await piContract.allowance(currentAccount, CONTRACTS.WHEEL_GAME);
+                
+                const maoAllowanceFormatted = ethers.utils.formatEther(maoAllowance);
+                const piAllowanceFormatted = ethers.utils.formatEther(piAllowance);
+                
+                // 游戏要求 - 更正后的数值
+                const maoRequired = 100;
+                const piRequired = 1000;  // 修正为1,000 PI
+                const maoAuthRequired = 1000;
+                const piAuthRequired = 10000;  // 修正为10,000 PI授权
+                
+                // 检查游戏可用性
+                const maoGameAvailable = maoBalance >= maoRequired && parseFloat(maoAllowanceFormatted) >= maoAuthRequired;
+                const piGameAvailable = piBalance >= piRequired && parseFloat(piAllowanceFormatted) >= piAuthRequired;
+                
+                const debugInfo = `🔍 详细余额检查报告\n\n` +
+                    `💰 代币余额：\n` +
+                    `• MAO: ${maoBalance.toFixed(6)} (需要: ${maoRequired})\n` +
+                    `• PI: ${piBalance.toFixed(6)} (需要: ${piRequired})\n\n` +
+                    `🔐 授权状态：\n` +
+                    `• MAO授权: ${parseFloat(maoAllowanceFormatted).toFixed(2)} (需要: ${maoAuthRequired})\n` +
+                    `• PI授权: ${parseFloat(piAllowanceFormatted).toFixed(2)} (需要: ${piAuthRequired})\n\n` +
+                    `🎮 游戏可用性：\n` +
+                    `• MAO游戏: ${maoGameAvailable ? '✅ 可用' : '❌ 不可用'}\n` +
+                    `• PI游戏: ${piGameAvailable ? '✅ 可用' : '❌ 不可用'}\n\n` +
+                    `📊 当前选择: ${selectedToken}\n` +
+                    `🎯 当前游戏: ${selectedToken === 'MAO' ? (maoGameAvailable ? '✅ 可以开始' : '❌ 无法开始') : (piGameAvailable ? '✅ 可以开始' : '❌ 无法开始')}`;
+                
+                alert(debugInfo);
+                console.log('余额调试信息:', {
+                    balances: { mao: maoBalance, pi: piBalance },
+                    allowances: { mao: maoAllowanceFormatted, pi: piAllowanceFormatted },
+                    gameAvailable: { mao: maoGameAvailable, pi: piGameAvailable },
+                    selectedToken,
+                    isApproved
+                });
+                
+            } catch (error) {
+                console.error('余额测试错误:', error);
+                alert('❌ 余额测试失败: ' + error.message);
+            }
+        }
+
+        // 事件监听 - 使用新的移动端优化方案，旧版本已移除
+        // connectBtn.addEventListener('click', connectWallet);
+        // approveBtn.addEventListener('click', approveTokens);
+        // spinBtn.addEventListener('click', startGame);
+        // startGameBtn.addEventListener('click', startGame);
+        // testBalanceBtn.addEventListener('click', testBalance);
+        // maoBtn.addEventListener('click', async () => await selectToken('MAO'));
+        // piBtn.addEventListener('click', async () => await selectToken('PI'));
+        // 以上事件监听已由新的移动端修复方案接管
+    </script>
+</body>
+</html> 
