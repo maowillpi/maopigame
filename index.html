@@ -3,7 +3,34 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>🎰 MAO转盘游戏 - AlveyChain 区块链游戏</title>
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <title>🎰 MAO转盘游戏 - AlveyChain 区块链游戏 v3.0.3</title>
+    
+    <!-- 强制缓存清除 -->
+    <script>
+        // 强制清除所有缓存
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.getRegistrations().then(function(registrations) {
+                for(let registration of registrations) {
+                    registration.unregister();
+                }
+            });
+        }
+        
+        // 强制清除localStorage和sessionStorage
+        try {
+            localStorage.clear();
+            sessionStorage.clear();
+        } catch (e) {
+            console.log('清除存储失败:', e);
+        }
+        
+        // 添加时间戳到所有资源
+        const timestamp = Date.now();
+        console.log('v3.0.3 移除百分比版本时间戳:', timestamp);
+    </script>
     
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -58,8 +85,8 @@
     
     <!-- 头部 -->
     <div class="glass-effect sticky top-0 z-50 px-4 py-3 text-center">
-        <h1 class="text-xl font-bold text-white">🎰 MAO转盘游戏</h1>
-        <p class="text-xs text-blue-200">AlveyChain 区块链游戏</p>
+        <h1 class="text-xl font-bold text-white">🎰 MAO转盘游戏 <span class="text-yellow-400 text-sm">v3.0.3</span></h1>
+        <p class="text-xs text-blue-200">AlveyChain 区块链游戏 · 无百分比专业版</p>
     </div>
 
     <!-- 主要内容 -->
