@@ -259,10 +259,11 @@ export default function MobileGame() {
           <div className="space-y-6">
             {/* 转盘游戏 */}
             <MobileWheelGame
-              gameToken={gameToken}
+              selectedToken={gameToken}
               account={account}
               balances={balances}
               contract={contracts.wheelGame}
+              onUpdateBalances={updateBalances}
               onGameResult={handleGameResult}
             />
 

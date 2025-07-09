@@ -2,50 +2,25 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <!-- 强制清除缓存 - v3.2.1 -->
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <title>🎰 MAO转盘游戏 - AlveyChain 区块链游戏 v3.2.0</title>
     
-    <!-- 强制缓存清除 - 加强版 -->
+    <title>🎰 MAO转盘游戏 - AlveyChain v3.2.1</title>
+    
+    <!-- 强制刷新版本检查 -->
     <script>
-        // 强制清除所有缓存
-        if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.getRegistrations().then(function(registrations) {
-                for(let registration of registrations) {
-                    registration.unregister();
-                }
-            });
-        }
-        
-        // 强制清除localStorage和sessionStorage
-        try {
+        const CURRENT_VERSION = 'v3.2.1-fixed';
+        const lastVersion = localStorage.getItem('maogame_version');
+        if (lastVersion !== CURRENT_VERSION) {
             localStorage.clear();
             sessionStorage.clear();
-        } catch (e) {
-            console.log('清除存储失败:', e);
+            localStorage.setItem('maogame_version', CURRENT_VERSION);
+            console.log('🎉 MAO转盘v3.2.1修复版！');
         }
-        
-        // 强制刷新缓存
-        if ('caches' in window) {
-            caches.keys().then(function(names) {
-                names.forEach(function(name) {
-                    caches.delete(name);
-                });
-            });
-        }
-        
-        // 添加强制刷新标记
-        const forceRefresh = Date.now();
-        const urlParams = new URLSearchParams(window.location.search);
-        if (!urlParams.has('v') || urlParams.get('v') !== '3.2.0') {
-            window.location.href = window.location.pathname + '?v=3.2.0&t=' + forceRefresh;
-        }
-        
-        // 添加时间戳到所有资源
-        const timestamp = Date.now();
-        console.log('v3.2.0 强制更新版本时间戳:', timestamp);
     </script>
     
     <!-- Tailwind CSS CDN -->

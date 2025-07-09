@@ -6,34 +6,29 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <title>🎰 MAO转盘游戏 - AlveyChain 区块链游戏 v3.2.0</title>
+    <title>🎰 MAO转盘游戏 - AlveyChain 区块链游戏 v3.2.1</title>
     
-    <!-- 强制缓存清除 - v3.2.0 加强版 -->
+    <!-- 强制缓存清除 - v3.2.1 加强版 -->
     <script>
-        // 强制清除所有缓存
-        if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.getRegistrations().then(function(registrations) {
-                for(let registration of registrations) {
-                    registration.unregister();
-                }
-            });
-        }
+        const CURRENT_VERSION = 'v3.2.1-professional-fixed';
+        const lastVersion = localStorage.getItem('maogame_version');
         
-        // 强制清除localStorage和sessionStorage
-        try {
+        if (lastVersion !== CURRENT_VERSION) {
+            console.log('🔄 检测到v3.2.1专业修复版更新，清除缓存...');
             localStorage.clear();
             sessionStorage.clear();
-        } catch (e) {
-            console.log('清除存储失败:', e);
-        }
-        
-        // 强制刷新缓存
-        if ('caches' in window) {
-            caches.keys().then(function(names) {
-                names.forEach(function(name) {
-                    caches.delete(name);
+            localStorage.setItem('maogame_version', CURRENT_VERSION);
+            
+            // 强制清除缓存
+            if ('caches' in window) {
+                caches.keys().then(names => {
+                    names.forEach(name => {
+                        caches.delete(name);
+                    });
                 });
-            });
+            }
+            
+            console.log('✅ v3.2.1 MAO转盘专业修复版已加载！');
         }
         
         // 添加强制刷新标记
@@ -184,13 +179,13 @@
         .professional-wheel {
             background: conic-gradient(
                 from 0deg,
-                #6B7280 0deg 51.43deg,   /* 谢谢惠顾 - 灰色 60% */
-                #FF6B6B 51.43deg 102.86deg,   /* 安慰奖 - 红色 20% */
-                #4ECDC4 102.86deg 154.29deg, /* 小奖 - 青绿色 12% */
-                #45B7D1 154.29deg 205.72deg, /* 中奖 - 蓝色 5% */
-                #96CEB4 205.72deg 257.15deg, /* 大奖 - 薄荷绿 2.5% */
-                #FFEAA7 257.15deg 308.58deg, /* 超级大奖 - 金黄色 0.4% */
-                #DDA0DD 308.58deg 360deg     /* 终极大奖 - 紫色 0.1% */
+                #6B7280 0deg 51.43deg,   /* 谢谢惠顾 - 灰色 */
+                #FF6B6B 51.43deg 102.86deg,   /* 安慰奖 - 红色 */
+                #4ECDC4 102.86deg 154.29deg, /* 小奖 - 青绿色 */
+                #45B7D1 154.29deg 205.72deg, /* 中奖 - 蓝色 */
+                #96CEB4 205.72deg 257.15deg, /* 大奖 - 薄荷绿 */
+                #FFEAA7 257.15deg 308.58deg, /* 超级大奖 - 金黄色 */
+                #DDA0DD 308.58deg 360deg     /* 终极大奖 - 紫色 */
             );
             border: 8px solid #FFD700;
             box-shadow: 
@@ -582,49 +577,49 @@
                             class="w-80 h-80 rounded-full professional-wheel wheel-animation shadow-2xl relative overflow-hidden"
                         >
                             <!-- 转盘奖项区域 - v3.2.0 七级奖励系统 -->
-                            <!-- 区域0: 谢谢惠顾 (0-51.43度) - 60%概率 -->
+                            <!-- 区域0: 谢谢惠顾 -->
                             <div class="wheel-section absolute top-6 left-1/2 transform -translate-x-1/2 text-center">
                                 <div class="emoji">😊</div>
                                 <div class="text-sm font-bold mb-1">谢谢惠顾</div>
                                 <div class="reward-badge" id="reward0">0</div>
                             </div>
                             
-                            <!-- 区域1: 安慰奖 (51.43-102.86度) - 20%概率 -->
+                            <!-- 区域1: 安慰奖 -->
                             <div class="wheel-section absolute top-10 right-8 transform text-center">
                                 <div class="emoji">🎁</div>
                                 <div class="text-sm font-bold mb-1">安慰奖</div>
                                 <div class="reward-badge" id="reward1">25</div>
                             </div>
                             
-                            <!-- 区域2: 小奖 (102.86-154.29度) - 12%概率 -->
+                            <!-- 区域2: 小奖 -->
                             <div class="wheel-section absolute top-20 right-4 transform text-center">
                                 <div class="emoji">🏆</div>
                                 <div class="text-sm font-bold mb-1">小奖</div>
                                 <div class="reward-badge" id="reward2">80</div>
                             </div>
                             
-                            <!-- 区域3: 中奖 (154.29-205.72度) - 5%概率 -->
+                            <!-- 区域3: 中奖 -->
                             <div class="wheel-section absolute bottom-10 right-8 transform text-center">
                                 <div class="emoji">💎</div>
                                 <div class="text-sm font-bold mb-1">中奖</div>
                                 <div class="reward-badge" id="reward3">200</div>
                             </div>
                             
-                            <!-- 区域4: 大奖 (205.72-257.15度) - 2.5%概率 -->
+                            <!-- 区域4: 大奖 -->
                             <div class="wheel-section absolute bottom-6 left-1/2 transform -translate-x-1/2 text-center">
                                 <div class="emoji">🌟</div>
                                 <div class="text-sm font-bold mb-1">大奖</div>
                                 <div class="reward-badge" id="reward4">500</div>
                             </div>
                             
-                            <!-- 区域5: 超级大奖 (257.15-308.58度) - 0.4%概率 -->
+                            <!-- 区域5: 超级大奖 -->
                             <div class="wheel-section absolute bottom-10 left-8 transform text-center">
                                 <div class="emoji">⭐</div>
                                 <div class="text-sm font-bold mb-1">超级</div>
                                 <div class="reward-badge" id="reward5">1,000</div>
                             </div>
                             
-                            <!-- 区域6: 终极大奖 (308.58-360度) - 0.1%概率 -->
+                            <!-- 区域6: 终极大奖 -->
                             <div class="wheel-section absolute top-10 left-8 transform text-center">
                                 <div class="emoji">💰</div>
                                 <div class="text-sm font-bold mb-1">终极</div>
@@ -1427,7 +1422,7 @@
                 const maoRequired = 100;
                 const piRequired = 1000;  // 修正为1,000 PI
                 const maoAuthRequired = 1000;
-                const piAuthRequired = 10000;  // 修正为10,000 PI授权
+                const piAuthRequired = 10000;  // PI代币授权数量
                 
                 // 检查游戏可用性
                 const maoGameAvailable = maoBalance >= maoRequired && parseFloat(maoAllowanceFormatted) >= maoAuthRequired;
