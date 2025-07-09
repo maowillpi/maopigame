@@ -6,7 +6,7 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <title>🎰 MAO转盘游戏 - AlveyChain 区块链游戏 v3.1.0</title>
+    <title>🎰 MAO转盘游戏 - AlveyChain 区块链游戏 v3.2.0</title>
     
     <!-- 强制缓存清除 -->
     <script>
@@ -29,7 +29,7 @@
         
         // 添加时间戳到所有资源
         const timestamp = Date.now();
-        console.log('v3.1.0 最新规则版本时间戳:', timestamp);
+        console.log('v3.2.0 优化奖励版本时间戳:', timestamp);
     </script>
     
     <!-- Tailwind CSS CDN -->
@@ -85,8 +85,8 @@
     
     <!-- 头部 -->
     <div class="glass-effect sticky top-0 z-50 px-4 py-3 text-center">
-        <h1 class="text-xl font-bold text-white">🎰 MAO转盘游戏 <span class="text-yellow-400 text-sm">v3.1.0</span></h1>
-        <p class="text-xs text-blue-200">AlveyChain 区块链游戏 · 无百分比专业版</p>
+        <h1 class="text-xl font-bold text-white">🎰 MAO转盘游戏 <span class="text-yellow-400 text-sm">v3.2.0</span></h1>
+        <p class="text-xs text-blue-200">AlveyChain 区块链游戏 · 优化奖励版</p>
     </div>
 
     <!-- 主要内容 -->
@@ -112,23 +112,23 @@
                 <div class="grid grid-cols-2 gap-3 text-sm">
                     <div class="glass-effect rounded-lg p-3 text-center">
                         <div class="text-2xl mb-1">🎁</div>
-                        <div class="text-yellow-400 font-bold">小奖</div>
-                        <div class="text-white text-xs">150 MAO</div>
+                        <div class="text-yellow-400 font-bold">安慰奖</div>
+                        <div class="text-white text-xs">25 MAO</div>
                     </div>
                     <div class="glass-effect rounded-lg p-3 text-center">
                         <div class="text-2xl mb-1">🏆</div>
-                        <div class="text-yellow-400 font-bold">大奖</div>
-                        <div class="text-white text-xs">800 MAO</div>
+                        <div class="text-yellow-400 font-bold">小奖</div>
+                        <div class="text-white text-xs">80 MAO</div>
                     </div>
                     <div class="glass-effect rounded-lg p-3 text-center">
                         <div class="text-2xl mb-1">🌟</div>
-                        <div class="text-yellow-400 font-bold">超级大奖</div>
-                        <div class="text-white text-xs">1,500 MAO</div>
+                        <div class="text-yellow-400 font-bold">大奖</div>
+                        <div class="text-white text-xs">500 MAO</div>
                     </div>
                     <div class="glass-effect rounded-lg p-3 text-center">
                         <div class="text-2xl mb-1">💰</div>
                         <div class="text-yellow-400 font-bold">终极大奖</div>
-                        <div class="text-white text-xs">3,000 MAO</div>
+                        <div class="text-white text-xs">2,000 MAO</div>
                     </div>
                 </div>
             </div>
@@ -198,46 +198,53 @@
                             id="wheel"
                             class="w-72 h-72 rounded-full border-4 border-yellow-400 wheel-animation shadow-2xl"
                             style="background: conic-gradient(
-                                #6B7280 0deg 60deg,
-                                #F59E0B 60deg 120deg,
-                                #EF4444 120deg 180deg,
-                                #8B5CF6 180deg 240deg,
-                                #10B981 240deg 300deg,
-                                #F97316 300deg 360deg
+                                #6B7280 0deg 51.43deg,
+                                #F59E0B 51.43deg 102.86deg,
+                                #EF4444 102.86deg 154.29deg,
+                                #8B5CF6 154.29deg 205.72deg,
+                                #10B981 205.72deg 257.15deg,
+                                #F97316 257.15deg 308.58deg,
+                                #DC2626 308.58deg 360deg
                             )"
                         >
-                            <!-- 转盘奖项 -->
-                            <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 rotate-[30deg] translate-y-[-120px] -rotate-[30deg]">
+                            <!-- 转盘奖项 - 7个区域 -->
+                            <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 rotate-[25.72deg] translate-y-[-120px] -rotate-[25.72deg]">
                                 <div class="text-center text-white font-bold">
                                     <div class="text-lg">😊</div>
                                     <div class="text-[10px]">谢谢惠顾</div>
                             </div>
                             </div>
-                            <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 rotate-[90deg] translate-y-[-120px] -rotate-[90deg]">
+                            <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 rotate-[77.15deg] translate-y-[-120px] -rotate-[77.15deg]">
                                 <div class="text-center text-white font-bold">
                                     <div class="text-lg">🎁</div>
+                                    <div class="text-[10px]">安慰奖</div>
+                            </div>
+                            </div>
+                            <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 rotate-[128.58deg] translate-y-[-120px] -rotate-[128.58deg]">
+                                <div class="text-center text-white font-bold">
+                                    <div class="text-lg">🏆</div>
                                     <div class="text-[10px]">小奖</div>
                             </div>
                             </div>
-                            <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 rotate-[150deg] translate-y-[-120px] -rotate-[150deg]">
-                                <div class="text-center text-white font-bold">
-                                    <div class="text-lg">🏆</div>
-                                    <div class="text-[10px]">中奖</div>
-                            </div>
-                            </div>
-                            <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 rotate-[210deg] translate-y-[-120px] -rotate-[210deg]">
+                            <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 rotate-[180deg] translate-y-[-120px] -rotate-[180deg]">
                                 <div class="text-center text-white font-bold">
                                     <div class="text-lg">💎</div>
+                                    <div class="text-[10px]">中奖</div>
+                                </div>
+                            </div>
+                            <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 rotate-[231.43deg] translate-y-[-120px] -rotate-[231.43deg]">
+                                <div class="text-center text-white font-bold">
+                                    <div class="text-lg">🌟</div>
                                     <div class="text-[10px]">大奖</div>
                                 </div>
                             </div>
-                            <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 rotate-[270deg] translate-y-[-120px] -rotate-[270deg]">
+                            <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 rotate-[282.86deg] translate-y-[-120px] -rotate-[282.86deg]">
                                 <div class="text-center text-white font-bold">
-                                    <div class="text-lg">🌟</div>
+                                    <div class="text-lg">⭐</div>
                                     <div class="text-[10px]">超级大奖</div>
                                 </div>
                             </div>
-                            <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 rotate-[330deg] translate-y-[-120px] -rotate-[330deg]">
+                            <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 rotate-[334.29deg] translate-y-[-120px] -rotate-[334.29deg]">
                                 <div class="text-center text-white font-bold">
                                     <div class="text-lg">💰</div>
                                     <div class="text-[10px]">终极大奖</div>
@@ -333,11 +340,12 @@
 
         const REWARDS = [
             { name: '谢谢惠顾', mao: 0, pi: 0, emoji: '😊' },
-            { name: '小奖', mao: 150, pi: 1500, emoji: '🎁' },
-            { name: '中奖', mao: 400, pi: 4000, emoji: '🏆' },
-            { name: '大奖', mao: 800, pi: 8000, emoji: '💎' },
-            { name: '超级大奖', mao: 1500, pi: 15000, emoji: '🌟' },
-            { name: '终极大奖', mao: 3000, pi: 30000, emoji: '💰' }
+            { name: '安慰奖', mao: 25, pi: 250, emoji: '🎁' },
+            { name: '小奖', mao: 80, pi: 800, emoji: '🏆' },
+            { name: '中奖', mao: 200, pi: 2000, emoji: '💎' },
+            { name: '大奖', mao: 500, pi: 5000, emoji: '🌟' },
+            { name: '超级大奖', mao: 1000, pi: 10000, emoji: '⭐' },
+            { name: '终极大奖', mao: 2000, pi: 20000, emoji: '💰' }
         ];
 
         // 游戏状态
@@ -542,7 +550,7 @@
                 }
 
                 // 调整转盘到最终位置
-                const finalAngle = rewardLevel * 60;
+                const finalAngle = rewardLevel * 51.43; // 更新为7个区域，每个51.43度
                 const finalRotation = randomSpins - (randomSpins % 360) + finalAngle;
                 wheel.style.transform = `rotate(${finalRotation}deg)`;
 
@@ -626,8 +634,8 @@
             betAmount.textContent = token === 'MAO' ? '100 MAO' : '1,000 PI';
             
             // 更新余额显示
-            updateCurrentBalance();
-            
+                    updateCurrentBalance();
+                    
             // 延迟执行重新检查授权，避免频繁切换导致的卡顿
             switchTimeout = setTimeout(() => {
                 if (currentAccount) {

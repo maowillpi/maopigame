@@ -7,35 +7,37 @@ const MobileWheelGame = ({ account, contract, balances, selectedToken, onUpdateB
   const [showResult, setShowResult] = useState(false);
   const wheelRef = useRef(null);
 
-  // 奖励配置
+  // 奖励配置 - 优化整数版本
   const rewardConfig = {
     MAO: {
       betAmount: 100,
       rewards: [
         { level: 0, name: '谢谢惠顾', amount: 0, color: '#6B7280', textColor: '#FFFFFF' },
-        { level: 1, name: '小奖', amount: 150, color: '#F59E0B', textColor: '#FFFFFF' },
-        { level: 2, name: '中奖', amount: 400, color: '#EF4444', textColor: '#FFFFFF' },
-        { level: 3, name: '大奖', amount: 800, color: '#8B5CF6', textColor: '#FFFFFF' },
-        { level: 4, name: '超级大奖', amount: 1500, color: '#10B981', textColor: '#FFFFFF' },
-        { level: 5, name: '终极大奖', amount: 3000, color: '#F97316', textColor: '#FFFFFF' }
+        { level: 1, name: '安慰奖', amount: 25, color: '#F59E0B', textColor: '#FFFFFF' },
+        { level: 2, name: '小奖', amount: 80, color: '#EF4444', textColor: '#FFFFFF' },
+        { level: 3, name: '中奖', amount: 200, color: '#8B5CF6', textColor: '#FFFFFF' },
+        { level: 4, name: '大奖', amount: 500, color: '#10B981', textColor: '#FFFFFF' },
+        { level: 5, name: '超级大奖', amount: 1000, color: '#F97316', textColor: '#FFFFFF' },
+        { level: 6, name: '终极大奖', amount: 2000, color: '#DC2626', textColor: '#FFFFFF' }
       ]
     },
     PI: {
       betAmount: 1000,
       rewards: [
         { level: 0, name: '谢谢惠顾', amount: 0, color: '#6B7280', textColor: '#FFFFFF' },
-        { level: 1, name: '小奖', amount: 1500, color: '#F59E0B', textColor: '#FFFFFF' },
-        { level: 2, name: '中奖', amount: 4000, color: '#EF4444', textColor: '#FFFFFF' },
-        { level: 3, name: '大奖', amount: 8000, color: '#8B5CF6', textColor: '#FFFFFF' },
-        { level: 4, name: '超级大奖', amount: 15000, color: '#10B981', textColor: '#FFFFFF' },
-        { level: 5, name: '终极大奖', amount: 30000, color: '#F97316', textColor: '#FFFFFF' }
+        { level: 1, name: '安慰奖', amount: 250, color: '#F59E0B', textColor: '#FFFFFF' },
+        { level: 2, name: '小奖', amount: 800, color: '#EF4444', textColor: '#FFFFFF' },
+        { level: 3, name: '中奖', amount: 2000, color: '#8B5CF6', textColor: '#FFFFFF' },
+        { level: 4, name: '大奖', amount: 5000, color: '#10B981', textColor: '#FFFFFF' },
+        { level: 5, name: '超级大奖', amount: 10000, color: '#F97316', textColor: '#FFFFFF' },
+        { level: 6, name: '终极大奖', amount: 20000, color: '#DC2626', textColor: '#FFFFFF' }
       ]
     }
   };
 
   // 计算转盘区域
   const calculateSections = (rewards) => {
-    const anglePerSection = 360 / 6;
+    const anglePerSection = 360 / 7;
     return rewards.map((reward, index) => ({
       ...reward,
       startAngle: index * anglePerSection,
