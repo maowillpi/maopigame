@@ -10,7 +10,7 @@ const WheelGame = ({ account, contract, balances, onUpdateBalances, onGameResult
   const animationRef = useRef(null);
   const cachedCanvas = useRef(null);
 
-  // 奖励配置 - 7个区域平均分配，优化整数版本 v3.2.1
+  // 奖励配置 - 7个区域平均分配，优化整数版本
   const rewardConfig = useMemo(() => ({
     MAO: {
       betAmount: 100,
@@ -292,28 +292,28 @@ const WheelGame = ({ account, contract, balances, onUpdateBalances, onGameResult
       // 优先使用智能合约，fallback到模拟
       let result;
       try {
-      // 调用智能合约
-      let tx;
-      if (selectedToken === 'MAO') {
-        tx = await contract.playMAOGame();
-      } else {
-        tx = await contract.playPIGame();
-      }
+        // 调用智能合约
+        let tx;
+        if (selectedToken === 'MAO') {
+          tx = await contract.playMAOGame();
+        } else {
+          tx = await contract.playPIGame();
+        }
 
-      // 等待交易确认
-      const receipt = await tx.wait();
-      
-      // 解析事件获取结果
-        const gameEvent = receipt.events?.find(event => event.event === 'GamePlayed');
-      if (gameEvent) {
-          const { rewardAmount, rewardLevel } = gameEvent.args;
+        // 等待交易确认
+        const receipt = await tx.wait();
         
+        // 解析事件获取结果
+        const gameEvent = receipt.events?.find(event => event.event === 'GamePlayed');
+        if (gameEvent) {
+          const { rewardAmount, rewardLevel } = gameEvent.args;
+          
           result = {
-          level: rewardLevel,
-          name: config.rewards[rewardLevel].name,
+            level: rewardLevel,
+            name: config.rewards[rewardLevel].name,
             amount: parseFloat(ethers.formatEther(rewardAmount)),
-          isWin: rewardLevel > 0
-        };
+            isWin: rewardLevel > 0
+          };
         } else {
           throw new Error('未找到游戏事件');
         }
@@ -322,15 +322,15 @@ const WheelGame = ({ account, contract, balances, onUpdateBalances, onGameResult
         result = simulateGame();
       }
 
-        setLastResult(result);
+      setLastResult(result);
 
-        // 计算转盘停止位置
+      // 计算转盘停止位置
       const section = sections[result.level];
-        const randomAngleInSection = Math.random() * section.angle;
-        const finalAngle = 360 - (section.startAngle + randomAngleInSection);
+      const randomAngleInSection = Math.random() * section.angle;
+      const finalAngle = 360 - (section.startAngle + randomAngleInSection);
 
-        // 开始转盘动画
-        spinWheel(finalAngle);
+      // 开始转盘动画
+      spinWheel(finalAngle);
 
       // 更新余额和通知结果
       setTimeout(() => {
@@ -381,21 +381,21 @@ const WheelGame = ({ account, contract, balances, onUpdateBalances, onGameResult
       <div className="text-center mb-6">
         <h3 className="text-2xl font-bold text-white mb-4">🎰 转盘游戏</h3>
         <div className="flex justify-center">
-        <div className="bg-white/20 rounded-lg p-1 flex">
-          {['MAO', 'PI'].map((token) => (
-            <button
-              key={token}
+          <div className="bg-white/20 rounded-lg p-1 flex">
+            {['MAO', 'PI'].map((token) => (
+              <button
+                key={token}
                 onClick={() => switchToken(token)}
                 disabled={isSpinning}
                 className={`py-2 px-6 rounded-md font-semibold transition-all duration-200 ${
-                selectedToken === token
-                  ? 'bg-blue-600 text-white shadow-lg'
+                  selectedToken === token
+                    ? 'bg-blue-600 text-white shadow-lg'
                     : 'text-blue-200 hover:text-white hover:bg-white/10'
                 } ${isSpinning ? 'cursor-not-allowed opacity-50' : ''}`}
-            >
-              {token}
-            </button>
-          ))}
+              >
+                {token}
+              </button>
+            ))}
           </div>
         </div>
       </div>

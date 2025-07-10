@@ -102,21 +102,17 @@ const MobileMultiWalletConnection = ({ account, balances, onConnect, onDisconnec
   const initializeWalletConnect = async () => {
     try {
       const provider = await EthereumProvider.init({
-        projectId: process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID || 'c4f79cc821d1f5821e3f6f001cfe0e45',
+        projectId: process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID || '2f5a2c1a2b3c3d4e5f6g7h8i9j0k1l2m',
         chains: [3797], // AlveyChain
         optionalChains: [3797],
         rpcMap: {
-          3797: [
-            'https://elves-core1.alvey.io',
-            'https://elves-core2.alvey.io',
-            'https://elves-core3.alvey.io'
-          ]
+          3797: 'https://elves-core1.alvey.io'
         },
         metadata: {
           name: 'MAO转盘游戏',
           description: 'AlveyChain上的MAO转盘游戏',
-          url: window.location.origin,
-          icons: [`${window.location.origin}/icon.png`]
+          url: 'https://mao-game.alvey.io',
+          icons: ['https://mao-game.alvey.io/icon.png']
         }
       });
 
@@ -150,27 +146,6 @@ const MobileMultiWalletConnection = ({ account, balances, onConnect, onDisconnec
       const ethersProvider = new ethers.BrowserProvider(provider);
       const signer = await ethersProvider.getSigner();
       
-      // 检查网络并自动切换
-      const network = await ethersProvider.getNetwork();
-      const chainId = Number(network.chainId);
-      if (chainId !== 3797) {
-        try {
-          await provider.request({
-            method: 'wallet_switchEthereumChain',
-            params: [{ chainId: '0xED5' }],
-          });
-        } catch (switchError) {
-          if (switchError.code === 4902) {
-            await provider.request({
-              method: 'wallet_addEthereumChain',
-              params: [ALVEY_NETWORK],
-            });
-          } else {
-            throw new Error('网络切换失败，请手动切换到AlveyChain');
-          }
-        }
-      }
-      
       if (onConnect) {
         onConnect({
           account: accountAddress,
@@ -186,7 +161,6 @@ const MobileMultiWalletConnection = ({ account, balances, onConnect, onDisconnec
     } catch (error) {
       console.error('Handle wallet connection error:', error);
       setIsConnecting(false);
-      alert('钱包连接失败: ' + (error.message || '未知错误'));
     }
   };
 
@@ -198,47 +172,13 @@ const MobileMultiWalletConnection = ({ account, balances, onConnect, onDisconnec
       
       let provider = walletConnectProvider;
       if (!provider) {
-        console.log('初始化 WalletConnect...');
         provider = await initializeWalletConnect();
       }
 
-      console.log('正在连接钱包...');
       await provider.connect();
-      
-      // 检查网络
-      const chainId = await provider.request({ method: 'eth_chainId' });
-      if (chainId !== ALVEY_NETWORK.chainId) {
-        console.log('切换到 AlveyChain 网络...');
-        try {
-          await provider.request({
-            method: 'wallet_switchEthereumChain',
-            params: [{ chainId: ALVEY_NETWORK.chainId }],
-          });
-        } catch (switchError) {
-          if (switchError.code === 4902) {
-            console.log('添加 AlveyChain 网络...');
-            await provider.request({
-              method: 'wallet_addEthereumChain',
-              params: [ALVEY_NETWORK],
-            });
-          } else {
-            throw switchError;
-          }
-        }
-      }
     } catch (error) {
-      console.error('连接钱包错误:', error);
-      let errorMessage = '连接失败';
-      
-      if (error.message.includes('User rejected')) {
-        errorMessage = '用户取消了连接请求';
-      } else if (error.message.includes('network')) {
-        errorMessage = '网络连接错误，请检查网络后重试';
-      } else if (error.message.includes('chain')) {
-        errorMessage = '网络切换失败，请手动切换到 AlveyChain';
-      }
-      
-      alert(errorMessage);
+      console.error('Connect wallet error:', error);
+      alert('连接钱包失败: ' + error.message);
       setIsConnecting(false);
     }
   };
@@ -297,20 +237,12 @@ const MobileMultiWalletConnection = ({ account, balances, onConnect, onDisconnec
           <div className="text-4xl mb-4">📱</div>
           <p className="text-blue-200 mb-4 text-sm">选择您的手机钱包</p>
           
-          {isConnecting && (
-            <div className="mb-4">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500 mx-auto mb-2"></div>
-              <p className="text-blue-200 text-sm">正在连接钱包，请在钱包中确认...</p>
-            </div>
-          )}
-          
           {!showWalletOptions ? (
             <button
               onClick={() => setShowWalletOptions(true)}
-              disabled={isConnecting}
-              className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-bold py-3 px-6 rounded-lg transition-all duration-200 transform hover:scale-105 disabled:opacity-50"
+              className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-bold py-3 px-6 rounded-lg transition-all duration-200 transform hover:scale-105"
             >
-              {isConnecting ? '连接中...' : '🔗 连接钱包'}
+              🔗 连接钱包
             </button>
           ) : (
             <div className="space-y-3">
