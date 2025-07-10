@@ -59,11 +59,11 @@
         // 移动端兼容性修复
         document.addEventListener('DOMContentLoaded', function() {
             // 版本检查 - 强制清除缓存
-            const currentVersion = 'v3.2.0-professional';
+            const currentVersion = 'v3.2.1-professional-fixed';
             const lastVersion = localStorage.getItem('maogame_version');
             
             if (lastVersion !== currentVersion) {
-                console.log('🔄 检测到v3.2.0专业版更新，清除缓存...');
+                console.log('🔄 检测到v3.2.1专业版更新，清除缓存...');
                 localStorage.setItem('maogame_version', currentVersion);
                 
                 // 强制清除缓存的方法
@@ -77,7 +77,7 @@
                 
                 // 如果不是第一次加载，则刷新页面
                 if (lastVersion && lastVersion !== currentVersion) {
-                    alert('🎉 MAO转盘v3.2.0专业修复版！\n\n✅ 关键修复：\n🔥 完全移除百分比显示\n🎨 纯专业转盘设计\n💎 奖励预览界面优化\n📱 移动端体验完善\n\n🚀 正在加载最新版本...');
+                    alert('🎉 MAO转盘v3.2.1专业修复版！\n\n✅ 关键修复：\n🔥 完全移除百分比显示\n🎨 纯专业转盘设计\n💎 奖励预览界面优化\n📱 移动端体验完善\n\n🚀 正在加载最新版本...');
                     setTimeout(() => {
                         window.location.href = window.location.href + '?v=' + Date.now();
                     }, 2000);
@@ -957,7 +957,7 @@
                             await checkApproval();
                             updateWheelRewards();
                             testBalanceBtn.style.display = 'block';
-                            return;
+                    return;
                         }
                     } catch (e) {
                         alert('TP钱包连接失败: ' + (e.message || e));
@@ -986,43 +986,43 @@
                 // 3. MetaMask/Coinbase/OKX等标准EIP-1193钱包
                 if (window.ethereum) {
                     try {
-                        const chainId = await window.ethereum.request({ method: 'eth_chainId' });
-                        if (chainId !== ALVEY_NETWORK.chainId) {
-                            try {
-                                await window.ethereum.request({
-                                    method: 'wallet_switchEthereumChain',
-                                    params: [{ chainId: ALVEY_NETWORK.chainId }],
-                                });
-                            } catch (switchError) {
-                                if (switchError.code === 4902) {
-                                    await window.ethereum.request({
-                                        method: 'wallet_addEthereumChain',
-                                        params: [ALVEY_NETWORK],
-                                    });
-                                }
-                            }
+                const chainId = await window.ethereum.request({ method: 'eth_chainId' });
+                if (chainId !== ALVEY_NETWORK.chainId) {
+                    try {
+                        await window.ethereum.request({
+                            method: 'wallet_switchEthereumChain',
+                            params: [{ chainId: ALVEY_NETWORK.chainId }],
+                        });
+                    } catch (switchError) {
+                        if (switchError.code === 4902) {
+                            await window.ethereum.request({
+                                method: 'wallet_addEthereumChain',
+                                params: [ALVEY_NETWORK],
+                            });
                         }
+                    }
+                }
                         const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
-                        if (accounts.length > 0) {
-                            currentAccount = accounts[0];
-                            provider = new ethers.providers.Web3Provider(window.ethereum);
-                            signer = provider.getSigner();
+                if (accounts.length > 0) {
+                    currentAccount = accounts[0];
+                    provider = new ethers.providers.Web3Provider(window.ethereum);
+                    signer = provider.getSigner();
                             showToast('钱包已连接: ' + currentAccount);
                             walletConnect.style.display = 'none';
                             gameInterface.style.display = 'block';
-                            userAddress.textContent = currentAccount.slice(0, 6) + '...' + currentAccount.slice(-4);
-                            await loadBalances();
-                            await checkApproval();
-                            updateWheelRewards();
-                            testBalanceBtn.style.display = 'block';
+                    userAddress.textContent = currentAccount.slice(0, 6) + '...' + currentAccount.slice(-4);
+                    await loadBalances();
+                    await checkApproval();
+                    updateWheelRewards();
+                    testBalanceBtn.style.display = 'block';
                             return;
-                        }
+                }
                     } catch (e) {
                         alert('钱包连接失败: ' + (e.message || e));
-                        connectBtn.textContent = '🔗 连接钱包开始游戏';
-                        connectBtn.disabled = false;
-                    }
-                }
+                connectBtn.textContent = '🔗 连接钱包开始游戏';
+                connectBtn.disabled = false;
+            }
+        }
 
                 // 4. 其它钱包/未检测到钱包
                 showMobileWalletOptions();
