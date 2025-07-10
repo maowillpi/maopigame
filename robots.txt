@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+Sitemap: https://maopi.me/sitemap.xml
+
+# Disallow potentially sensitive directories
+Disallow: /.git/
+Disallow: /node_modules/
+Disallow: /temp_deploy/ 
