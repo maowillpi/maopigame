@@ -58,7 +58,7 @@
                 const maoBalanceWei = await maoContract.balanceOf(userAddress);
                 const piBalanceWei = await piContract.balanceOf(userAddress);
                 
-                // 4. 格式化显示
+                // 4. 格式化显示 - 恢复18位小数
                 const maoBalance = ethers.utils.formatUnits(maoBalanceWei, 18);
                 const piBalance = ethers.utils.formatUnits(piBalanceWei, 18);
                 

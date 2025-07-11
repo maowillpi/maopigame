@@ -509,29 +509,29 @@
                 <div class="grid grid-cols-2 gap-3 text-sm">
                     <div class="glass-effect rounded-lg p-3 text-center">
                         <div class="text-2xl mb-1">🎁</div>
-                        <div class="text-yellow-400 font-bold">小奖 22%</div>
-                        <div class="text-white text-xs">105 MAO</div>
+                        <div class="text-yellow-400 font-bold">小奖 8%</div>
+                        <div class="text-white text-xs">150 MAO</div>
                         <div class="text-green-400 text-xs">有盈利！</div>
                     </div>
                     <div class="glass-effect rounded-lg p-3 text-center">
                         <div class="text-2xl mb-1">🏆</div>
-                        <div class="text-yellow-400 font-bold">中奖 12%</div>
-                        <div class="text-white text-xs">150 MAO</div>
+                        <div class="text-yellow-400 font-bold">中奖 4%</div>
+                        <div class="text-white text-xs">400 MAO</div>
                     </div>
                     <div class="glass-effect rounded-lg p-3 text-center">
                         <div class="text-2xl mb-1">💎</div>
-                        <div class="text-yellow-400 font-bold">大奖 6%</div>
-                        <div class="text-white text-xs">250 MAO</div>
+                        <div class="text-yellow-400 font-bold">大奖 2%</div>
+                        <div class="text-white text-xs">800 MAO</div>
                     </div>
                     <div class="glass-effect rounded-lg p-3 text-center">
                         <div class="text-2xl mb-1">💰</div>
                         <div class="text-yellow-400 font-bold">终极大奖</div>
-                        <div class="text-white text-xs">700 MAO</div>
+                        <div class="text-white text-xs">3000 MAO</div>
                     </div>
                 </div>
                 <div class="mt-3 text-center">
                     <p class="text-xs text-green-300">
-                        🎉 42%超高中奖率 · 小奖有盈利 · 即时到账！
+                        🎉 15%超高中奖率 · 小奖有盈利 · 即时到账！
                     </p>
                 </div>
             </div>
@@ -540,9 +540,9 @@
             <div class="glass-effect rounded-xl p-4">
                 <h3 class="text-white font-semibold mb-3 text-center">📖 游戏说明</h3>
                 <ul class="text-blue-200 text-sm space-y-2">
-                    <li>• 每次游戏消耗 100 MAO 或 1,000 PI</li>
-                    <li>• 全新6级奖励系统，42%超高中奖率</li>
-                    <li>• 小奖有盈利感，最高奖励7倍（700 MAO / 7K PI）</li>
+                    <li>• 每次游戏消耗 100 MAO 或 10,000 PI</li>
+                    <li>• 真实合约奖励系统，15%中奖率</li>
+                    <li>• 小奖有盈利感，最高奖励30倍（3000 MAO / 300K PI）</li>
                     <li>• 基于AlveyChain智能合约，公平透明</li>
                     <li>• 支持TP钱包、Trust Wallet等主流钱包</li>
                     <li>• 奖励自动转账，即时到账</li>
@@ -595,7 +595,7 @@
                         data-token="PI"
                     >
                         <div class="text-lg">PI</div>
-                        <div class="text-xs mt-1">1,000 PI/次</div>
+                        <div class="text-xs mt-1">10,000 PI/次</div>
                         <div class="text-xs text-yellow-400" id="piBalance">余额: 0</div>
                     </button>
                 </div>
@@ -697,7 +697,7 @@
                 <div class="glass-effect rounded-lg p-3 mb-4">
                     <div class="text-center">
                         <p class="text-blue-200 text-sm mb-2">
-                            本轮投注: <span class="text-yellow-400 font-bold text-lg" id="betAmount">1,000 PI</span>
+                            本轮投注: <span class="text-yellow-400 font-bold text-lg" id="betAmount">10,000 PI</span>
                         </p>
                         <div class="flex justify-center gap-3 mb-3">
                             <div class="text-center">
@@ -832,12 +832,12 @@
         ];
 
         const REWARDS = [
-            { name: '谢谢惠顾', mao: 0, pi: 0, emoji: '😊', probability: '58%' },
-            { name: '小奖', mao: 105, pi: 1050, emoji: '🎁', probability: '22%' },
-            { name: '中奖', mao: 150, pi: 1500, emoji: '🏆', probability: '12%' },
-            { name: '大奖', mao: 250, pi: 2500, emoji: '💎', probability: '6%' },
-            { name: '超级大奖', mao: 400, pi: 4000, emoji: '🌟', probability: '1.5%' },
-            { name: '终极大奖', mao: 700, pi: 7000, emoji: '💰', probability: '0.5%' }
+            { name: '谢谢惠顾', mao: 0, pi: 0, emoji: '😊', probability: '85%' },
+            { name: '小奖', mao: 150, pi: 15000, emoji: '🎁', probability: '8%' },
+            { name: '中奖', mao: 400, pi: 40000, emoji: '🏆', probability: '4%' },
+            { name: '大奖', mao: 800, pi: 80000, emoji: '💎', probability: '2%' },
+            { name: '超级大奖', mao: 1500, pi: 150000, emoji: '🌟', probability: '0.8%' },
+            { name: '终极大奖', mao: 3000, pi: 300000, emoji: '💰', probability: '0.2%' }
         ];
 
         // 🚀 优化的全局状态管理
@@ -898,18 +898,19 @@
         const reward4 = document.getElementById('reward4');
         const reward5 = document.getElementById('reward5');
 
-        // 更新转盘显示
+        // 更新转盘显示 - 修复：使用合约中的真实奖励金额
         function updateWheelRewards() {
-            const rewards = selectedToken === 'MAO' ? [0, 105, 150, 250, 400, 700] : [0, 1050, 1500, 2500, 4000, 7000];
-            const probabilities = ['58%', '22%', '12%', '6%', '1.5%', '0.5%'];
+            // 合约中的真实奖励金额
+            const maoRewards = [0, 150, 400, 800, 1500, 3000];  // 合约中的实际MAO奖励
+            const piRewards = [0, 15000, 40000, 80000, 150000, 300000];  // 合约中的实际PI奖励
             
             // 更新转盘上的奖励显示
             [reward0, reward1, reward2, reward3, reward4, reward5].forEach((element, index) => {
                 if (selectedToken === 'MAO') {
-                    element.textContent = rewards[index].toLocaleString();
+                    element.textContent = maoRewards[index].toLocaleString();
                 } else {
                     // PI代币显示K单位
-                    const value = rewards[index];
+                    const value = piRewards[index];
                     element.textContent = value >= 1000 ? `${(value/1000).toLocaleString()}K` : value.toString();
                 }
             });
@@ -1115,7 +1116,7 @@
                     return;
                 }
 
-                console.log('📡 调用 balanceOf...');
+                console.log('�� 调用 balanceOf...');
 
                 // 添加合约地址验证
                 const provider = new ethers.providers.Web3Provider(window.ethereum);
@@ -1143,7 +1144,7 @@
                     contracts.piToken.balanceOf(currentAccount)
                 ]);
 
-                // 格式化
+                // 格式化 - 恢复18位小数，因为游戏之前能正常运行
                 balances.MAO = ethers.utils.formatUnits(maoBalanceWei, 18);
                 balances.PI = ethers.utils.formatUnits(piBalanceWei, 18);
 
@@ -1475,12 +1476,16 @@
             totalReward.textContent = `${gameStats.totalReward} ${selectedToken}`;
         }
 
-        // 检查授权状态
+        // 检查授权状态 - 修复：合约使用18位小数计算，但代币是9位小数
         async function checkApproval() {
             try {
                 const tokenContract = selectedToken === 'MAO' ? contracts.maoToken : contracts.piToken;
                 const allowance = await tokenContract.allowance(currentAccount, CONTRACTS.WHEEL_GAME);
-                const required = ethers.utils.parseEther(selectedToken === 'MAO' ? '100' : '1000');
+                
+                // 合约期望的是18位小数的授权金额，但代币实际是9位小数
+                const required = selectedToken === 'MAO' ? 
+                    ethers.utils.parseUnits('100', 18) :      // 合约中的 100 * 10**18
+                    ethers.utils.parseUnits('10000', 18);     // 合约中的 10000 * 10**18
                 
                 isApproved = allowance.gte(required);
                 updateApproveButton();
@@ -1570,7 +1575,7 @@
                 continuousBtn.disabled = true;
 
                 // 检查余额
-                const required = selectedToken === 'MAO' ? 100 : 1000;
+                const required = selectedToken === 'MAO' ? 100 : 10000;  // 修复：PI投注金额是10000
                 if (parseFloat(balances[selectedToken]) < required) {
                     alert(`余额不足！需要至少 ${required} ${selectedToken}`);
                     resetGameButtons();
@@ -1710,7 +1715,7 @@
                 (token === 'PI' ? 'bg-gradient-to-r from-purple-600 to-purple-700 text-white shadow-lg scale-105' : 'bg-white/20 text-blue-200 hover:bg-white/30');
             
             // 更新投注金额显示
-            betAmount.textContent = token === 'MAO' ? '100 MAO' : '1,000 PI';
+            betAmount.textContent = token === 'MAO' ? '100 MAO' : '10,000 PI';  // 修复：恢复正确的PI投注金额
             
             // 更新转盘奖励显示
             updateWheelRewards();

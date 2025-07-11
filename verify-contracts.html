@@ -85,9 +85,49 @@
                                     
                                     report += `&nbsp;&nbsp;• 名称: ${tokenName}<br>`;
                                     report += `&nbsp;&nbsp;• 符号: ${symbol}<br>`;
-                                    report += `&nbsp;&nbsp;• 精度: ${decimals}<br>`;
+                                    report += `&nbsp;&nbsp;• 精度: ${decimals} 位小数<br>`;
                                 } catch (funcError) {
                                     report += `&nbsp;&nbsp;• ⚠️ ERC20函数调用失败: ${funcError.message}<br>`;
+                                }
+                            }
+                            
+                            // 如果是游戏合约，检查游戏参数
+                            if (name.includes('WHEEL_GAME')) {
+                                const gameABI = [
+                                    "function MAO_BET_AMOUNT() view returns (uint256)",
+                                    "function PI_BET_AMOUNT() view returns (uint256)",
+                                    "function maoRewards(uint256) view returns (uint256)",
+                                    "function piRewards(uint256) view returns (uint256)"
+                                ];
+                                
+                                try {
+                                    const contract = new ethers.Contract(address, gameABI, provider);
+                                    const [maoBet, piBet, maoReward1, piReward1] = await Promise.all([
+                                        contract.MAO_BET_AMOUNT(),
+                                        contract.PI_BET_AMOUNT(),
+                                        contract.maoRewards(1),
+                                        contract.piRewards(1)
+                                    ]);
+                                    
+                                    report += `&nbsp;&nbsp;• MAO投注金额: ${maoBet.toString()} wei<br>`;
+                                    report += `&nbsp;&nbsp;• PI投注金额: ${piBet.toString()} wei<br>`;
+                                    report += `&nbsp;&nbsp;• MAO小奖奖励: ${maoReward1.toString()} wei<br>`;
+                                    report += `&nbsp;&nbsp;• PI小奖奖励: ${piReward1.toString()} wei<br>`;
+                                    
+                                    // 换算成人类可读的数字（假设是9位小数）
+                                    const maoBetReadable = ethers.utils.formatUnits(maoBet, 9);
+                                    const piBetReadable = ethers.utils.formatUnits(piBet, 9);
+                                    const maoRewardReadable = ethers.utils.formatUnits(maoReward1, 9);
+                                    const piRewardReadable = ethers.utils.formatUnits(piReward1, 9);
+                                    
+                                    report += `&nbsp;&nbsp;📊 按9位小数计算:<br>`;
+                                    report += `&nbsp;&nbsp;&nbsp;&nbsp;• MAO投注: ${maoBetReadable} MAO<br>`;
+                                    report += `&nbsp;&nbsp;&nbsp;&nbsp;• PI投注: ${piBetReadable} PI<br>`;
+                                    report += `&nbsp;&nbsp;&nbsp;&nbsp;• MAO小奖: ${maoRewardReadable} MAO<br>`;
+                                    report += `&nbsp;&nbsp;&nbsp;&nbsp;• PI小奖: ${piRewardReadable} PI<br>`;
+                                    
+                                } catch (funcError) {
+                                    report += `&nbsp;&nbsp;• ⚠️ 游戏参数调用失败: ${funcError.message}<br>`;
                                 }
                             }
                         }
