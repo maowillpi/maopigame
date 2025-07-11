@@ -3,8 +3,7 @@
 
 # 部署者私钥（64位16进制字符串，不包含0x前缀）
 # 示例：1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef
-PRIVATE_KEY=请在此处输入您的64位私钥（不要0x前缀）
-
+PRIVATE_KEY=
 # AlveyChain 网络配置
 ALVEY_RPC_URL_1=https://elves-core1.alvey.io/
 ALVEY_RPC_URL_2=https://elves-core2.alvey.io/

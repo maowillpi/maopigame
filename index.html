@@ -6,12 +6,12 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <title>🎰 MAO转盘游戏 - AlveyChain 区块链游戏 v4.0.1 最终版</title>
+    <title>🎰 MAO转盘游戏 - AlveyChain 区块链游戏 v4.1.0 营销钱包版</title>
     
-    <!-- 强制缓存清除 v4.0.1 最终版 -->
+    <!-- 强制缓存清除 v4.1.0 营销钱包版 -->
     <script>
-        const CACHE_VERSION = 'v4.0.1-final-' + Date.now();
-        console.log('🚀 MAO转盘游戏 v4.0.1 最终版 - 强制更新');
+        const CACHE_VERSION = 'v4.1.0-marketing-' + Date.now();
+        console.log('🚀 MAO转盘游戏 v4.1.0 营销钱包版 - 强制更新');
         console.log('📅 缓存版本:', CACHE_VERSION);
         console.log('🎯 部署时间:', new Date().toLocaleString('zh-CN'));
         
@@ -802,7 +802,7 @@
 
         // 智能合约配置
         const CONTRACTS = {
-            WHEEL_GAME: "0xc27e29BCe41db77815435a9415329424849Daeb6",
+            WHEEL_GAME: "0xB677DBcA76061E6301272c83179c8243A4eeB6A5",
             MAO_TOKEN: "0x22f49bcb3dad370a9268ba3fca33cb037ca3d022",
             PI_TOKEN: "0xfd4680e25e05b3435c7f698668d1ce80d2a9f444"
         };
@@ -832,12 +832,12 @@
         ];
 
         const REWARDS = [
-            { name: '谢谢惠顾', mao: 0, pi: 0, emoji: '😊', probability: '85%' },
-            { name: '小奖', mao: 150, pi: 15000, emoji: '🎁', probability: '8%' },
-            { name: '中奖', mao: 400, pi: 40000, emoji: '🏆', probability: '4%' },
-            { name: '大奖', mao: 800, pi: 80000, emoji: '💎', probability: '2%' },
-            { name: '超级大奖', mao: 1500, pi: 150000, emoji: '🌟', probability: '0.8%' },
-            { name: '终极大奖', mao: 3000, pi: 300000, emoji: '💰', probability: '0.2%' }
+            { name: '谢谢惠顾', mao: 0, pi: 0, emoji: '😊', probability: '58%' },
+            { name: '小奖', mao: 105, pi: 1050, emoji: '🎁', probability: '22%' },
+            { name: '中奖', mao: 150, pi: 1500, emoji: '🏆', probability: '12%' },
+            { name: '大奖', mao: 250, pi: 2500, emoji: '💎', probability: '6%' },
+            { name: '超级大奖', mao: 400, pi: 4000, emoji: '🌟', probability: '1.5%' },
+            { name: '终极大奖', mao: 700, pi: 7000, emoji: '💰', probability: '0.5%' }
         ];
 
         // 🚀 优化的全局状态管理
@@ -901,8 +901,8 @@
         // 更新转盘显示 - 修复：使用合约中的真实奖励金额
         function updateWheelRewards() {
             // 合约中的真实奖励金额
-            const maoRewards = [0, 150, 400, 800, 1500, 3000];  // 合约中的实际MAO奖励
-            const piRewards = [0, 15000, 40000, 80000, 150000, 300000];  // 合约中的实际PI奖励
+            const maoRewards = [0, 105, 150, 250, 400, 700];  // 新合约中的实际MAO奖励
+            const piRewards = [0, 1050, 1500, 2500, 4000, 7000];  // 新合约中的实际PI奖励
             
             // 更新转盘上的奖励显示
             [reward0, reward1, reward2, reward3, reward4, reward5].forEach((element, index) => {

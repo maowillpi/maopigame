@@ -30,10 +30,12 @@ async function main() {
         PRIZE_POOL
     );
     
-    await wheelGameV2.deployed();
+    // 等待部署完成
+    await wheelGameV2.waitForDeployment();
+    const contractAddress = await wheelGameV2.getAddress();
     
     console.log("\n✅ WheelGameV2 部署完成！");
-    console.log("🔗 合约地址:", wheelGameV2.address);
+    console.log("🔗 合约地址:", contractAddress);
     console.log("📊 MAO代币:", MAO_TOKEN);
     console.log("📊 PI代币:", PI_TOKEN);
     console.log("💰 营销钱包:", MARKETING_WALLET);
@@ -44,26 +46,26 @@ async function main() {
     const piBetAmount = await wheelGameV2.piBetAmount();
     
     console.log("\n📊 当前游戏配置:");
-    console.log("MAO投注金额:", ethers.utils.formatEther(maoBetAmount), "MAO");
-    console.log("PI投注金额:", ethers.utils.formatEther(piBetAmount), "PI");
+    console.log("MAO投注金额:", ethers.formatEther(maoBetAmount), "MAO");
+    console.log("PI投注金额:", ethers.formatEther(piBetAmount), "PI");
     
     console.log("\n🎰 MAO奖励配置:");
     for (let i = 0; i < 6; i++) {
         const reward = await wheelGameV2.maoRewards(i);
-        console.log(`等级${i}: ${ethers.utils.formatEther(reward)} MAO`);
+        console.log(`等级${i}: ${ethers.formatEther(reward)} MAO`);
     }
     
     console.log("\n🎰 PI奖励配置:");
     for (let i = 0; i < 6; i++) {
         const reward = await wheelGameV2.piRewards(i);
-        console.log(`等级${i}: ${ethers.utils.formatEther(reward)} PI`);
+        console.log(`等级${i}: ${ethers.formatEther(reward)} PI`);
     }
     
     console.log("\n🎯 概率配置:");
     for (let i = 0; i < 6; i++) {
         const prob = await wheelGameV2.probabilityRanges(i);
-        const percentage = i === 0 ? prob.toNumber() / 100 : 
-                          (prob.toNumber() - (await wheelGameV2.probabilityRanges(i-1)).toNumber()) / 100;
+        const percentage = i === 0 ? Number(prob) / 100 : 
+                          (Number(prob) - Number(await wheelGameV2.probabilityRanges(i-1))) / 100;
         console.log(`等级${i}: ${percentage}%`);
     }
     
@@ -83,7 +85,7 @@ async function main() {
     console.log("- updateFundingRatios(): 更新资金分配比例");
     
     console.log("\n⚠️ 部署完成后的必要步骤:");
-    console.log("1. 🔄 更新前端合约地址到:", wheelGameV2.address);
+    console.log("1. 🔄 更新前端合约地址到:", contractAddress);
     console.log("2. 💰 设置正确的营销钱包地址（如需要）");
     console.log("3. 🎁 设置正确的奖金池地址（如需要）");
     console.log("4. 💎 向奖金池充值代币用于发放奖励");
@@ -91,7 +93,7 @@ async function main() {
     
     console.log("\n🚀 前端更新命令:");
     console.log(`请将以下地址更新到 index.html:`);
-    console.log(`WHEEL_GAME: "${wheelGameV2.address}"`);
+    console.log(`WHEEL_GAME: "${contractAddress}"`);
 }
 
 main()

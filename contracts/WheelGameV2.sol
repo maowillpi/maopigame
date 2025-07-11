@@ -71,6 +71,8 @@ contract WheelGameV2 is ReentrancyGuard, Ownable {
     event ProbabilitiesUpdated(uint256[6] newProbabilities);
     event BetAmountsUpdated(uint256 newMaoBet, uint256 newPiBet);
     event FundingRatiosUpdated(uint256 prizePool, uint256 burn, uint256 marketing);
+    event MarketingWalletUpdated(address oldWallet, address newWallet);
+    event PrizePoolUpdated(address oldPrizePool, address newPrizePool);
     
     constructor(
         address _maoToken,
@@ -118,6 +120,22 @@ contract WheelGameV2 is ReentrancyGuard, Ownable {
         burnPercent = _burn;
         marketingPercent = _marketing;
         emit FundingRatiosUpdated(_prizePool, _burn, _marketing);
+    }
+    
+    // 🏦 管理函数：更新营销钱包地址
+    function updateMarketingWallet(address newMarketingWallet) external onlyOwner {
+        require(newMarketingWallet != address(0), "Invalid marketing wallet address");
+        address oldWallet = marketingWallet;
+        marketingWallet = newMarketingWallet;
+        emit MarketingWalletUpdated(oldWallet, newMarketingWallet);
+    }
+    
+    // 🎁 管理函数：更新奖金池地址
+    function updatePrizePool(address newPrizePool) external onlyOwner {
+        require(newPrizePool != address(0), "Invalid prize pool address");
+        address oldPrizePool = prizePool;
+        prizePool = newPrizePool;
+        emit PrizePoolUpdated(oldPrizePool, newPrizePool);
     }
     
     // 生成伪随机数
