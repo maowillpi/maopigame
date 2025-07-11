@@ -808,11 +808,15 @@
         };
 
         const ALVEY_NETWORK = {
-            chainId: '0xED5',
+            chainId: '0xED5', // 3797 decimal
             chainName: 'AlveyChain Mainnet',
             nativeCurrency: { name: 'ALV', symbol: 'ALV', decimals: 18 },
-            rpcUrls: ['https://elves-core1.alvey.io'],
-            blockExplorerUrls: ['https://alveyscan.com'],
+            rpcUrls: [
+                'https://elves-core1.alvey.io/',
+                'https://elves-core2.alvey.io/',
+                'https://elves-core3.alvey.io/'
+            ],
+            blockExplorerUrls: ['https://alveyscan.com/'],
         };
 
         const WHEEL_GAME_ABI = [
