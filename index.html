@@ -3,7 +3,43 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>🎰 MAO转盘游戏 - AlveyChain 区块链游戏</title>
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <title>🎰 MAO转盘游戏 - AlveyChain 区块链游戏 v4.0 优化版</title>
+    
+    <!-- 强制缓存清除 v4.0 -->
+    <script>
+        const CACHE_VERSION = 'v4.0-speed-optimized-' + Date.now();
+        console.log('🚀 MAO转盘游戏 v4.0 钱包连接速度优化版');
+        console.log('📅 缓存版本:', CACHE_VERSION);
+        
+        // 强制清除所有旧缓存
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.getRegistrations().then(function(registrations) {
+                for(let registration of registrations) {
+                    registration.unregister();
+                    console.log('🗑️ 清除Service Worker');
+                }
+            });
+        }
+        
+        if ('caches' in window) {
+            caches.keys().then(names => {
+                names.forEach(name => {
+                    caches.delete(name);
+                    console.log('🗑️ 清除缓存:', name);
+                });
+            });
+        }
+        
+        // 页面版本检查
+        const lastVersion = localStorage.getItem('mao_game_version');
+        if (lastVersion !== CACHE_VERSION) {
+            console.log('🔄 检测到新版本，强制更新');
+            localStorage.setItem('mao_game_version', CACHE_VERSION);
+        }
+    </script>
     
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
