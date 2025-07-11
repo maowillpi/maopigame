@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>🎰 MAO转盘游戏</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
@@ -17,19 +17,20 @@
                 #FFEAA7 352.8deg 358.2deg, /* 超级大奖 1.5% */
                 #DDA0DD 358.2deg 360deg  /* 终极大奖 0.5% */
             );
-            border: 8px solid #FFD700;
-            box-shadow: 0 0 30px rgba(255, 215, 0, 0.6);
+            border: 6px solid #FFD700;
+            box-shadow: 0 0 25px rgba(255, 215, 0, 0.6);
         }
         
         .spin-btn {
             background: radial-gradient(circle, #FFD700, #FFA500);
-            border: 4px solid white;
+            border: 3px solid white;
             transition: all 0.3s ease;
             box-shadow: 0 4px 15px rgba(255, 215, 0, 0.4);
+            -webkit-tap-highlight-color: transparent;
         }
         
-        .spin-btn:hover:not(:disabled) {
-            transform: scale(1.1);
+        .spin-btn:hover:not(:disabled), .spin-btn:active:not(:disabled) {
+            transform: scale(1.05);
             box-shadow: 0 6px 20px rgba(255, 215, 0, 0.8);
         }
         
@@ -38,105 +39,135 @@
             cursor: not-allowed;
         }
 
-        /* 确保游戏按钮总是可见 */
+        /* 移动端优化 */
+        .mobile-optimized {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
         .game-container {
-            min-height: 45vh;
+            min-height: 40vh;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
+            padding: 10px;
         }
         
         .wheel-container {
             position: relative;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
         }
 
         /* 连接状态指示器 */
         .connection-indicator {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            width: 12px;
-            height: 12px;
+            position: fixed;
+            top: 15px;
+            right: 15px;
+            width: 10px;
+            height: 10px;
             border-radius: 50%;
             background-color: #ef4444;
             transition: all 0.3s ease;
+            z-index: 100;
         }
 
         .connection-indicator.connected {
             background-color: #22c55e;
-            box-shadow: 0 0 10px rgba(34, 197, 94, 0.5);
+            box-shadow: 0 0 8px rgba(34, 197, 94, 0.5);
+        }
+
+        /* 移动端按钮优化 */
+        .mobile-btn {
+            min-height: 44px;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
+        }
+
+        /* 防止移动端缩放 */
+        * {
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            -khtml-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+
+        input, textarea {
+            -webkit-user-select: text;
+            -khtml-user-select: text;
+            -moz-user-select: text;
+            -ms-user-select: text;
+            user-select: text;
         }
     </style>
 </head>
-<body class="bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 min-h-screen">
-    <div class="container mx-auto px-4 py-4 max-w-lg relative">
+<body class="bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 mobile-optimized">
+    <div class="container mx-auto px-3 py-2 max-w-sm relative flex-1">
         
         <!-- 连接状态指示器 -->
-        <div id="connectionIndicator" class="connection-indicator" title="钱包连接状态"></div>
+        <div id="connectionIndicator" class="connection-indicator" title="连接状态"></div>
         
         <!-- 标题 -->
-        <div class="text-center mb-4">
-            <h1 class="text-2xl font-bold text-white mb-1">🎰 MAO转盘游戏</h1>
-            <p class="text-blue-200 text-sm">简洁版本 - 专注游戏体验</p>
+        <div class="text-center mb-3">
+            <h1 class="text-xl font-bold text-white mb-1">🎰 MAO转盘游戏</h1>
+            <p class="text-blue-200 text-xs">手机专用版 - 流畅游戏</p>
         </div>
 
         <!-- 连接钱包 -->
-        <div id="walletConnect" class="bg-white/10 rounded-xl p-4 mb-4">
+        <div id="walletConnect" class="bg-white/10 rounded-xl p-3 mb-3">
             <div class="text-center">
-                <button id="connectBtn" onclick="connectWallet()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-xl">
+                <button id="connectBtn" onclick="connectWallet()" class="mobile-btn w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-xl">
                     🔗 连接钱包开始游戏
                 </button>
-                <p class="text-blue-200 text-xs mt-2">支持TP钱包、Trust Wallet、MetaMask</p>
+                <p class="text-blue-200 text-xs mt-2">支持TP钱包、Trust Wallet等</p>
             </div>
         </div>
 
         <!-- 游戏区域 -->
-        <div id="gameArea" style="display:none;">
+        <div id="gameArea" style="display:none;" class="flex-1">
             
             <!-- 代币选择 -->
-            <div class="bg-white/10 rounded-xl p-3 mb-3">
+            <div class="bg-white/10 rounded-xl p-3 mb-2">
                 <h3 class="text-white font-bold text-center mb-2 text-sm">🎯 选择代币</h3>
                 <div class="flex gap-2">
-                    <button id="maoBtn" onclick="selectToken('MAO')" class="flex-1 bg-blue-600 text-white py-2 rounded-lg font-bold text-sm">
+                    <button id="maoBtn" onclick="selectToken('MAO')" class="mobile-btn flex-1 bg-blue-600 text-white py-2 rounded-lg font-bold text-sm">
                         MAO (100)
                     </button>
-                    <button id="piBtn" onclick="selectToken('PI')" class="flex-1 bg-gray-600 text-white py-2 rounded-lg font-bold text-sm">
+                    <button id="piBtn" onclick="selectToken('PI')" class="mobile-btn flex-1 bg-gray-600 text-white py-2 rounded-lg font-bold text-sm">
                         PI (10,000)
                     </button>
                 </div>
             </div>
 
-            <!-- 授权 -->
-            <div class="bg-white/10 rounded-xl p-3 mb-3">
-                <button id="approveBtn" onclick="approve()" class="w-full bg-orange-600 hover:bg-orange-700 text-white font-bold py-2 rounded-xl text-sm">
+            <!-- 授权区域 - 可隐藏 -->
+            <div id="approvalSection" class="bg-white/10 rounded-xl p-3 mb-2">
+                <button id="approveBtn" onclick="approve()" class="mobile-btn w-full bg-orange-600 hover:bg-orange-700 text-white font-bold py-2 rounded-xl text-sm">
                     🔓 授权 MAO
                 </button>
-                <div class="text-center mt-1">
-                    <span id="approveStatus" class="text-xs text-blue-200">需要授权才能游戏</span>
-                </div>
             </div>
 
-            <!-- 转盘游戏 - 紧凑版 -->
-            <div class="bg-white/10 rounded-xl p-3">
+            <!-- 转盘游戏 - 手机优化版 -->
+            <div class="bg-white/10 rounded-xl p-2 flex-1">
                 <div class="game-container">
                     <div class="wheel-container">
-                        <div id="wheel" class="w-44 h-44 rounded-full wheel mx-auto relative">
+                        <div id="wheel" class="w-48 h-48 rounded-full wheel mx-auto relative">
                             <!-- 指针 -->
                             <div class="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-2">
                                 <div class="w-0 h-0 border-l-3 border-r-3 border-b-6 border-transparent border-b-yellow-400"></div>
                             </div>
                             <!-- 中心 -->
-                            <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-14 h-14 bg-white rounded-full flex items-center justify-center font-bold text-lg">
+                            <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-16 h-16 bg-white rounded-full flex items-center justify-center font-bold text-lg">
                                 MAO
                             </div>
                         </div>
                     </div>
                         
-                    <!-- 游戏按钮 - 确保可见 -->
-                    <div class="text-center mb-3">
-                        <button id="spinBtn" onclick="spin()" disabled class="spin-btn w-18 h-18 rounded-full text-white font-bold disabled:opacity-50">
+                    <!-- 游戏按钮 - 手机优化 -->
+                    <div class="text-center mb-2">
+                        <button id="spinBtn" onclick="spin()" disabled class="spin-btn w-20 h-20 rounded-full text-white font-bold disabled:opacity-50 mobile-btn">
                             <div class="text-xl">🎲</div>
                             <div class="text-xs">开始</div>
                         </button>
@@ -149,17 +180,17 @@
                 </div>
             </div>
 
-            <!-- 快捷操作 -->
-            <div class="bg-white/10 rounded-xl p-2 mt-3">
-                <div class="flex gap-2">
-                    <button onclick="location.reload()" class="flex-1 bg-gray-600 hover:bg-gray-700 text-white font-bold py-1 rounded text-xs">
-                        🔄 刷新
+            <!-- 快捷操作 - 手机优化 -->
+            <div class="bg-white/10 rounded-xl p-2 mt-2">
+                <div class="flex gap-1">
+                    <button onclick="location.reload()" class="mobile-btn flex-1 bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 rounded text-xs">
+                        🔄
                     </button>
-                    <button onclick="forceEnable()" class="flex-1 bg-red-600 hover:bg-red-700 text-white font-bold py-1 rounded text-xs">
-                        ⚡ 强制启用
+                    <button onclick="forceEnable()" class="mobile-btn flex-1 bg-red-600 hover:bg-red-700 text-white font-bold py-2 rounded text-xs">
+                        ⚡
                     </button>
-                    <button onclick="showWalletInfo()" class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-1 rounded text-xs">
-                        👤 钱包信息
+                    <button onclick="showWalletInfo()" class="mobile-btn flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 rounded text-xs">
+                        👤
                     </button>
                 </div>
             </div>
@@ -185,22 +216,32 @@
         const WHEEL_ABI = ["function playMAOGame() external", "function playPIGame() external"];
         const TOKEN_ABI = ["function approve(address spender, uint256 amount) returns (bool)", "function allowance(address owner, address spender) view returns (uint256)"];
 
+        // 防止移动端双击缩放
+        let lastTouchEnd = 0;
+        document.addEventListener('touchend', function (event) {
+            const now = (new Date()).getTime();
+            if (now - lastTouchEnd <= 300) {
+                event.preventDefault();
+            }
+            lastTouchEnd = now;
+        }, false);
+
         // 更新连接状态指示器
         function updateConnectionIndicator(connected) {
             const indicator = document.getElementById('connectionIndicator');
             if (connected) {
                 indicator.classList.add('connected');
-                indicator.title = '✅ 钱包已连接';
+                indicator.title = '✅ 已连接';
             } else {
                 indicator.classList.remove('connected');
-                indicator.title = '❌ 钱包未连接';
+                indicator.title = '❌ 未连接';
             }
         }
 
         // 显示钱包信息
         function showWalletInfo() {
             if (account) {
-                alert(`💼 钱包信息:\n地址: ${account}\n网络: AlveyChain (3797)\n状态: 已连接`);
+                alert(`💼 钱包信息:\n地址: ${account.slice(0, 6)}...${account.slice(-4)}\n网络: AlveyChain\n状态: 已连接`);
             } else {
                 alert('❌ 钱包未连接');
             }
@@ -210,13 +251,16 @@
         function forceEnable() {
             const btn = document.getElementById('spinBtn');
             btn.disabled = false;
-            btn.className = 'spin-btn w-18 h-18 rounded-full text-white font-bold';
+            btn.className = 'spin-btn w-20 h-20 rounded-full text-white font-bold mobile-btn';
             btn.innerHTML = '<div class="text-xl">🎲</div><div class="text-xs">开始</div>';
-            document.getElementById('gameStatus').textContent = '🔧 强制启用模式 - 可以游戏';
-            alert('🎲 游戏按钮已强制启用！');
+            document.getElementById('gameStatus').textContent = '🔧 强制启用 - 可以游戏';
+            // 移动端友好的提示
+            if ('vibrate' in navigator) {
+                navigator.vibrate(100);
+            }
         }
 
-        // 连接钱包 - 简化版
+        // 连接钱包 - 移动端优化版
         async function connectWallet() {
             try {
                 const btn = document.getElementById('connectBtn');
@@ -224,7 +268,7 @@
                 btn.disabled = true;
 
                 if (!window.ethereum) {
-                    alert('请使用Web3钱包！\n推荐：TP钱包、Trust Wallet、MetaMask');
+                    alert('请使用Web3钱包浏览器！\n推荐：TP钱包、Trust Wallet、MetaMask');
                     resetConnectButton();
                     return;
                 }
@@ -257,8 +301,14 @@
 
                 // 显示连接成功
                 document.getElementById('walletConnect').style.display = 'none';
-                document.getElementById('gameArea').style.display = 'block';
+                document.getElementById('gameArea').style.display = 'flex';
+                document.getElementById('gameArea').style.flexDirection = 'column';
                 updateConnectionIndicator(true);
+
+                // 移动端震动反馈
+                if ('vibrate' in navigator) {
+                    navigator.vibrate([100, 50, 100]);
+                }
 
                 // 检查授权
                 await checkApproval();
@@ -309,17 +359,22 @@
             
             // 更新按钮
             document.getElementById('maoBtn').className = token === 'MAO' ? 
-                'flex-1 bg-blue-600 text-white py-2 rounded-lg font-bold text-sm' : 
-                'flex-1 bg-gray-600 text-white py-2 rounded-lg font-bold text-sm';
+                'mobile-btn flex-1 bg-blue-600 text-white py-2 rounded-lg font-bold text-sm' : 
+                'mobile-btn flex-1 bg-gray-600 text-white py-2 rounded-lg font-bold text-sm';
             document.getElementById('piBtn').className = token === 'PI' ? 
-                'flex-1 bg-purple-600 text-white py-2 rounded-lg font-bold text-sm' : 
-                'flex-1 bg-gray-600 text-white py-2 rounded-lg font-bold text-sm';
+                'mobile-btn flex-1 bg-purple-600 text-white py-2 rounded-lg font-bold text-sm' : 
+                'mobile-btn flex-1 bg-gray-600 text-white py-2 rounded-lg font-bold text-sm';
 
             // 更新授权按钮
             document.getElementById('approveBtn').innerHTML = `🔓 授权 ${token}`;
             
             // 更新转盘中心显示
             document.querySelector('#wheel .absolute.top-1\\/2').textContent = token;
+            
+            // 移动端震动反馈
+            if ('vibrate' in navigator) {
+                navigator.vibrate(50);
+            }
             
             // 重新检查授权
             if (contracts.mao && contracts.pi) {
@@ -349,30 +404,29 @@
             }
         }
 
-        // 更新授权状态
+        // 更新授权状态 - 优化版
         function updateApprovalStatus(approved) {
-            const approveBtn = document.getElementById('approveBtn');
+            const approveSection = document.getElementById('approvalSection');
             const spinBtn = document.getElementById('spinBtn');
-            const status = document.getElementById('approveStatus');
             const gameStatus = document.getElementById('gameStatus');
 
             if (approved) {
-                approveBtn.textContent = `✅ ${selectedToken} 已授权`;
-                approveBtn.disabled = true;
-                approveBtn.className = 'w-full bg-green-600 text-white font-bold py-2 rounded-xl cursor-not-allowed text-sm';
+                // 授权成功后隐藏授权区域
+                approveSection.style.display = 'none';
                 
                 spinBtn.disabled = false;
-                spinBtn.className = 'spin-btn w-18 h-18 rounded-full text-white font-bold';
-                status.textContent = '✅ 已授权，可以游戏';
+                spinBtn.className = 'spin-btn w-20 h-20 rounded-full text-white font-bold mobile-btn';
                 gameStatus.textContent = '🎯 点击🎲开始游戏！';
             } else {
+                // 显示授权区域
+                approveSection.style.display = 'block';
+                const approveBtn = document.getElementById('approveBtn');
                 approveBtn.textContent = `🔓 授权 ${selectedToken}`;
                 approveBtn.disabled = false;
-                approveBtn.className = 'w-full bg-orange-600 hover:bg-orange-700 text-white font-bold py-2 rounded-xl text-sm';
+                approveBtn.className = 'mobile-btn w-full bg-orange-600 hover:bg-orange-700 text-white font-bold py-2 rounded-xl text-sm';
                 
                 spinBtn.disabled = true;
-                spinBtn.className = 'spin-btn w-18 h-18 rounded-full text-white font-bold disabled:opacity-50';
-                status.textContent = '❌ 需要授权';
+                spinBtn.className = 'spin-btn w-20 h-20 rounded-full text-white font-bold disabled:opacity-50 mobile-btn';
                 gameStatus.textContent = '🔓 请先授权代币';
             }
         }
@@ -381,17 +435,19 @@
         async function approve() {
             try {
                 const btn = document.getElementById('approveBtn');
-                const originalText = btn.textContent;
                 btn.textContent = '授权中...';
                 btn.disabled = true;
 
                 const contract = selectedToken === 'MAO' ? contracts.mao : contracts.pi;
                 const tx = await contract.approve(CONTRACTS.WHEEL_GAME, ethers.constants.MaxUint256);
                 
-                document.getElementById('approveStatus').textContent = '⏳ 等待确认...';
                 await tx.wait();
 
-                alert(`${selectedToken} 授权成功！现在可以开始游戏了！`);
+                // 移动端震动反馈
+                if ('vibrate' in navigator) {
+                    navigator.vibrate([200, 100, 200]);
+                }
+
                 await checkApproval();
 
             } catch (error) {
@@ -401,11 +457,10 @@
                 const btn = document.getElementById('approveBtn');
                 btn.textContent = `🔓 授权 ${selectedToken}`;
                 btn.disabled = false;
-                btn.className = 'w-full bg-orange-600 hover:bg-orange-700 text-white font-bold py-2 rounded-xl text-sm';
             }
         }
 
-        // 开始游戏
+        // 开始游戏 - 移动端优化
         async function spin() {
             if (isSpinning) return;
 
@@ -426,6 +481,11 @@
                 btn.disabled = true;
                 status.textContent = '🎰 转盘旋转中...';
 
+                // 移动端震动反馈
+                if ('vibrate' in navigator) {
+                    navigator.vibrate(200);
+                }
+
                 // 转盘动画
                 const rotation = 1800 + Math.random() * 1800;
                 wheel.style.transition = 'transform 3s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
@@ -435,13 +495,15 @@
                 const method = selectedToken === 'MAO' ? 'playMAOGame' : 'playPIGame';
                 const tx = await contracts.wheel[method]();
 
-                status.textContent = '⏳ 等待区块确认...';
+                status.textContent = '⏳ 等待确认...';
                 const receipt = await tx.wait();
 
-                // 游戏完成
-                alert('🎉 游戏完成！请查看您的钱包余额变化。');
-                status.textContent = '🎯 游戏完成，可以继续！';
+                // 游戏完成震动
+                if ('vibrate' in navigator) {
+                    navigator.vibrate([100, 50, 100, 50, 100]);
+                }
 
+                status.textContent = '🎯 游戏完成！';
                 console.log('游戏完成:', receipt.transactionHash);
 
             } catch (error) {
@@ -457,17 +519,16 @@
                 alert(errorMsg);
             } finally {
                 isSpinning = false;
-                // 恢复按钮状态 - 检查授权状态
+                // 恢复按钮状态
                 if (approvalStatus[selectedToken]) {
                     const btn = document.getElementById('spinBtn');
                     btn.innerHTML = '<div class="text-xl">🎲</div><div class="text-xs">开始</div>';
                     btn.disabled = false;
-                    btn.className = 'spin-btn w-18 h-18 rounded-full text-white font-bold';
+                    btn.className = 'spin-btn w-20 h-20 rounded-full text-white font-bold mobile-btn';
                     if (document.getElementById('gameStatus').textContent.includes('游戏中') || document.getElementById('gameStatus').textContent.includes('等待')) {
                         document.getElementById('gameStatus').textContent = '🎯 点击🎲开始游戏！';
                     }
                 } else {
-                    // 如果授权状态有问题，重新检查
                     await checkApproval();
                 }
             }
