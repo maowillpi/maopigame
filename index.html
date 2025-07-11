@@ -1100,115 +1100,48 @@
             }
         }
 
-        // 🔄 优化的余额加载 - 增强调试版本
+        // 💡 超级简化的余额加载 - 你说得对，就是这么简单！
         async function loadBalancesOptimized() {
             try {
                 console.log('🔍 开始加载余额...');
-                console.log('检查状态:', { 
-                    currentAccount, 
-                    hasContracts: !!contracts.maoToken, 
-                    contractAddresses: {
-                        mao: CONTRACTS.MAO_TOKEN,
-                        pi: CONTRACTS.PI_TOKEN
-                    }
-                });
 
                 if (!currentAccount) {
-                    console.warn('❌ 无当前账户，跳过余额加载');
+                    console.log('❌ 无账户，跳过');
                     return;
                 }
 
                 if (!contracts.maoToken || !contracts.piToken) {
-                    console.warn('❌ 合约未初始化，跳过余额加载');
+                    console.log('❌ 合约未初始化，跳过');
                     return;
                 }
 
-                console.log('📡 正在查询代币余额...');
+                console.log('📡 调用 balanceOf...');
 
-                // 并行查询余额，带超时保护
-                const balancePromises = Promise.all([
-                    Promise.race([
-                        contracts.maoToken.balanceOf(currentAccount),
-                        new Promise((_, reject) => setTimeout(() => reject(new Error('MAO余额查询超时')), 10000))
-                    ]),
-                    Promise.race([
-                        contracts.piToken.balanceOf(currentAccount),
-                        new Promise((_, reject) => setTimeout(() => reject(new Error('PI余额查询超时')), 10000))
-                    ])
+                // 就是这么简单！调用合约的 balanceOf 函数
+                const [maoBalanceWei, piBalanceWei] = await Promise.all([
+                    contracts.maoToken.balanceOf(currentAccount),
+                    contracts.piToken.balanceOf(currentAccount)
                 ]);
 
-                const [maoBalanceWei, piBalanceWei] = await balancePromises;
-
-                console.log('📊 原始余额数据:', {
-                    maoBalanceWei: maoBalanceWei.toString(),
-                    piBalanceWei: piBalanceWei.toString()
-                });
-
+                // 格式化
                 balances.MAO = ethers.utils.formatUnits(maoBalanceWei, 18);
                 balances.PI = ethers.utils.formatUnits(piBalanceWei, 18);
 
-                console.log('✅ 格式化后余额:', {
+                console.log('✅ 余额获取成功:', {
                     MAO: balances.MAO,
                     PI: balances.PI
                 });
 
-                // 批量更新DOM
-                requestAnimationFrame(() => {
-                    const maoDisplayBalance = parseFloat(balances.MAO).toLocaleString();
-                    const piDisplayBalance = parseFloat(balances.PI).toLocaleString();
-                    
-                    console.log('🎨 更新DOM显示:', {
-                        maoDisplay: maoDisplayBalance,
-                        piDisplay: piDisplayBalance
-                    });
-
-                    maoBalance.textContent = `余额: ${maoDisplayBalance}`;
-                    piBalance.textContent = `余额: ${piDisplayBalance}`;
-                    updateCurrentBalance();
-                    
-                    // 余额加载成功提示
-                    if (parseFloat(balances.MAO) > 0 || parseFloat(balances.PI) > 0) {
-                        console.log('✅ 余额加载成功！MAO:', balances.MAO, 'PI:', balances.PI);
-                    } else {
-                        console.warn('⚠️ 余额为0或加载失败，可能原因:', {
-                            账户: currentAccount,
-                            网络: 'AlveyChain (3797)',
-                            合约地址: CONTRACTS
-                        });
-                        
-                        // 显示余额为0的调试信息
-                        showBalanceDebugInfo();
-                    }
-                });
+                // 更新显示
+                maoBalance.textContent = `余额: ${parseFloat(balances.MAO).toLocaleString()}`;
+                piBalance.textContent = `余额: ${parseFloat(balances.PI).toLocaleString()}`;
+                updateCurrentBalance();
 
             } catch (error) {
-                console.error('❌ 加载余额错误:', error);
+                console.error('❌ 余额获取失败:', error);
                 
-                // 详细错误处理
-                let errorMessage = '余额加载失败: ';
-                if (error.message.includes('timeout') || error.message.includes('超时')) {
-                    errorMessage += '网络超时，请检查网络连接';
-                } else if (error.message.includes('network') || error.code === 'NETWORK_ERROR') {
-                    errorMessage += '网络连接问题，请确认AlveyChain网络';
-                } else if (error.message.includes('contract') || error.code === 'CALL_EXCEPTION') {
-                    errorMessage += '合约调用失败，可能是网络或合约问题';
-                } else {
-                    errorMessage += error.message;
-                }
-                
-                console.error('详细错误信息:', {
-                    error: error.message,
-                    code: error.code,
-                    currentAccount,
-                    networkId: window.ethereum?.networkVersion,
-                    contracts: {
-                        maoToken: !!contracts.maoToken,
-                        piToken: !!contracts.piToken
-                    }
-                });
-                
-                // 显示用户友好的错误提示
-                showBalanceError(errorMessage);
+                // 简单的错误提示
+                showBalanceError(`余额获取失败: ${error.message}`);
             }
         }
 
