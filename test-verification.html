@@ -197,19 +197,77 @@
             </div>
         </div>
 
+        <!-- 钱包连接速度优化验证 -->
+        <div class="mb-8">
+            <h2 class="text-2xl font-semibold mb-4 text-cyan-400">🚀 钱包连接速度优化验证</h2>
+            <div class="space-y-3">
+                <div class="test-item p-4 rounded-lg">
+                    <h3 class="font-semibold">✅ 预加载与缓存机制</h3>
+                    <div class="text-sm text-gray-300 mt-2">
+                        <p>• 智能检测已连接账户，0.5秒内快速连接</p>
+                        <p>• 连接状态缓存，避免重复初始化</p>
+                        <p>• 合约实例复用，减少资源消耗</p>
+                        <p>• 网络状态记录，跳过重复验证</p>
+                    </div>
+                </div>
+
+                <div class="test-item p-4 rounded-lg">
+                    <h3 class="font-semibold">✅ 并行处理优化</h3>
+                    <div class="text-sm text-gray-300 mt-2">
+                        <p>• 网络检查与账户获取同时进行</p>
+                        <p>• 合约初始化并行化处理</p>
+                        <p>• 余额和授权状态同步加载</p>
+                        <p>• DOM更新批量处理，减少重绘</p>
+                    </div>
+                </div>
+
+                <div class="test-item p-4 rounded-lg">
+                    <h3 class="font-semibold">✅ 智能进度反馈</h3>
+                    <div class="text-sm text-gray-300 mt-2">
+                        <p>• 实时进度条显示连接状态</p>
+                        <p>• 分阶段提示：库加载→连接→验证→初始化→完成</p>
+                        <p>• 智能错误处理，友好错误提示</p>
+                        <p>• 连接超时保护机制</p>
+                    </div>
+                </div>
+
+                <div class="test-item p-4 rounded-lg">
+                    <h3 class="font-semibold">✅ 页面性能优化</h3>
+                    <div class="text-sm text-gray-300 mt-2">
+                        <p>• 页面可见性检测，智能刷新数据</p>
+                        <p>• 防抖处理，避免频繁重连</p>
+                        <p>• 异步粒子效果，不阻塞连接流程</p>
+                        <p>• 预热连接组件，提前准备资源</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- 测试建议 -->
         <div class="bg-yellow-900/20 border border-yellow-500/30 rounded-lg p-6">
-            <h2 class="text-xl font-semibold mb-3 text-yellow-400">💡 测试建议</h2>
+            <h2 class="text-xl font-semibold mb-3 text-yellow-400">💡 钱包连接速度测试建议</h2>
             <ol class="text-sm text-gray-300 space-y-2">
-                <li><strong>1. 桌面测试:</strong> 在Chrome/Firefox浏览器中访问 <code>https://maopi.me</code></li>
-                <li><strong>2. 移动端测试:</strong> 在TP钱包内置浏览器中访问游戏</li>
-                <li><strong>3. 钱包连接:</strong> 测试MetaMask、TP钱包等连接</li>
-                <li><strong>4. 网络切换:</strong> 验证AlveyChain网络自动添加</li>
-                <li><strong>5. 余额显示:</strong> 检查MAO/PI代币余额是否正确</li>
-                <li><strong>6. 授权流程:</strong> 测试代币授权是否成功</li>
-                <li><strong>7. 游戏功能:</strong> 进行实际游戏测试</li>
-                <li><strong>8. 视觉效果:</strong> 观察转盘动画和粒子特效</li>
+                <li><strong>1. 首次连接测试:</strong> 清除浏览器缓存，测试全新连接速度</li>
+                <li><strong>2. 重复连接测试:</strong> 连接后刷新页面，测试缓存连接速度</li>
+                <li><strong>3. 网络切换测试:</strong> 切换到其他网络再返回，测试智能重连</li>
+                <li><strong>4. 账户切换测试:</strong> 切换钱包账户，验证快速更新</li>
+                <li><strong>5. 进度条测试:</strong> 观察连接过程中的进度反馈</li>
+                <li><strong>6. 移动端测试:</strong> 在TP钱包等移动端测试连接体验</li>
+                <li><strong>7. 网络延迟测试:</strong> 在网络较慢环境下测试连接稳定性</li>
+                <li><strong>8. 并发测试:</strong> 快速重复点击连接按钮，测试防抖机制</li>
             </ol>
+            
+            <div class="mt-4 p-3 bg-blue-900/30 rounded">
+                <h3 class="text-blue-400 font-semibold mb-2">🎯 期望性能指标</h3>
+                <div class="grid grid-cols-2 gap-2 text-xs text-blue-200">
+                    <div>• 首次连接: ≤ 3秒</div>
+                    <div>• 缓存连接: ≤ 1秒</div>
+                    <div>• 网络切换: ≤ 2秒</div>
+                    <div>• 账户切换: ≤ 1.5秒</div>
+                    <div>• 进度更新: 实时响应</div>
+                    <div>• 错误恢复: ≤ 2秒</div>
+                </div>
+            </div>
         </div>
 
         <!-- 联系信息 -->
