@@ -1347,7 +1347,7 @@
             try {
                 const tokenContract = selectedToken === 'MAO' ? contracts.maoToken : contracts.piToken;
                 const allowance = await tokenContract.allowance(currentAccount, CONTRACTS.WHEEL_GAME);
-                const required = ethers.utils.parseEther(selectedToken === 'MAO' ? '1000' : '100000');
+                const required = ethers.utils.parseEther(selectedToken === 'MAO' ? '100' : '1000');
                 
                 isApproved = allowance.gte(required);
                 updateApproveButton();
@@ -1437,7 +1437,7 @@
                 continuousBtn.disabled = true;
 
                 // 检查余额
-                const required = selectedToken === 'MAO' ? 100 : 10000;
+                const required = selectedToken === 'MAO' ? 100 : 1000;
                 if (parseFloat(balances[selectedToken]) < required) {
                     alert(`余额不足！需要至少 ${required} ${selectedToken}`);
                     resetGameButtons();
