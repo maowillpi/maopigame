@@ -20,7 +20,7 @@
         }
         
         .wheel-animation {
-            transition: transform 4s cubic-bezier(0.23, 1, 0.32, 1);
+            transition: transform 2.5s cubic-bezier(0.23, 1, 0.32, 1);
         }
         
         .pulse-animation {
@@ -361,8 +361,8 @@
 
         // 智能合约配置
         const CONTRACTS = {
-            WHEEL_GAME: "0xc27e29BCe41db77815435a9415329424849Daeb6",
-            MAO_TOKEN: "0x22f49bcb3dad370a9268ba3fca33cb037ca3d022",
+            WHEEL_GAME: "0x2279B7A0a67DB372996a5FaB50D91eAA73d2eBe6",
+            MAO_TOKEN: "0x8c4B86641771efB4A3A5B1C5a6b7E1Aa7f9e2D6F",
             PI_TOKEN: "0xfd4680e25e05b3435c7f698668d1ce80d2a9f444"
         };
 
@@ -388,11 +388,12 @@
 
         const REWARDS = [
             { name: '谢谢惠顾', mao: 0, pi: 0, emoji: '😊' },
-            { name: '小奖', mao: 150, pi: 15000, emoji: '🎁' },
-            { name: '中奖', mao: 400, pi: 40000, emoji: '🏆' },
-            { name: '大奖', mao: 800, pi: 80000, emoji: '💎' },
-            { name: '超级大奖', mao: 1500, pi: 150000, emoji: '🌟' },
-            { name: '终极大奖', mao: 3000, pi: 300000, emoji: '💰' }
+            { name: '安慰奖', mao: 110, pi: 1100, emoji: '🎁' },
+            { name: '小奖', mao: 130, pi: 1300, emoji: '🏆' },
+            { name: '中奖', mao: 200, pi: 2000, emoji: '💎' },
+            { name: '大奖', mao: 400, pi: 4000, emoji: '🌟' },
+            { name: '超级大奖', mao: 800, pi: 8000, emoji: '⭐' },
+            { name: '终极大奖', mao: 2000, pi: 20000, emoji: '💰' }
         ];
 
         // 游戏状态
@@ -688,7 +689,7 @@
                 }
 
                 // 调整转盘到最终位置
-                const finalAngle = rewardLevel * 60;
+                const finalAngle = rewardLevel * 51.43; // 360/7 ≈ 51.43度每个区域
                 const finalRotation = randomSpins - (randomSpins % 360) + finalAngle;
                 wheel.style.transform = `rotate(${finalRotation}deg)`;
 
@@ -733,7 +734,7 @@
                             }
                         }, 3000);
                     }
-                }, 4000);
+                }, 2500);
 
             } catch (error) {
                 console.error('游戏错误:', error);
