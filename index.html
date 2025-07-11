@@ -52,6 +52,379 @@
             backdrop-filter: blur(10px);
             border: 1px solid rgba(255, 255, 255, 0.2);
         }
+
+        /* 🎰 超级专业转盘设计 */
+        .super-wheel {
+            background: conic-gradient(
+                from 0deg,
+                #FF6B9D 0deg 60deg,    /* 谢谢惠顾 - 粉红色 */
+                #4ECDC4 60deg 120deg,  /* 小奖 - 青绿色 */
+                #45B7D1 120deg 180deg, /* 中奖 - 蓝色 */
+                #96CEB4 180deg 240deg, /* 大奖 - 薄荷绿 */
+                #FFEAA7 240deg 300deg, /* 超级大奖 - 金黄色 */
+                #DDA0DD 300deg 360deg  /* 终极大奖 - 紫色 */
+            );
+            border: 12px solid #FFD700;
+            box-shadow: 
+                0 0 60px rgba(255, 215, 0, 0.8),
+                inset 0 0 40px rgba(0, 0, 0, 0.3),
+                0 0 120px rgba(255, 215, 0, 0.6),
+                0 0 200px rgba(255, 255, 255, 0.2);
+            position: relative;
+            animation: wheelGlow 4s ease-in-out infinite alternate;
+            transform-style: preserve-3d;
+        }
+        
+        @keyframes wheelGlow {
+            0% { 
+                box-shadow: 
+                    0 0 60px rgba(255, 215, 0, 0.8),
+                    inset 0 0 40px rgba(0, 0, 0, 0.3),
+                    0 0 120px rgba(255, 215, 0, 0.6);
+                transform: rotateX(0deg);
+            }
+            100% { 
+                box-shadow: 
+                    0 0 100px rgba(255, 215, 0, 1),
+                    inset 0 0 40px rgba(0, 0, 0, 0.3),
+                    0 0 160px rgba(255, 215, 0, 0.8);
+                transform: rotateX(5deg);
+            }
+        }
+        
+        /* 转盘内圈装饰 */
+        .super-wheel::before {
+            content: '';
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            right: 20px;
+            bottom: 20px;
+            border-radius: 50%;
+            border: 6px solid rgba(255, 255, 255, 0.6);
+            z-index: 1;
+            box-shadow: 
+                inset 0 0 30px rgba(255, 255, 255, 0.3),
+                0 0 20px rgba(255, 255, 255, 0.5);
+            animation: innerRing 3s ease-in-out infinite alternate;
+        }
+
+        @keyframes innerRing {
+            0% { 
+                border-color: rgba(255, 255, 255, 0.6);
+                box-shadow: inset 0 0 30px rgba(255, 255, 255, 0.3);
+            }
+            100% { 
+                border-color: rgba(255, 255, 255, 0.9);
+                box-shadow: inset 0 0 50px rgba(255, 255, 255, 0.5);
+            }
+        }
+        
+        /* 超级MAO Logo设计 */
+        .super-mao-logo {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 90px;
+            height: 90px;
+            background: linear-gradient(135deg, #667eea, #764ba2, #f093fb, #ff6b9d);
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 42px;
+            font-weight: 900;
+            color: white;
+            text-shadow: 
+                0 4px 8px rgba(0, 0, 0, 0.8),
+                0 0 20px rgba(102, 126, 234, 1),
+                0 0 30px rgba(255, 107, 157, 0.8);
+            box-shadow: 
+                0 15px 30px rgba(0, 0, 0, 0.5),
+                inset 0 4px 8px rgba(255, 255, 255, 0.4),
+                0 0 40px rgba(102, 126, 234, 0.7);
+            border: 4px solid rgba(255, 255, 255, 0.7);
+            z-index: 20;
+            animation: logoFloat 6s ease-in-out infinite;
+        }
+        
+        @keyframes logoFloat {
+            0%, 100% { 
+                transform: translate(-50%, -50%) rotateY(0deg) scale(1);
+                text-shadow: 0 4px 8px rgba(0, 0, 0, 0.8), 0 0 20px rgba(102, 126, 234, 1);
+            }
+            50% { 
+                transform: translate(-50%, -50%) rotateY(180deg) scale(1.1);
+                text-shadow: 0 4px 8px rgba(0, 0, 0, 0.8), 0 0 30px rgba(255, 107, 157, 1);
+            }
+        }
+        
+        /* 转盘区域超级设计 */
+        .super-wheel-section {
+            position: absolute;
+            color: white;
+            font-weight: bold;
+            text-shadow: 
+                0 3px 6px rgba(0, 0, 0, 0.9),
+                0 0 15px rgba(255, 255, 255, 0.8);
+            z-index: 10;
+            transition: all 0.4s ease;
+        }
+        
+        .super-wheel-section:hover {
+            transform: scale(1.2);
+            z-index: 15;
+        }
+        
+        .super-wheel-section .super-emoji {
+            font-size: 48px;
+            margin-bottom: 8px;
+            text-shadow: 
+                0 0 20px rgba(255, 255, 255, 1),
+                0 3px 6px rgba(0, 0, 0, 0.8);
+            animation: emojiDance 3s ease-in-out infinite;
+        }
+        
+        @keyframes emojiDance {
+            0%, 100% { 
+                transform: translateY(0px) rotate(0deg);
+                text-shadow: 0 0 20px rgba(255, 255, 255, 1);
+            }
+            25% { 
+                transform: translateY(-5px) rotate(5deg);
+                text-shadow: 0 0 25px rgba(255, 215, 0, 1);
+            }
+            75% { 
+                transform: translateY(-3px) rotate(-5deg);
+                text-shadow: 0 0 25px rgba(255, 107, 157, 1);
+            }
+        }
+        
+        .super-wheel-section .super-reward-badge {
+            background: linear-gradient(135deg, 
+                rgba(0, 0, 0, 0.95), 
+                rgba(255, 215, 0, 0.2),
+                rgba(0, 0, 0, 0.95)
+            );
+            border: 4px solid #FFD700;
+            border-radius: 16px;
+            padding: 6px 12px;
+            font-size: 16px;
+            font-weight: 900;
+            color: #FFD700;
+            text-shadow: 
+                0 0 10px rgba(255, 215, 0, 1),
+                0 2px 4px rgba(0, 0, 0, 1);
+            box-shadow: 
+                0 0 20px rgba(255, 215, 0, 0.8),
+                inset 0 2px 4px rgba(255, 255, 255, 0.3),
+                0 4px 8px rgba(0, 0, 0, 0.5);
+            animation: badgeShine 2s ease-in-out infinite;
+        }
+        
+        @keyframes badgeShine {
+            0%, 100% { 
+                box-shadow: 0 0 20px rgba(255, 215, 0, 0.8);
+                border-color: #FFD700;
+            }
+            50% { 
+                box-shadow: 0 0 35px rgba(255, 215, 0, 1);
+                border-color: #FFF;
+            }
+        }
+
+        .super-wheel-section .probability-display {
+            font-size: 12px;
+            color: #FFD700;
+            text-shadow: 0 0 8px rgba(255, 215, 0, 1);
+            margin-top: 4px;
+            animation: probabilityPulse 2s ease-in-out infinite;
+        }
+
+        @keyframes probabilityPulse {
+            0%, 100% { opacity: 0.8; }
+            50% { opacity: 1; text-shadow: 0 0 12px rgba(255, 215, 0, 1); }
+        }
+        
+        /* 超级指针设计 */
+        .super-pointer {
+            position: absolute;
+            top: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 25;
+            animation: pointerFloat 2s ease-in-out infinite alternate;
+        }
+        
+        @keyframes pointerFloat {
+            0% { 
+                transform: translateX(-50%) translateY(0px);
+                filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.6));
+            }
+            100% { 
+                transform: translateX(-50%) translateY(-5px);
+                filter: drop-shadow(0 12px 24px rgba(0, 0, 0, 0.8));
+            }
+        }
+        
+        .super-pointer::before {
+            content: '';
+            width: 0;
+            height: 0;
+            border-left: 35px solid transparent;
+            border-right: 35px solid transparent;
+            border-bottom: 70px solid #FFD700;
+            display: block;
+            position: relative;
+            filter: drop-shadow(0 0 20px rgba(255, 215, 0, 0.8));
+        }
+        
+        .super-pointer::after {
+            content: '';
+            position: absolute;
+            top: 65px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 30px;
+            height: 30px;
+            background: radial-gradient(circle, #FFD700, #FFA500, #FF6B9D);
+            border-radius: 50%;
+            border: 6px solid #fff;
+            box-shadow: 
+                0 4px 12px rgba(0, 0, 0, 0.6),
+                0 0 20px rgba(255, 215, 0, 0.8),
+                inset 0 2px 4px rgba(255, 255, 255, 0.5);
+            animation: pointerGem 3s ease-in-out infinite;
+        }
+
+        @keyframes pointerGem {
+            0%, 100% { 
+                background: radial-gradient(circle, #FFD700, #FFA500);
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.6), 0 0 20px rgba(255, 215, 0, 0.8);
+            }
+            50% { 
+                background: radial-gradient(circle, #FF6B9D, #DDA0DD);
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.6), 0 0 30px rgba(255, 107, 157, 1);
+            }
+        }
+        
+        /* 转盘分割线超级设计 */
+        .super-divider {
+            position: absolute;
+            background: linear-gradient(90deg, 
+                transparent, 
+                rgba(255, 255, 255, 1), 
+                rgba(255, 215, 0, 0.8),
+                rgba(255, 255, 255, 1), 
+                transparent
+            );
+            height: 4px;
+            transform-origin: center;
+            z-index: 8;
+            box-shadow: 
+                0 0 10px rgba(255, 255, 255, 0.8),
+                0 0 20px rgba(255, 215, 0, 0.6);
+            animation: dividerShimmer 4s ease-in-out infinite;
+        }
+
+        @keyframes dividerShimmer {
+            0%, 100% { 
+                background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 1), transparent);
+                box-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
+            }
+            50% { 
+                background: linear-gradient(90deg, transparent, rgba(255, 215, 0, 1), transparent);
+                box-shadow: 0 0 15px rgba(255, 215, 0, 1);
+            }
+        }
+
+        /* 超级游戏按钮 */
+        .super-spin-btn {
+            width: 140px !important;
+            height: 140px !important;
+            background: linear-gradient(135deg, #FF6B9D, #4ECDC4, #45B7D1, #FFEAA7) !important;
+            background-size: 300% 300% !important;
+            border: 6px solid rgba(255, 255, 255, 0.9) !important;
+            border-radius: 50% !important;
+            position: relative !important;
+            overflow: hidden !important;
+            animation: superBtnAnimation 4s ease-in-out infinite !important;
+            box-shadow: 
+                0 20px 40px rgba(0, 0, 0, 0.4),
+                inset 0 4px 8px rgba(255, 255, 255, 0.3),
+                0 0 60px rgba(255, 107, 157, 0.6) !important;
+        }
+
+        @keyframes superBtnAnimation {
+            0%, 100% { 
+                background-position: 0% 50%;
+                box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4), 0 0 60px rgba(255, 107, 157, 0.6);
+            }
+            50% { 
+                background-position: 100% 50%;
+                box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5), 0 0 80px rgba(78, 205, 196, 0.8);
+            }
+        }
+
+        .super-spin-btn::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(45deg, #FFD700, #FF6B9D, #4ECDC4, #DDA0DD);
+            border-radius: 50%;
+            z-index: -1;
+            animation: btnBorderSpin 3s linear infinite;
+        }
+
+        @keyframes btnBorderSpin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .super-spin-btn:hover {
+            transform: scale(1.1) !important;
+            box-shadow: 
+                0 30px 60px rgba(0, 0, 0, 0.5),
+                inset 0 4px 8px rgba(255, 255, 255, 0.4),
+                0 0 100px rgba(255, 215, 0, 1) !important;
+        }
+
+        /* 粒子效果 */
+        .particles {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 5;
+        }
+
+        .particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: radial-gradient(circle, #FFD700, transparent);
+            border-radius: 50%;
+            animation: particleFloat 6s ease-in-out infinite;
+        }
+
+        @keyframes particleFloat {
+            0% { 
+                transform: translateY(0px) rotate(0deg);
+                opacity: 0;
+            }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { 
+                transform: translateY(-400px) rotate(360deg);
+                opacity: 0;
+            }
+        }
     </style>
 </head>
 <body class="bg-gradient min-h-screen">
@@ -81,28 +454,34 @@
             
             <!-- 奖励预览 -->
             <div class="glass-effect rounded-xl p-4">
-                <h3 class="text-white font-semibold mb-3 text-center">💰 丰厚奖励等你来拿</h3>
+                <h3 class="text-white font-semibold mb-3 text-center">💰 全新优化奖励系统！</h3>
                 <div class="grid grid-cols-2 gap-3 text-sm">
                     <div class="glass-effect rounded-lg p-3 text-center">
                         <div class="text-2xl mb-1">🎁</div>
-                        <div class="text-yellow-400 font-bold">小奖 8%</div>
-                        <div class="text-white text-xs">150 MAO</div>
+                        <div class="text-yellow-400 font-bold">小奖 22%</div>
+                        <div class="text-white text-xs">105 MAO</div>
+                        <div class="text-green-400 text-xs">有盈利！</div>
                     </div>
                     <div class="glass-effect rounded-lg p-3 text-center">
                         <div class="text-2xl mb-1">🏆</div>
-                        <div class="text-yellow-400 font-bold">大奖 2%</div>
-                        <div class="text-white text-xs">800 MAO</div>
+                        <div class="text-yellow-400 font-bold">中奖 12%</div>
+                        <div class="text-white text-xs">150 MAO</div>
                     </div>
                     <div class="glass-effect rounded-lg p-3 text-center">
-                        <div class="text-2xl mb-1">🌟</div>
-                        <div class="text-yellow-400 font-bold">超级大奖</div>
-                        <div class="text-white text-xs">1,500 MAO</div>
+                        <div class="text-2xl mb-1">💎</div>
+                        <div class="text-yellow-400 font-bold">大奖 6%</div>
+                        <div class="text-white text-xs">250 MAO</div>
                     </div>
                     <div class="glass-effect rounded-lg p-3 text-center">
                         <div class="text-2xl mb-1">💰</div>
                         <div class="text-yellow-400 font-bold">终极大奖</div>
-                        <div class="text-white text-xs">3,000 MAO</div>
+                        <div class="text-white text-xs">700 MAO</div>
                     </div>
+                </div>
+                <div class="mt-3 text-center">
+                    <p class="text-xs text-green-300">
+                        🎉 42%超高中奖率 · 小奖有盈利 · 即时到账！
+                    </p>
                 </div>
             </div>
 
@@ -111,9 +490,11 @@
                 <h3 class="text-white font-semibold mb-3 text-center">📖 游戏说明</h3>
                 <ul class="text-blue-200 text-sm space-y-2">
                     <li>• 每次游戏消耗 100 MAO 或 1,000 PI</li>
-                    <li>• 6级奖励系统，最高奖励3,000倍</li>
+                    <li>• 全新6级奖励系统，42%超高中奖率</li>
+                    <li>• 小奖有盈利感，最高奖励7倍（700 MAO / 7K PI）</li>
                     <li>• 基于AlveyChain智能合约，公平透明</li>
                     <li>• 支持TP钱包、Trust Wallet等主流钱包</li>
+                    <li>• 奖励自动转账，即时到账</li>
                 </ul>
             </div>
         </div>
@@ -162,91 +543,91 @@
 
             <!-- 转盘游戏 -->
             <div class="glass-effect rounded-xl p-6">
-                <h3 class="text-white font-bold text-center mb-4 text-lg">🎰 幸运转盘</h3>
+                <h3 class="text-white font-bold text-center mb-4 text-lg">🎰 超级幸运转盘</h3>
                 
-                <!-- 转盘 -->
+                <!-- 超级专业转盘 -->
                 <div class="flex justify-center mb-4">
                     <div class="relative">
                         <div 
                             id="wheel"
-                            class="w-80 h-80 rounded-full border-4 border-yellow-400 wheel-animation shadow-2xl relative overflow-hidden"
-                            style="background: conic-gradient(
-                                #6B7280 0deg 60deg,
-                                #F59E0B 60deg 120deg,
-                                #EF4444 120deg 180deg,
-                                #8B5CF6 180deg 240deg,
-                                #10B981 240deg 300deg,
-                                #F97316 300deg 360deg
-                            )"
+                            class="w-96 h-96 rounded-full super-wheel wheel-animation shadow-2xl relative overflow-hidden"
                         >
-                            <!-- 转盘奖项 - 重新设计为6个清晰区域 -->
+                            <!-- 粒子效果容器 -->
+                            <div class="particles" id="particleContainer"></div>
+                            
+                            <!-- 转盘奖项区域 - 超级设计 -->
                             <!-- 区域1: 谢谢惠顾 (0-60度) -->
-                            <div class="absolute top-4 left-1/2 transform -translate-x-1/2 text-center text-white font-bold">
-                                <div class="text-2xl mb-1">😊</div>
-                                <div class="text-xs font-bold">谢谢惠顾</div>
-                                <div class="text-[10px] text-yellow-300"></div>
-                                <div class="text-[10px] bg-black/30 rounded px-1" id="reward0">0</div>
+                            <div class="super-wheel-section absolute top-8 left-1/2 transform -translate-x-1/2 text-center">
+                                <div class="super-emoji">😊</div>
+                                <div class="text-sm font-bold mb-2">谢谢惠顾</div>
+                                <div class="probability-display">58%</div>
+                                <div class="super-reward-badge" id="reward0">0</div>
                             </div>
                             
                             <!-- 区域2: 小奖 (60-120度) -->
-                            <div class="absolute top-8 right-4 transform text-center text-white font-bold">
-                                <div class="text-2xl mb-1">🎁</div>
-                                <div class="text-xs font-bold">小奖</div>
-                                <div class="text-[10px] text-yellow-300">8%</div>
-                                <div class="text-[10px] bg-black/30 rounded px-1" id="reward1">150</div>
+                            <div class="super-wheel-section absolute top-12 right-8 transform text-center">
+                                <div class="super-emoji">🎁</div>
+                                <div class="text-sm font-bold mb-2">小奖</div>
+                                <div class="probability-display">22%</div>
+                                <div class="super-reward-badge" id="reward1">105</div>
                             </div>
                             
                             <!-- 区域3: 中奖 (120-180度) -->
-                            <div class="absolute bottom-8 right-4 transform text-center text-white font-bold">
-                                <div class="text-2xl mb-1">🏆</div>
-                                <div class="text-xs font-bold">中奖</div>
-                                <div class="text-[10px] text-yellow-300">4%</div>
-                                <div class="text-[10px] bg-black/30 rounded px-1" id="reward2">400</div>
+                            <div class="super-wheel-section absolute bottom-12 right-8 transform text-center">
+                                <div class="super-emoji">🏆</div>
+                                <div class="text-sm font-bold mb-2">中奖</div>
+                                <div class="probability-display">12%</div>
+                                <div class="super-reward-badge" id="reward2">150</div>
                             </div>
                             
                             <!-- 区域4: 大奖 (180-240度) -->
-                            <div class="absolute bottom-4 left-1/2 transform -translate-x-1/2 text-center text-white font-bold">
-                                <div class="text-2xl mb-1">💎</div>
-                                <div class="text-xs font-bold">大奖</div>
-                                <div class="text-[10px] text-yellow-300">2%</div>
-                                <div class="text-[10px] bg-black/30 rounded px-1" id="reward3">800</div>
+                            <div class="super-wheel-section absolute bottom-8 left-1/2 transform -translate-x-1/2 text-center">
+                                <div class="super-emoji">💎</div>
+                                <div class="text-sm font-bold mb-2">大奖</div>
+                                <div class="probability-display">6%</div>
+                                <div class="super-reward-badge" id="reward3">250</div>
                             </div>
                             
                             <!-- 区域5: 超级大奖 (240-300度) -->
-                            <div class="absolute bottom-8 left-4 transform text-center text-white font-bold">
-                                <div class="text-2xl mb-1">🌟</div>
-                                <div class="text-xs font-bold">超级</div>
-                                <div class="text-[10px] text-yellow-300">0.8%</div>
-                                <div class="text-[10px] bg-black/30 rounded px-1" id="reward4">1500</div>
+                            <div class="super-wheel-section absolute bottom-12 left-8 transform text-center">
+                                <div class="super-emoji">🌟</div>
+                                <div class="text-sm font-bold mb-2">超级</div>
+                                <div class="probability-display">1.5%</div>
+                                <div class="super-reward-badge" id="reward4">400</div>
                             </div>
                             
                             <!-- 区域6: 终极大奖 (300-360度) -->
-                            <div class="absolute top-8 left-4 transform text-center text-white font-bold">
-                                <div class="text-2xl mb-1">💰</div>
-                                <div class="text-xs font-bold">终极</div>
-                                <div class="text-[10px] text-yellow-300">0.2%</div>
-                                <div class="text-[10px] bg-black/30 rounded px-1" id="reward5">3000</div>
+                            <div class="super-wheel-section absolute top-12 left-8 transform text-center">
+                                <div class="super-emoji">💰</div>
+                                <div class="text-sm font-bold mb-2">终极</div>
+                                <div class="probability-display">0.5%</div>
+                                <div class="super-reward-badge" id="reward5">700</div>
                             </div>
                             
-                            <!-- 分割线 -->
-                            <div class="absolute top-0 left-1/2 w-0.5 h-full bg-white/30 transform -translate-x-1/2"></div>
-                            <div class="absolute top-1/2 right-0 h-0.5 w-full bg-white/30 transform -translate-y-1/2 rotate-60 origin-center"></div>
-                            <div class="absolute top-1/2 right-0 h-0.5 w-full bg-white/30 transform -translate-y-1/2 rotate-120 origin-center"></div>
+                            <!-- 超级分割线 -->
+                            <div class="super-divider top-0 left-1/2 w-full transform -translate-x-1/2"></div>
+                            <div class="super-divider top-1/2 left-0 w-full transform -translate-y-1/2 rotate-60"></div>
+                            <div class="super-divider top-1/2 left-0 w-full transform -translate-y-1/2 rotate-120"></div>
                             
-                            <!-- 指针 -->
-                            <div class="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-2 z-20">
-                                <div class="w-0 h-0 border-l-[15px] border-r-[15px] border-b-[30px] border-l-transparent border-r-transparent border-b-yellow-400 drop-shadow-lg"></div>
+                            <!-- 超级MAO Logo -->
+                            <div class="super-mao-logo">
+                                MAO
                             </div>
                         </div>
                         
-                        <!-- 中心按钮 -->
-                        <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-10">
+                        <!-- 超级指针 -->
+                        <div class="super-pointer"></div>
+                        
+                        <!-- 超级游戏控制按钮 -->
+                        <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 translate-y-24 z-30">
                             <button
                                 id="spinBtn"
-                                class="w-24 h-24 rounded-full font-bold text-sm transition-all shadow-2xl bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 transform hover:scale-110 text-white border-4 border-white"
+                                class="super-spin-btn font-bold text-lg transition-all duration-300 transform hover:scale-110 text-white"
                             >
-                                <div class="text-2xl">🎲</div>
-                                <div class="text-[10px]">开始游戏</div>
+                                <div class="relative z-10">
+                                    <div class="text-4xl mb-2">🎲</div>
+                                    <div class="text-sm font-bold">开始游戏</div>
+                                </div>
                             </button>
                         </div>
                     </div>
@@ -308,14 +689,14 @@
                     </button>
                     
                     <div class="flex gap-3">
-                        <button
-                            id="startGameBtn" 
+                    <button
+                        id="startGameBtn" 
                             class="flex-1 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-bold py-3 px-6 rounded-xl text-base transition-all duration-200 transform hover:scale-105 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
-                            disabled
-                        >
-                            🎮 开始游戏
-                        </button>
-                        <button
+                        disabled
+                    >
+                        🎮 开始游戏
+                    </button>
+                        <button 
                             id="continuousBtn" 
                             class="flex-1 bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700 text-white font-bold py-3 px-6 rounded-xl text-base transition-all duration-200 transform hover:scale-105 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
                             disabled
@@ -387,13 +768,12 @@
         ];
 
         const REWARDS = [
-            { name: '谢谢惠顾', mao: 0, pi: 0, emoji: '😊' },
-            { name: '安慰奖', mao: 110, pi: 1100, emoji: '🎁' },
-            { name: '小奖', mao: 130, pi: 1300, emoji: '🏆' },
-            { name: '中奖', mao: 200, pi: 2000, emoji: '💎' },
-            { name: '大奖', mao: 400, pi: 4000, emoji: '🌟' },
-            { name: '超级大奖', mao: 800, pi: 8000, emoji: '⭐' },
-            { name: '终极大奖', mao: 2000, pi: 20000, emoji: '💰' }
+            { name: '谢谢惠顾', mao: 0, pi: 0, emoji: '😊', probability: '58%' },
+            { name: '小奖', mao: 105, pi: 1050, emoji: '🎁', probability: '22%' },
+            { name: '中奖', mao: 150, pi: 1500, emoji: '🏆', probability: '12%' },
+            { name: '大奖', mao: 250, pi: 2500, emoji: '💎', probability: '6%' },
+            { name: '超级大奖', mao: 400, pi: 4000, emoji: '🌟', probability: '1.5%' },
+            { name: '终极大奖', mao: 700, pi: 7000, emoji: '💰', probability: '0.5%' }
         ];
 
         // 游戏状态
@@ -443,6 +823,23 @@
         const reward4 = document.getElementById('reward4');
         const reward5 = document.getElementById('reward5');
 
+        // 更新转盘显示
+        function updateWheelRewards() {
+            const rewards = selectedToken === 'MAO' ? [0, 105, 150, 250, 400, 700] : [0, 1050, 1500, 2500, 4000, 7000];
+            const probabilities = ['58%', '22%', '12%', '6%', '1.5%', '0.5%'];
+            
+            // 更新转盘上的奖励显示
+            [reward0, reward1, reward2, reward3, reward4, reward5].forEach((element, index) => {
+                if (selectedToken === 'MAO') {
+                    element.textContent = rewards[index].toLocaleString();
+                } else {
+                    // PI代币显示K单位
+                    const value = rewards[index];
+                    element.textContent = value >= 1000 ? `${(value/1000).toLocaleString()}K` : value.toString();
+                }
+            });
+        }
+
         // 连接钱包
         async function connectWallet() {
             try {
@@ -460,6 +857,9 @@
 
                 connectBtn.textContent = '连接中...';
                 connectBtn.disabled = true;
+
+                // 初始化粒子效果
+                initParticleEffect();
 
                 // 检查并切换网络
                 const chainId = await window.ethereum.request({ method: 'eth_chainId' });
@@ -514,6 +914,117 @@
             }
         }
 
+        // 🎆 粒子效果系统
+        function initParticleEffect() {
+            const particleContainer = document.getElementById('particleContainer');
+            if (!particleContainer) return;
+
+            // 创建初始粒子
+            for (let i = 0; i < 20; i++) {
+                createParticle();
+            }
+
+            // 定期创建新粒子
+            setInterval(createParticle, 300);
+        }
+
+        function createParticle() {
+            const particleContainer = document.getElementById('particleContainer');
+            if (!particleContainer) return;
+
+            const particle = document.createElement('div');
+            particle.className = 'particle';
+            
+            // 随机位置
+            particle.style.left = Math.random() * 100 + '%';
+            particle.style.animationDelay = Math.random() * 2 + 's';
+            particle.style.animationDuration = (3 + Math.random() * 3) + 's';
+            
+            // 随机颜色
+            const colors = ['#FFD700', '#FF6B9D', '#4ECDC4', '#45B7D1', '#FFEAA7', '#DDA0DD'];
+            const color = colors[Math.floor(Math.random() * colors.length)];
+            particle.style.background = `radial-gradient(circle, ${color}, transparent)`;
+            
+            particleContainer.appendChild(particle);
+            
+            // 动画结束后移除
+            setTimeout(() => {
+                if (particle.parentNode) {
+                    particle.parentNode.removeChild(particle);
+                }
+            }, 6000);
+        }
+
+        // 🎰 增强转盘动画
+        function enhancedSpinAnimation(finalAngle) {
+            const wheelElement = document.getElementById('wheel');
+            if (!wheelElement) return;
+
+            // 创建爆炸粒子效果
+            createSpinParticles();
+            
+            // 添加震动效果
+            wheelElement.style.animation = 'none';
+            wheelElement.style.transform = `rotate(${finalAngle}deg)`;
+            
+            // 转盘发光效果
+            wheelElement.style.boxShadow = `
+                0 0 100px rgba(255, 215, 0, 1),
+                inset 0 0 40px rgba(0, 0, 0, 0.3),
+                0 0 200px rgba(255, 215, 0, 0.8),
+                0 0 300px rgba(255, 255, 255, 0.4)
+            `;
+            
+            // 恢复正常光效
+            setTimeout(() => {
+                wheelElement.style.boxShadow = '';
+            }, 3000);
+        }
+
+        function createSpinParticles() {
+            const wheelElement = document.getElementById('wheel');
+            if (!wheelElement) return;
+
+            for (let i = 0; i < 50; i++) {
+                const particle = document.createElement('div');
+                particle.style.position = 'absolute';
+                particle.style.width = '8px';
+                particle.style.height = '8px';
+                particle.style.borderRadius = '50%';
+                particle.style.pointerEvents = 'none';
+                particle.style.zIndex = '30';
+                
+                const colors = ['#FFD700', '#FF6B9D', '#4ECDC4', '#45B7D1', '#FFEAA7'];
+                particle.style.background = colors[Math.floor(Math.random() * colors.length)];
+                
+                // 从转盘中心爆炸
+                const angle = (i / 50) * 360;
+                const radius = 150 + Math.random() * 100;
+                const x = Math.cos(angle * Math.PI / 180) * radius;
+                const y = Math.sin(angle * Math.PI / 180) * radius;
+                
+                particle.style.left = '50%';
+                particle.style.top = '50%';
+                particle.style.transform = 'translate(-50%, -50%)';
+                
+                wheelElement.appendChild(particle);
+                
+                // 动画
+                particle.animate([
+                    { transform: 'translate(-50%, -50%) scale(0)', opacity: 1 },
+                    { transform: `translate(calc(-50% + ${x}px), calc(-50% + ${y}px)) scale(1)`, opacity: 0.8 },
+                    { transform: `translate(calc(-50% + ${x * 1.5}px), calc(-50% + ${y * 1.5}px)) scale(0)`, opacity: 0 }
+                ], {
+                    duration: 1500,
+                    easing: 'cubic-bezier(0.25, 0.46, 0.45, 0.94)'
+                }).onfinish = () => {
+                    if (particle.parentNode) {
+                        particle.parentNode.removeChild(particle);
+                    }
+                };
+            }
+        }
+
         // 加载余额
         async function loadBalances() {
             try {
@@ -522,11 +1033,11 @@
                     contracts.piToken.balanceOf(currentAccount)
                 ]);
 
-                balances.MAO = ethers.utils.formatEther(maoBalanceWei);
-                balances.PI = ethers.utils.formatEther(piBalanceWei);
+                balances.MAO = ethers.utils.formatUnits(maoBalanceWei, 18);
+                balances.PI = ethers.utils.formatUnits(piBalanceWei, 18);
 
-                maoBalance.textContent = `余额: ${parseFloat(balances.MAO).toFixed(2)}`;
-                piBalance.textContent = `余额: ${parseFloat(balances.PI).toFixed(2)}`;
+                maoBalance.textContent = `余额: ${parseFloat(balances.MAO).toLocaleString()}`;
+                piBalance.textContent = `余额: ${parseFloat(balances.PI).toLocaleString()}`;
                 
                 updateCurrentBalance();
             } catch (error) {
@@ -536,26 +1047,7 @@
 
         // 更新当前余额显示
         function updateCurrentBalance() {
-            userBalance.textContent = `${parseFloat(balances[selectedToken]).toFixed(2)} ${selectedToken}`;
-        }
-
-        // 更新转盘奖励显示
-        function updateWheelRewards() {
-            if (selectedToken === 'MAO') {
-                reward0.textContent = '0';
-                reward1.textContent = '150';
-                reward2.textContent = '400';
-                reward3.textContent = '800';
-                reward4.textContent = '1,500';
-                reward5.textContent = '3,000';
-            } else {
-                reward0.textContent = '0';
-                reward1.textContent = '15K';
-                reward2.textContent = '40K';
-                reward3.textContent = '80K';
-                reward4.textContent = '150K';
-                reward5.textContent = '300K';
-            }
+            userBalance.textContent = `${parseFloat(balances[selectedToken]).toLocaleString()} ${selectedToken}`;
         }
 
         // 更新游戏统计
@@ -666,9 +1158,14 @@
                     resetGameButtons();
                     return;
                 }
-
-                // 开始转盘动画
+                
+                // 开始转盘动画 - 使用增强动画
                 const randomSpins = 2160 + Math.random() * 360; // 6圈 + 随机角度
+                
+                // 先触发爆炸粒子效果
+                createSpinParticles();
+                
+                // 转盘旋转
                 wheel.style.transform = `rotate(${randomSpins}deg)`;
 
                 // 调用智能合约
@@ -688,10 +1185,14 @@
                     } catch (e) {}
                 }
 
-                // 调整转盘到最终位置
-                const finalAngle = rewardLevel * 51.43; // 360/7 ≈ 51.43度每个区域
+                // 调整转盘到最终位置并应用增强动画
+                const finalAngle = rewardLevel * 60; // 360/6 = 60度每个区域
                 const finalRotation = randomSpins - (randomSpins % 360) + finalAngle;
-                wheel.style.transform = `rotate(${finalRotation}deg)`;
+                
+                // 使用增强动画
+                setTimeout(() => {
+                    enhancedSpinAnimation(finalRotation);
+                }, 2000);
 
                 // 显示结果
                 setTimeout(async () => {
@@ -710,6 +1211,9 @@
                     resultText.textContent = `${reward.emoji} 结果: ${reward.name}`;
                     if (amount > 0) {
                         resultText.textContent += ` (+${amount} ${selectedToken})`;
+                        
+                        // 中奖时创建庆祝粒子
+                        createCelebrationParticles();
                         
                         // 验证奖励是否正确转入
                         if (Math.abs(balanceDiff - (amount - required)) < 0.0001) {
@@ -734,7 +1238,7 @@
                             }
                         }, 3000);
                     }
-                }, 2500);
+                }, 4500);
 
             } catch (error) {
                 console.error('游戏错误:', error);
@@ -794,8 +1298,8 @@
             updateWheelRewards();
             
             // 更新余额显示
-            updateCurrentBalance();
-            
+                    updateCurrentBalance();
+                    
             // 重新检查授权
             if (currentAccount) {
                 checkApproval();
@@ -839,6 +1343,117 @@
                 location.reload();
             });
         }
+
+        // 🎊 庆祝粒子效果
+        function createCelebrationParticles() {
+            const gameInterface = document.getElementById('gameInterface');
+            if (!gameInterface) return;
+
+            for (let i = 0; i < 100; i++) {
+                const particle = document.createElement('div');
+                particle.style.position = 'fixed';
+                particle.style.width = Math.random() * 8 + 4 + 'px';
+                particle.style.height = particle.style.width;
+                particle.style.borderRadius = '50%';
+                particle.style.pointerEvents = 'none';
+                particle.style.zIndex = '1000';
+                
+                const colors = ['#FFD700', '#FF6B9D', '#4ECDC4', '#45B7D1', '#FFEAA7', '#DDA0DD', '#FF6347', '#00CED1'];
+                particle.style.background = colors[Math.floor(Math.random() * colors.length)];
+                particle.style.boxShadow = `0 0 10px ${particle.style.background}`;
+                
+                // 从屏幕中心爆炸
+                particle.style.left = '50%';
+                particle.style.top = '50%';
+                particle.style.transform = 'translate(-50%, -50%)';
+                
+                document.body.appendChild(particle);
+                
+                // 爆炸动画
+                const angle = (i / 100) * 360;
+                const velocity = 100 + Math.random() * 200;
+                const x = Math.cos(angle * Math.PI / 180) * velocity;
+                const y = Math.sin(angle * Math.PI / 180) * velocity;
+                
+                particle.animate([
+                    { 
+                        transform: 'translate(-50%, -50%) scale(0)', 
+                        opacity: 1 
+                    },
+                    { 
+                        transform: `translate(calc(-50% + ${x}px), calc(-50% + ${y}px)) scale(1)`, 
+                        opacity: 0.8 
+                    },
+                    { 
+                        transform: `translate(calc(-50% + ${x}px), calc(-50% + ${y + 200}px)) scale(0)`, 
+                        opacity: 0 
+                    }
+                ], {
+                    duration: 2000,
+                    easing: 'cubic-bezier(0.25, 0.46, 0.45, 0.94)'
+                }).onfinish = () => {
+                    if (particle.parentNode) {
+                        particle.parentNode.removeChild(particle);
+                    }
+                };
+            }
+        }
+
+        // 🌟 增强转盘悬停效果
+        function addWheelInteractivity() {
+            const wheelSections = document.querySelectorAll('.super-wheel-section');
+            wheelSections.forEach(section => {
+                section.addEventListener('mouseenter', () => {
+                    section.style.transform = 'scale(1.3)';
+                    section.style.zIndex = '15';
+                    
+                    // 添加光效
+                    const emoji = section.querySelector('.super-emoji');
+                    if (emoji) {
+                        emoji.style.textShadow = '0 0 30px rgba(255, 215, 0, 1), 0 0 40px rgba(255, 255, 255, 0.8)';
+                    }
+                });
+                
+                section.addEventListener('mouseleave', () => {
+                    section.style.transform = 'scale(1)';
+                    section.style.zIndex = '10';
+                    
+                    const emoji = section.querySelector('.super-emoji');
+                    if (emoji) {
+                        emoji.style.textShadow = '';
+                    }
+                });
+            });
+        }
+
+        // 🎵 音效增强（如果需要的话）
+        function playSpinSound() {
+            // 可以添加音效代码
+            console.log('🎵 转盘音效播放');
+        }
+
+        function playWinSound() {
+            // 可以添加中奖音效代码
+            console.log('🎉 中奖音效播放');
+        }
+
+        // 页面加载完成后初始化增强功能
+        window.addEventListener('load', function() {
+            // 检查ethers是否正确加载
+            if (typeof ethers === 'undefined') {
+                console.error('ethers.js未正确加载');
+                alert('正在加载区块链库，请稍候重试...');
+                setTimeout(() => location.reload(), 2000);
+                return;
+            }
+            
+            console.log('ethers.js加载成功:', ethers.version);
+            
+            // 延迟添加交互效果，确保DOM完全加载
+            setTimeout(() => {
+                addWheelInteractivity();
+            }, 1000);
+        });
     </script>
 </body>
 </html> 
