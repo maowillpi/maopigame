@@ -6,13 +6,14 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <title>🎰 MAO转盘游戏 - AlveyChain 区块链游戏 v4.0 优化版</title>
+    <title>🎰 MAO转盘游戏 - AlveyChain 区块链游戏 v4.0.1 最终版</title>
     
-    <!-- 强制缓存清除 v4.0 -->
+    <!-- 强制缓存清除 v4.0.1 最终版 -->
     <script>
-        const CACHE_VERSION = 'v4.0-speed-optimized-' + Date.now();
-        console.log('🚀 MAO转盘游戏 v4.0 钱包连接速度优化版');
+        const CACHE_VERSION = 'v4.0.1-final-' + Date.now();
+        console.log('🚀 MAO转盘游戏 v4.0.1 最终版 - 强制更新');
         console.log('📅 缓存版本:', CACHE_VERSION);
+        console.log('🎯 部署时间:', new Date().toLocaleString('zh-CN'));
         
         // 强制清除所有旧缓存
         if ('serviceWorker' in navigator) {
@@ -36,8 +37,22 @@
         // 页面版本检查
         const lastVersion = localStorage.getItem('mao_game_version');
         if (lastVersion !== CACHE_VERSION) {
-            console.log('🔄 检测到新版本，强制更新');
+            console.log('🔄 检测到v4.0.1最终版本，强制更新缓存');
             localStorage.setItem('mao_game_version', CACHE_VERSION);
+            
+            // 显示版本信息
+            console.log('✅ 已更新到MAO转盘游戏v4.0.1最终版本！');
+            console.log('🌟 新功能: 优化钱包连接 + 修复投注金额 + 增强转盘界面');
+        }
+        
+        // 强制禁用缓存
+        if (window.location.search.indexOf('nocache') === -1) {
+            const separator = window.location.search ? '&' : '?';
+            const newUrl = window.location.href + separator + 'nocache=' + Date.now();
+            if (lastVersion && lastVersion !== CACHE_VERSION) {
+                console.log('🔄 强制刷新页面清除缓存');
+                window.location.replace(newUrl);
+            }
         }
     </script>
     
@@ -467,8 +482,8 @@
     
     <!-- 头部 -->
     <div class="glass-effect sticky top-0 z-50 px-4 py-3 text-center">
-        <h1 class="text-xl font-bold text-white">🎰 MAO转盘游戏</h1>
-        <p class="text-xs text-blue-200">AlveyChain 区块链游戏</p>
+        <h1 class="text-xl font-bold text-white">🎰 MAO转盘游戏 <span class="text-yellow-400 text-sm">v4.0.1</span></h1>
+        <p class="text-xs text-blue-200">AlveyChain 区块链游戏 · 最终版</p>
     </div>
 
     <!-- 主要内容 -->
