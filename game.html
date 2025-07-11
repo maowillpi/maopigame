@@ -6,41 +6,27 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <title>🎰 MAO转盘游戏 - AlveyChain 区块链游戏 v3.2.1</title>
+    <title>🎰 MAO转盘游戏 - AlveyChain 区块链游戏 v4.0</title>
     
-    <!-- 强制缓存清除 - v3.2.1 加强版 -->
+    <!-- 强制缓存更新 -->
     <script>
-        const CURRENT_VERSION = 'v3.2.1-professional-fixed';
-        const lastVersion = localStorage.getItem('maogame_version');
-        
-        if (lastVersion !== CURRENT_VERSION) {
-            console.log('🔄 检测到v3.2.1专业修复版更新，清除缓存...');
-            localStorage.clear();
-            sessionStorage.clear();
-            localStorage.setItem('maogame_version', CURRENT_VERSION);
-            
-            // 强制清除缓存
-            if ('caches' in window) {
-                caches.keys().then(names => {
-                    names.forEach(name => {
-                        caches.delete(name);
-                    });
-                });
-            }
-            
-            console.log('✅ v3.2.1 MAO转盘专业修复版已加载！');
+        // 强制清除所有缓存
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.getRegistrations().then(function(registrations) {
+                for(let registration of registrations) {
+                    registration.unregister();
+                }
+            });
         }
         
-        // 添加强制刷新标记
-        const forceRefresh = Date.now();
-        const urlParams = new URLSearchParams(window.location.search);
-        if (!urlParams.has('v') || urlParams.get('v') !== '3.2.0') {
-            window.location.href = window.location.pathname + '?v=3.2.0&t=' + forceRefresh;
+        // 强制刷新页面缓存
+        if (performance.navigation.type === 1) {
+            console.log('页面被刷新，清除缓存');
         }
         
         // 添加时间戳到所有资源
         const timestamp = Date.now();
-        console.log('v3.2.0 强制更新版本时间戳:', timestamp);
+        console.log('v3.0 强制缓存更新时间戳:', timestamp);
     </script>
     
     <!-- Tailwind CSS CDN -->
@@ -54,11 +40,11 @@
         // 移动端兼容性修复
         document.addEventListener('DOMContentLoaded', function() {
             // 版本检查 - 强制清除缓存
-            const currentVersion = 'v3.2.0-professional';
+            const currentVersion = 'v3.0.1-professional';
             const lastVersion = localStorage.getItem('maogame_version');
             
             if (lastVersion !== currentVersion) {
-                console.log('🔄 检测到v3.2.0专业版更新，清除缓存...');
+                console.log('🔄 检测到v3.0.1专业版更新，清除缓存...');
                 localStorage.setItem('maogame_version', currentVersion);
                 
                 // 强制清除缓存的方法
@@ -72,7 +58,7 @@
                 
                 // 如果不是第一次加载，则刷新页面
                 if (lastVersion && lastVersion !== currentVersion) {
-                    alert('🎉 MAO转盘v3.2.0专业修复版！\n\n✅ 关键修复：\n🔥 完全移除百分比显示\n🎨 纯专业转盘设计\n💎 奖励预览界面优化\n📱 移动端体验完善\n\n🚀 正在加载最新版本...');
+                    alert('🎉 MAO转盘v3.0.1专业修复版！\n\n✅ 关键修复：\n🔥 完全移除百分比显示\n🎨 纯专业转盘设计\n💎 奖励预览界面优化\n📱 移动端体验完善\n\n🚀 正在加载最新版本...');
                     setTimeout(() => {
                         window.location.href = window.location.href + '?v=' + Date.now();
                     }, 2000);
@@ -142,7 +128,7 @@
         }
         
         .wheel-animation {
-            transition: transform 2.8s cubic-bezier(0.32, 0.64, 0.45, 1);
+            transition: transform 4s cubic-bezier(0.23, 1, 0.32, 1);
         }
         
         .pulse-animation {
@@ -175,24 +161,23 @@
             border: 1px solid rgba(255, 255, 255, 0.2);
         }
         
-        /* 专业转盘设计v3.2.0 - 7级奖励系统 */
+        /* 专业转盘设计v3.0 - 更高级和有趣 */
         .professional-wheel {
             background: conic-gradient(
                 from 0deg,
-                #1a365d 0deg 180deg,   /* 谢谢惠顾 - 深蓝色 */
-                #f6ad55 180deg 220deg,   /* 安慰奖 - 橙色 */
-                #4fd1c5 220deg 260deg, /* 小奖 - 青绿色 */
-                #4299e1 260deg 300deg, /* 中奖 - 蓝色 */
-                #9f7aea 300deg 330deg, /* 大奖 - 紫色 */
-                #f6e05e 330deg 345deg, /* 超级大奖 - 金色 */
-                #ed64a6 345deg 360deg     /* 终极大奖 - 粉色 */
+                #FF6B6B 0deg 60deg,   /* 安慰奖 - 温暖红色 */
+                #4ECDC4 60deg 120deg, /* 小奖 - 青绿色 */
+                #45B7D1 120deg 180deg, /* 中奖 - 蓝色 */
+                #96CEB4 180deg 240deg, /* 大奖 - 薄荷绿 */
+                #FFEAA7 240deg 300deg, /* 超级大奖 - 金黄色 */
+                #DDA0DD 300deg 360deg  /* 终极大奖 - 紫色 */
             );
-            border: 12px solid #FFD700;
+            border: 8px solid #FFD700;
             box-shadow: 
-                0 0 50px rgba(255, 215, 0, 0.7),
-                inset 0 0 40px rgba(0, 0, 0, 0.3),
-                0 0 100px rgba(255, 215, 0, 0.5),
-                0 0 150px rgba(255, 255, 255, 0.15);
+                0 0 40px rgba(255, 215, 0, 0.6),
+                inset 0 0 30px rgba(0, 0, 0, 0.2),
+                0 0 80px rgba(255, 215, 0, 0.4),
+                0 0 120px rgba(255, 255, 255, 0.1);
             position: relative;
             animation: wheelGlow 3s ease-in-out infinite alternate;
         }
@@ -283,13 +268,11 @@
             font-weight: bold;
             text-shadow: 0 3px 6px rgba(0, 0, 0, 0.8);
             z-index: 5;
-            transition: transform 0.3s ease, opacity 0.3s ease;
-            transform-origin: bottom center;
+            transition: all 0.3s ease;
         }
         
         .wheel-section:hover {
-            transform: scale(1.1) translateY(-5px);
-            filter: brightness(1.2);
+            transform: scale(1.1);
         }
         
         .wheel-section .emoji {
@@ -306,46 +289,48 @@
         
         .wheel-section .reward-badge {
             background: linear-gradient(135deg, rgba(0, 0, 0, 0.9), rgba(0, 0, 0, 0.7));
-            border: 2px solid #FFD700;
+            border: 3px solid #FFD700;
             border-radius: 12px;
-            padding: 6px 12px;
-            font-size: 16px;
+            padding: 4px 8px;
+            font-size: 14px;
             font-weight: 900;
             color: #FFD700;
-            text-shadow: 0 0 10px rgba(255, 215, 0, 0.8);
+            text-shadow: 0 0 8px rgba(255, 215, 0, 1);
             box-shadow: 
-                0 0 20px rgba(255, 215, 0, 0.6),
-                inset 0 2px 4px rgba(255, 255, 255, 0.3);
-            transform: scale(1);
-            transition: transform 0.3s ease;
+                0 0 15px rgba(255, 215, 0, 0.5),
+                inset 0 2px 4px rgba(255, 255, 255, 0.2);
+            animation: badgePulse 2s ease-in-out infinite;
         }
         
-        .reward-badge:hover {
-            transform: scale(1.1);
-            box-shadow: 
-                0 0 30px rgba(255, 215, 0, 0.8),
-                inset 0 2px 4px rgba(255, 255, 255, 0.4);
+        @keyframes badgePulse {
+            0%, 100% { box-shadow: 0 0 15px rgba(255, 215, 0, 0.5); }
+            50% { box-shadow: 0 0 25px rgba(255, 215, 0, 0.8); }
         }
         
         /* 专业指针设计v3.0 */
         .professional-pointer {
             position: absolute;
-            top: -20px;
+            top: -12px;
             left: 50%;
             transform: translateX(-50%);
             z-index: 20;
-            filter: drop-shadow(0 0 10px rgba(255, 215, 0, 0.5));
+            animation: pointerBounce 1s ease-in-out infinite alternate;
+        }
+        
+        @keyframes pointerBounce {
+            0% { transform: translateX(-50%) translateY(0px); }
+            100% { transform: translateX(-50%) translateY(-2px); }
         }
         
         .professional-pointer::before {
             content: '';
             width: 0;
             height: 0;
-            border-left: 30px solid transparent;
-            border-right: 30px solid transparent;
-            border-bottom: 60px solid #FFD700;
+            border-left: 25px solid transparent;
+            border-right: 25px solid transparent;
+            border-bottom: 50px solid #FFD700;
             display: block;
-            filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.6));
+            filter: drop-shadow(0 6px 12px rgba(0, 0, 0, 0.6));
         }
         
         .professional-pointer::after {
@@ -425,7 +410,7 @@
     
     <!-- 头部 -->
     <div class="glass-effect sticky top-0 z-50 px-4 py-3 text-center">
-        <h1 class="text-xl font-bold text-white">🎰 MAO转盘游戏 <span class="text-yellow-400 text-sm">v3.2.0</span></h1>
+        <h1 class="text-xl font-bold text-white">🎰 MAO转盘游戏 <span class="text-yellow-400 text-sm">v3.0.1</span></h1>
         <p class="text-xs text-blue-200">AlveyChain 区块链游戏 · 专业版</p>
     </div>
 
@@ -446,44 +431,34 @@
                 </button>
             </div>
             
-            <!-- 奖励预览 - v3.2.0专业版（优化后的奖励机制） -->
+            <!-- 奖励预览 - v3.0专业版（移除百分比） -->
             <div class="glass-effect rounded-xl p-4">
                 <h3 class="text-white font-semibold mb-3 text-center">💰 全新专业奖励系统！</h3>
                 <div class="grid grid-cols-2 gap-3 text-sm">
                     <div class="glass-effect rounded-lg p-3 text-center">
-                        <div class="text-2xl mb-1">🎁</div>
+                        <div class="text-2xl mb-1">💫</div>
                         <div class="text-yellow-400 font-bold">安慰奖</div>
-                        <div class="text-white text-xs">110 MAO</div>
+                        <div class="text-white text-xs">50 MAO</div>
                     </div>
                     <div class="glass-effect rounded-lg p-3 text-center">
-                        <div class="text-2xl mb-1">🏆</div>
+                        <div class="text-2xl mb-1">🎁</div>
                         <div class="text-yellow-400 font-bold">小奖</div>
-                        <div class="text-white text-xs">130 MAO</div>
-                    </div>
-                    <div class="glass-effect rounded-lg p-3 text-center">
-                        <div class="text-2xl mb-1">💎</div>
-                        <div class="text-yellow-400 font-bold">中奖</div>
                         <div class="text-white text-xs">200 MAO</div>
                     </div>
                     <div class="glass-effect rounded-lg p-3 text-center">
-                        <div class="text-2xl mb-1">🌟</div>
-                        <div class="text-yellow-400 font-bold">大奖</div>
-                        <div class="text-white text-xs">400 MAO</div>
-                    </div>
-                    <div class="glass-effect rounded-lg p-3 text-center">
-                        <div class="text-2xl mb-1">⭐</div>
-                        <div class="text-yellow-400 font-bold">超级大奖</div>
-                        <div class="text-white text-xs">800 MAO</div>
+                        <div class="text-2xl mb-1">🏆</div>
+                        <div class="text-yellow-400 font-bold">中奖</div>
+                        <div class="text-white text-xs">500 MAO</div>
                     </div>
                     <div class="glass-effect rounded-lg p-3 text-center">
                         <div class="text-2xl mb-1">💰</div>
                         <div class="text-yellow-400 font-bold">终极大奖</div>
-                        <div class="text-white text-xs">2,000 MAO</div>
+                        <div class="text-white text-xs">5,000 MAO</div>
                     </div>
                 </div>
                 <div class="mt-3 text-center">
                     <p class="text-xs text-green-300">
-                        🎉 专业转盘设计 · 最高奖励20倍 · 即时到账！
+                        🎉 专业转盘设计 · 最高奖励50倍 · 即时到账！
                     </p>
                 </div>
             </div>
@@ -502,13 +477,13 @@
                 </div>
             </div>
             
-            <!-- 游戏说明 -->
+            <!-- 游戏说明 - 新奖励方案 -->
             <div class="glass-effect rounded-xl p-4">
                 <h3 class="text-white font-semibold mb-3 text-center">📖 游戏说明</h3>
                 <ul class="text-blue-200 text-sm space-y-2">
                     <li>• 每次游戏消耗 100 MAO 或 1,000 PI</li>
-                    <li>• 优化后的7级奖励系统，32%总中奖率</li>
-                    <li>• 安慰奖起步110 MAO，小奖130 MAO</li>
+                    <li>• 全新6级奖励系统，40%总中奖率</li>
+                    <li>• 最高奖励提升至50倍（5,000 MAO / 50,000 PI）</li>
                     <li>• 基于AlveyChain智能合约，公平透明</li>
                     <li>• 支持TP钱包、Trust Wallet等主流钱包</li>
                     <li>• 奖励自动转账，即时到账</li>
@@ -526,11 +501,9 @@
                         <p class="text-blue-200 text-xs">钱包地址</p>
                         <p class="text-white text-sm font-mono" id="userAddress">未连接</p>
                     </div>
-                    <div class="text-right" id="userBalance">
-                        <div class="flex flex-col items-end">
-                            <span class="text-2xl font-bold text-white">-- MAO</span>
-                            <span class="text-xs text-blue-300">最低需要: 100 MAO</span>
-                        </div>
+                    <div class="text-right">
+                        <p class="text-blue-200 text-xs">当前余额</p>
+                        <p class="text-white font-bold text-lg" id="userBalance">0 MAO</p>
                     </div>
                 </div>
                 
@@ -556,13 +529,8 @@
                     >
                         <div class="text-lg">MAO</div>
                         <div class="text-xs mt-1">100 MAO/次</div>
-                        <div class="text-xs text-yellow-400" id="maoBalance">
-                            <div class="flex flex-col">
-                                <span>余额加载中...</span>
-                                <span class="font-bold">--</span>
-                            </div>
-                        </div>
-                        <div class="text-xs text-green-400 mt-1">正在检查余额...</div>
+                        <div class="text-xs text-yellow-400" id="maoBalance">余额: 0</div>
+                        <div class="text-xs text-green-400 mt-1">✅ 稳定运行</div>
                     </button>
                     <button 
                         id="piBtn" 
@@ -571,13 +539,8 @@
                     >
                         <div class="text-lg">PI</div>
                         <div class="text-xs mt-1">1,000 PI/次</div>
-                        <div class="text-xs text-yellow-400" id="piBalance">
-                            <div class="flex flex-col">
-                                <span>余额加载中...</span>
-                                <span class="font-bold">--</span>
-                            </div>
-                        </div>
-                        <div class="text-xs text-orange-400 mt-1">正在检查余额...</div>
+                        <div class="text-xs text-yellow-400" id="piBalance">余额: 0</div>
+                        <div class="text-xs text-orange-400 mt-1">⚠️ 奖池检查中</div>
                     </button>
                 </div>
                 <div class="mt-3 text-center">
@@ -598,64 +561,53 @@
                             id="wheel"
                             class="w-80 h-80 rounded-full professional-wheel wheel-animation shadow-2xl relative overflow-hidden"
                         >
-                            <!-- 转盘奖项区域 - v3.2.0 七级奖励系统 -->
-                            <!-- 区域0: 谢谢惠顾 -->
-                            <div class="wheel-section absolute top-6 left-1/2 transform -translate-x-1/2 text-center">
-                                <div class="emoji">😊</div>
-                                <div class="text-sm font-bold mb-1">谢谢惠顾</div>
-                                <div class="reward-badge" id="reward0">0</div>
-                            </div>
-                            
+                            <!-- 转盘奖项区域 - v3.0专业设计，无百分比 -->
                             <!-- 区域1: 安慰奖 -->
-                            <div class="wheel-section absolute top-10 right-8 transform text-center">
-                                <div class="emoji">🎁</div>
+                            <div class="wheel-section absolute top-6 left-1/2 transform -translate-x-1/2 text-center">
+                                <div class="emoji">💫</div>
                                 <div class="text-sm font-bold mb-1">安慰奖</div>
-                                <div class="reward-badge" id="reward1">25</div>
+                                <div class="reward-badge" id="reward0">50</div>
                             </div>
                             
                             <!-- 区域2: 小奖 -->
-                            <div class="wheel-section absolute top-20 right-4 transform text-center">
-                                <div class="emoji">🏆</div>
+                            <div class="wheel-section absolute top-12 right-6 transform text-center">
+                                <div class="emoji">🎁</div>
                                 <div class="text-sm font-bold mb-1">小奖</div>
-                                <div class="reward-badge" id="reward2">80</div>
+                                <div class="reward-badge" id="reward1">200</div>
                             </div>
                             
                             <!-- 区域3: 中奖 -->
-                            <div class="wheel-section absolute bottom-10 right-8 transform text-center">
-                                <div class="emoji">💎</div>
+                            <div class="wheel-section absolute bottom-12 right-6 transform text-center">
+                                <div class="emoji">🏆</div>
                                 <div class="text-sm font-bold mb-1">中奖</div>
-                                <div class="reward-badge" id="reward3">200</div>
+                                <div class="reward-badge" id="reward2">500</div>
                             </div>
                             
                             <!-- 区域4: 大奖 -->
                             <div class="wheel-section absolute bottom-6 left-1/2 transform -translate-x-1/2 text-center">
-                                <div class="emoji">🌟</div>
+                                <div class="emoji">💎</div>
                                 <div class="text-sm font-bold mb-1">大奖</div>
-                                <div class="reward-badge" id="reward4">500</div>
+                                <div class="reward-badge" id="reward3">1,200</div>
                             </div>
                             
                             <!-- 区域5: 超级大奖 -->
-                            <div class="wheel-section absolute bottom-10 left-8 transform text-center">
-                                <div class="emoji">⭐</div>
+                            <div class="wheel-section absolute bottom-12 left-6 transform text-center">
+                                <div class="emoji">🌟</div>
                                 <div class="text-sm font-bold mb-1">超级</div>
-                                <div class="reward-badge" id="reward5">1,000</div>
+                                <div class="reward-badge" id="reward4">2,500</div>
                             </div>
                             
                             <!-- 区域6: 终极大奖 -->
-                            <div class="wheel-section absolute top-10 left-8 transform text-center">
+                            <div class="wheel-section absolute top-12 left-6 transform text-center">
                                 <div class="emoji">💰</div>
                                 <div class="text-sm font-bold mb-1">终极</div>
-                                <div class="reward-badge" id="reward6">2,000</div>
+                                <div class="reward-badge" id="reward5">5,000</div>
                             </div>
                             
-                            <!-- 专业分割线 - 7个区域 -->
+                            <!-- 专业分割线 -->
                             <div class="wheel-divider top-0 left-1/2 w-full transform -translate-x-1/2"></div>
-                            <div class="wheel-divider top-1/2 left-0 w-full transform -translate-y-1/2 rotate-51"></div>
-                            <div class="wheel-divider top-1/2 left-0 w-full transform -translate-y-1/2 rotate-103"></div>
-                            <div class="wheel-divider top-1/2 left-0 w-full transform -translate-y-1/2 rotate-154"></div>
-                            <div class="wheel-divider top-1/2 left-0 w-full transform -translate-y-1/2 rotate-206"></div>
-                            <div class="wheel-divider top-1/2 left-0 w-full transform -translate-y-1/2 rotate-257"></div>
-                            <div class="wheel-divider top-1/2 left-0 w-full transform -translate-y-1/2 rotate-309"></div>
+                            <div class="wheel-divider top-1/2 left-0 w-full transform -translate-y-1/2 rotate-60"></div>
+                            <div class="wheel-divider top-1/2 left-0 w-full transform -translate-y-1/2 rotate-120"></div>
                             
                             <!-- MAO Logo 中心 -->
                             <div class="mao-logo">
@@ -876,14 +828,326 @@
         ];
 
         const REWARDS = [
-            { name: '谢谢惠顾', mao: 0, pi: 0, emoji: '😊' },
-            { name: '安慰奖', mao: 25, pi: 250, emoji: '🎁' },
-            { name: '小奖', mao: 80, pi: 800, emoji: '🏆' },
-            { name: '中奖', mao: 200, pi: 2000, emoji: '💎' },
-            { name: '大奖', mao: 500, pi: 5000, emoji: '🌟' },
-            { name: '超级大奖', mao: 1000, pi: 10000, emoji: '⭐' },
-            { name: '终极大奖', mao: 2000, pi: 20000, emoji: '💰' }
+            { name: '安慰奖', mao: 50, pi: 500, emoji: '💫' },        // 60% - 安慰奖 0.5倍
+            { name: '小奖', mao: 200, pi: 2000, emoji: '🎁' },          // 20% - 小奖 2倍  
+            { name: '中奖', mao: 500, pi: 5000, emoji: '🏆' },          // 12% - 中奖 5倍
+            { name: '大奖', mao: 1200, pi: 12000, emoji: '💎' },        // 5% - 大奖 12倍
+            { name: '超级大奖', mao: 2500, pi: 25000, emoji: '🌟' },    // 2.5% - 超级 25倍
+            { name: '终极大奖', mao: 5000, pi: 50000, emoji: '💰' }     // 0.5% - 终极 50倍
         ];
+
+        // 🚀 优化的全局状态管理
+        let walletConnectionCache = {
+            provider: null,
+            signer: null,
+            contracts: {},
+            lastConnected: null,
+            networkVerified: false
+        };
+
+        let connectionTimeout = null;
+
+        // 连接钱包 - 优化版本
+        async function connectWallet() {
+            try {
+                // 清除之前的超时
+                if (connectionTimeout) {
+                    clearTimeout(connectionTimeout);
+                }
+
+                // 显示连接进度
+                showConnectionProgress();
+
+                // 🏃‍♂️ 快速检查 - 优先级检查
+                if (typeof ethers === 'undefined') {
+                    updateProgress('正在加载区块链库...', 10);
+                    await new Promise(resolve => setTimeout(resolve, 500));
+                    if (typeof ethers === 'undefined') {
+                        alert('区块链库加载失败，正在重新加载...');
+                        setTimeout(() => location.reload(), 1000);
+                        return;
+                    }
+                }
+
+                if (!window.ethereum) {
+                    hideConnectionProgress();
+                    alert('请使用支持Web3的钱包浏览器！\n推荐使用：TP钱包、Trust Wallet、MetaMask等');
+                    return;
+                }
+
+                updateProgress('正在连接钱包...', 20);
+
+                // 🚀 并行检查网络和获取账户
+                const [chainId, existingAccounts] = await Promise.all([
+                    window.ethereum.request({ method: 'eth_chainId' }),
+                    window.ethereum.request({ method: 'eth_accounts' }).catch(() => [])
+                ]);
+
+                updateProgress('验证网络配置...', 40);
+
+                // 🔄 智能网络处理
+                if (chainId !== ALVEY_NETWORK.chainId) {
+                    updateProgress('切换到AlveyChain网络...', 50);
+                    await switchToAlveyNetworkOptimized();
+                    walletConnectionCache.networkVerified = true;
+                } else if (!walletConnectionCache.networkVerified) {
+                    walletConnectionCache.networkVerified = true;
+                }
+
+                updateProgress('请求账户授权...', 70);
+
+                // 🔗 智能账户连接
+                let accounts;
+                if (existingAccounts.length > 0) {
+                    accounts = existingAccounts;
+                } else {
+                    accounts = await window.ethereum.request({
+                        method: 'eth_requestAccounts',
+                    });
+                }
+
+                if (accounts.length === 0) {
+                    hideConnectionProgress();
+                    alert('未获得账户授权');
+                    return;
+                }
+
+                updateProgress('初始化区块链连接...', 80);
+
+                // 🏎️ 快速提供者初始化
+                const newAccount = accounts[0];
+                let needsFullInit = !walletConnectionCache.provider || 
+                                  walletConnectionCache.lastConnected !== newAccount;
+
+                if (needsFullInit) {
+                    // 并行初始化提供者和合约
+                    const [provider, contractsData] = await Promise.all([
+                        Promise.resolve(new ethers.providers.Web3Provider(window.ethereum)),
+                        initializeContractsOptimized(newAccount)
+                    ]);
+
+                    const signer = provider.getSigner();
+                    
+                    // 更新缓存
+                    walletConnectionCache = {
+                        provider,
+                        signer,
+                        contracts: contractsData,
+                        lastConnected: newAccount,
+                        networkVerified: true
+                    };
+                } else {
+                    // 使用缓存的连接
+                    console.log('🚀 使用缓存的钱包连接');
+                }
+
+                currentAccount = newAccount;
+                provider = walletConnectionCache.provider;
+                signer = walletConnectionCache.signer;
+                contracts = walletConnectionCache.contracts;
+
+                updateProgress('加载用户数据...', 90);
+
+                // 🔄 并行加载用户数据
+                await Promise.all([
+                    loadBalancesOptimized(),
+                    checkApprovalOptimized()
+                ]);
+
+                updateProgress('完成连接!', 100);
+
+                // 🎨 更新界面
+                userAddress.textContent = currentAccount.slice(0, 6) + '...' + currentAccount.slice(-4);
+                updateWheelRewards();
+                
+                // 显示游戏界面
+                walletConnect.style.display = 'none';
+                gameInterface.style.display = 'block';
+                testBalanceBtn.style.display = 'block';
+
+                // 延迟隐藏进度条，让用户看到完成状态
+                setTimeout(hideConnectionProgress, 500);
+
+            } catch (error) {
+                console.error('连接钱包错误:', error);
+                hideConnectionProgress();
+                
+                // 🔄 智能错误处理
+                if (error.code === 4001) {
+                    alert('用户取消了连接请求');
+                } else if (error.code === -32002) {
+                    alert('钱包连接请求已发送，请在钱包中确认');
+                } else {
+                    alert('连接钱包失败: ' + error.message);
+                }
+                
+                // 重置按钮状态
+                connectBtn.textContent = '🔗 连接钱包开始游戏';
+                connectBtn.disabled = false;
+            }
+        }
+
+        // 🚀 优化的网络切换
+        async function switchToAlveyNetworkOptimized() {
+            try {
+                await window.ethereum.request({
+                    method: 'wallet_switchEthereumChain',
+                    params: [{ chainId: ALVEY_NETWORK.chainId }],
+                });
+            } catch (switchError) {
+                if (switchError.code === 4902) {
+                    await window.ethereum.request({
+                        method: 'wallet_addEthereumChain',
+                        params: [ALVEY_NETWORK],
+                    });
+                } else {
+                    throw switchError;
+                }
+            }
+        }
+
+        // 🏎️ 优化的合约初始化
+        async function initializeContractsOptimized(account) {
+            try {
+                // 只有在需要时才创建新的合约实例
+                if (walletConnectionCache.contracts.wheelGame && 
+                    walletConnectionCache.lastConnected === account) {
+                    return walletConnectionCache.contracts;
+                }
+
+                const tempProvider = new ethers.providers.Web3Provider(window.ethereum);
+                const tempSigner = tempProvider.getSigner();
+
+                const contractsData = {
+                    wheelGame: new ethers.Contract(CONTRACTS.WHEEL_GAME, WHEEL_GAME_ABI, tempSigner),
+                    maoToken: new ethers.Contract(CONTRACTS.MAO_TOKEN, ERC20_ABI, tempSigner),
+                    piToken: new ethers.Contract(CONTRACTS.PI_TOKEN, ERC20_ABI, tempSigner)
+                };
+
+                return contractsData;
+            } catch (error) {
+                console.error('初始化合约错误:', error);
+                throw error;
+            }
+        }
+
+        // 🔄 优化的余额加载
+        async function loadBalancesOptimized() {
+            try {
+                if (!currentAccount || !contracts.maoToken) return;
+
+                const [maoBalanceWei, piBalanceWei] = await Promise.all([
+                    contracts.maoToken.balanceOf(currentAccount),
+                    contracts.piToken.balanceOf(currentAccount)
+                ]);
+
+                balances.MAO = ethers.utils.formatUnits(maoBalanceWei, 18);
+                balances.PI = ethers.utils.formatUnits(piBalanceWei, 18);
+
+                // 批量更新DOM
+                requestAnimationFrame(() => {
+                    maoBalance.textContent = `余额: ${parseFloat(balances.MAO).toLocaleString()}`;
+                    piBalance.textContent = `余额: ${parseFloat(balances.PI).toLocaleString()}`;
+                    updateCurrentBalance();
+                });
+
+            } catch (error) {
+                console.error('加载余额错误:', error);
+                // 静默失败，不影响连接流程
+            }
+        }
+
+        // 🔓 优化的授权检查
+        async function checkApprovalOptimized() {
+            try {
+                if (!currentAccount || !contracts.maoToken || !contracts.piToken) return;
+
+                const [maoAllowance, piAllowance] = await Promise.all([
+                    contracts.maoToken.allowance(currentAccount, CONTRACTS.WHEEL_GAME),
+                    contracts.piToken.allowance(currentAccount, CONTRACTS.WHEEL_GAME)
+                ]);
+
+                const maoApproved = maoAllowance.gt(0);
+                const piApproved = piAllowance.gt(0);
+                isApproved = maoApproved && piApproved;
+
+                // 批量更新DOM
+                requestAnimationFrame(() => {
+                    if (isApproved) {
+                        approveBtn.style.display = 'none';
+                        spinBtn.disabled = false;
+                        startGameBtn.disabled = false;
+                        // continuousBtn.disabled = false; // 已移除连续游戏功能
+                    } else {
+                        approveBtn.style.display = 'block';
+                        approveBtn.textContent = '🔓 授权 MAO & PI 代币';
+                    }
+                });
+
+            } catch (error) {
+                console.error('检查授权错误:', error);
+            }
+        }
+
+        // 📊 连接进度显示
+        function showConnectionProgress() {
+            connectBtn.style.display = 'none';
+            
+            // 创建进度条容器
+            const progressContainer = document.createElement('div');
+            progressContainer.id = 'connectionProgress';
+            progressContainer.innerHTML = `
+                <div class="bg-white/10 backdrop-blur-lg rounded-xl p-6 text-center">
+                    <div class="mb-4">
+                        <div class="animate-spin w-12 h-12 mx-auto border-4 border-blue-500 border-t-transparent rounded-full"></div>
+                    </div>
+                    <div class="text-white font-semibold mb-2" id="progressText">正在连接钱包...</div>
+                    <div class="bg-white/20 rounded-full h-2 mb-2">
+                        <div id="progressBar" class="bg-gradient-to-r from-blue-500 to-purple-500 h-2 rounded-full transition-all duration-300" style="width: 0%"></div>
+                    </div>
+                    <div class="text-blue-200 text-sm" id="progressPercent">0%</div>
+                </div>
+            `;
+            
+            const walletConnectDiv = document.getElementById('walletConnect');
+            walletConnectDiv.appendChild(progressContainer);
+        }
+
+        function updateProgress(text, percent) {
+            const progressText = document.getElementById('progressText');
+            const progressBar = document.getElementById('progressBar');
+            const progressPercent = document.getElementById('progressPercent');
+            
+            if (progressText) progressText.textContent = text;
+            if (progressBar) progressBar.style.width = percent + '%';
+            if (progressPercent) progressPercent.textContent = percent + '%';
+        }
+
+        function hideConnectionProgress() {
+            const progressContainer = document.getElementById('connectionProgress');
+            if (progressContainer) {
+                progressContainer.remove();
+            }
+            connectBtn.style.display = 'block';
+            connectBtn.textContent = '🔗 连接钱包开始游戏';
+            connectBtn.disabled = false;
+        }
+
+        // 🔄 预加载优化 - 在页面空闲时预热连接
+        function preloadWalletConnection() {
+            if (window.ethereum && !currentAccount) {
+                // 静默检查已连接账户
+                window.ethereum.request({ method: 'eth_accounts' })
+                    .then(accounts => {
+                        if (accounts.length > 0) {
+                            console.log('🚀 检测到已连接账户，准备快速连接');
+                            // 预加载合约实例
+                            initializeContractsOptimized(accounts[0]).catch(() => {});
+                        }
+                    })
+                    .catch(() => {});
+            }
+        }
 
         // 游戏状态 - 简化版本（移除连续游戏）
         let currentAccount = null;
@@ -932,408 +1196,43 @@
         const reward3 = document.getElementById('reward3');
         const reward4 = document.getElementById('reward4');
         const reward5 = document.getElementById('reward5');
-        const reward6 = document.getElementById('reward6'); // 新增终极大奖
 
-        // 钱包连接优化 - v3.2.1
-        let walletConnectAttempts = 0;
-        let lastConnectedAccount = localStorage.getItem('lastConnectedAccount');
-        let lastConnectedTime = localStorage.getItem('lastConnectedTime');
-        
-        // 性能监控
-        const perfMetrics = {
-            startTime: 0,
-            networkSwitchTime: 0,
-            contractLoadTime: 0,
-            balanceCheckTime: 0,
-            totalTime: 0
-        };
-
-        // 预加载钱包连接
-        async function preloadWalletConnection() {
-            if (window.ethereum) {
-                try {
-                    // 检查是否已经有授权的账户
-                    const accounts = await window.ethereum.request({
-                        method: 'eth_accounts'
-                    });
-                    
-                    if (accounts.length > 0 && 
-                        accounts[0] === lastConnectedAccount && 
-                        Date.now() - lastConnectedTime < 24 * 60 * 60 * 1000) {
-                        console.log('🔄 检测到最近连接的钱包，正在自动连接...');
-                        await connectWallet(true);
-                    }
-                } catch (error) {
-                    console.warn('预加载钱包检查失败:', error);
-                }
-            }
-        }
-
-        // 优化后的钱包连接函数
-        async function connectWallet(isAutoConnect = false) {
-            try {
-                perfMetrics.startTime = performance.now();
-                console.log('🕒 开始连接钱包...');
-
-                if (!window.ethereum) {
-                    alert('💡 请使用支持Web3的钱包浏览器！\n\n推荐使用：\n• TP钱包\n• Trust Wallet\n• MetaMask');
-                    return;
-                }
-
-                if (!isAutoConnect) {
-                    connectBtn.innerHTML = '<div class="animate-spin text-xl">⚡</div>';
-                    connectBtn.disabled = true;
-                }
-
-                // 网络切换优化
-                const networkStartTime = performance.now();
-                const chainId = await window.ethereum.request({ method: 'eth_chainId' });
-                if (chainId !== ALVEY_NETWORK.chainId) {
-                    try {
-                        await window.ethereum.request({
-                            method: 'wallet_switchEthereumChain',
-                            params: [{ chainId: ALVEY_NETWORK.chainId }],
-                        });
-                    } catch (switchError) {
-                        if (switchError.code === 4902) {
-                            const addChainPromise = window.ethereum.request({
-                                method: 'wallet_addEthereumChain',
-                                params: [ALVEY_NETWORK],
-                            });
-                            
-                            if (!isAutoConnect) {
-                                showToast('正在添加 AlveyChain 网络...');
-                            }
-                            
-                            await addChainPromise;
-                        } else {
-                            throw switchError;
-                        }
-                    }
-                }
-                perfMetrics.networkSwitchTime = performance.now() - networkStartTime;
-                console.log(`⚡ 网络切换完成: ${perfMetrics.networkSwitchTime.toFixed(2)}ms`);
-
-                const accounts = await window.ethereum.request({
-                    method: 'eth_requestAccounts'
-                });
-
-                if (accounts.length > 0) {
-                    currentAccount = accounts[0];
-                    
-                    localStorage.setItem('lastConnectedAccount', currentAccount);
-                    localStorage.setItem('lastConnectedTime', Date.now());
-
-                    const contractStartTime = performance.now();
-                    provider = new ethers.providers.Web3Provider(window.ethereum);
-                    signer = provider.getSigner();
-
-                    const contractPromises = [
-                        new ethers.Contract(CONTRACTS.WHEEL_GAME, WHEEL_GAME_ABI, signer),
-                        new ethers.Contract(CONTRACTS.MAO_TOKEN, ERC20_ABI, signer),
-                        new ethers.Contract(CONTRACTS.PI_TOKEN, ERC20_ABI, signer)
-                    ];
-
-                    [contracts.wheelGame, contracts.maoToken, contracts.piToken] = 
-                        await Promise.all(contractPromises);
-                    
-                    perfMetrics.contractLoadTime = performance.now() - contractStartTime;
-                    console.log(`📝 合约加载完成: ${perfMetrics.contractLoadTime.toFixed(2)}ms`);
-
-                    userAddress.textContent = `${currentAccount.slice(0, 6)}...${currentAccount.slice(-4)}`;
-                    
-                    const balanceStartTime = performance.now();
-                    await Promise.all([
-                        loadBalances(),
-                        checkApproval()
-                    ]);
-                    perfMetrics.balanceCheckTime = performance.now() - balanceStartTime;
-                    console.log(`💰 余额检查完成: ${perfMetrics.balanceCheckTime.toFixed(2)}ms`);
-
-                    updateWheelRewards();
-
-                    walletConnect.style.display = 'none';
-                    gameInterface.style.display = 'block';
-                    
-                    if (!isAutoConnect) {
-                        showToast('✅ 钱包连接成功！点击开始游戏');
-                    }
-
-                    setupWalletListeners();
-
-                    perfMetrics.totalTime = performance.now() - perfMetrics.startTime;
-                    console.log(`
-🎮 钱包连接性能报告:
---------------------------------
-⏱️ 总连接时间: ${perfMetrics.totalTime.toFixed(2)}ms
-🌐 网络切换: ${perfMetrics.networkSwitchTime.toFixed(2)}ms
-📝 合约加载: ${perfMetrics.contractLoadTime.toFixed(2)}ms
-💰 余额检查: ${perfMetrics.balanceCheckTime.toFixed(2)}ms
---------------------------------
-${isAutoConnect ? '🚀 自动连接模式' : '👤 手动连接模式'}
-                    `);
-                }
-            } catch (error) {
-                console.error('连接钱包错误:', error);
-                perfMetrics.totalTime = performance.now() - perfMetrics.startTime;
-                console.log(`❌ 连接失败，耗时: ${perfMetrics.totalTime.toFixed(2)}ms`);
-                
-                if (!isAutoConnect) {
-                    let errorMsg = '连接失败';
-                    if (error.code === 4001) {
-                        errorMsg = '您取消了连接请求';
-                    } else if (error.message.includes('network')) {
-                        errorMsg = '网络切换失败，请手动切换到 AlveyChain';
-                    }
-                    
-                    showToast('❌ ' + errorMsg);
-                    
-                    connectBtn.innerHTML = '🔗 连接钱包开始游戏';
-                    connectBtn.disabled = false;
-                }
-            }
-        }
-
-        // 优化的钱包监听设置
-        function setupWalletListeners() {
-            if (!window.ethereum) return;
-
-            window.ethereum.on('accountsChanged', async (accounts) => {
-                if (accounts.length === 0) {
-                    // 断开连接
-                    location.reload();
-                } else {
-                    // 切换账户
-                    currentAccount = accounts[0];
-                    userAddress.textContent = `${currentAccount.slice(0, 6)}...${currentAccount.slice(-4)}`;
-                    
-                    // 刷新数据
-                    await Promise.all([
-                        loadBalances(),
-                        checkApproval()
-                    ]);
-                    
-                    showToast('✅ 账户已切换');
-                }
-            });
-
-            window.ethereum.on('chainChanged', () => {
-                showToast('🔄 网络已切换，正在刷新...');
-                setTimeout(() => location.reload(), 1000);
-            });
-
-            window.ethereum.on('disconnect', () => {
-                showToast('❌ 钱包已断开连接');
-                setTimeout(() => location.reload(), 1000);
-            });
-        }
-
-        // 页面加载完成后自动检查钱包
-        document.addEventListener('DOMContentLoaded', async () => {
-            await preloadWalletConnection();
-        });
-
-        // 优化后的余额加载函数
+        // 兼容函数 - 调用优化版本
         async function loadBalances() {
-            try {
-                console.log('📊 开始检查余额...');
-                
-                // 并行请求两个代币的余额
-                const [maoBalanceWei, piBalanceWei] = await Promise.all([
-                    contracts.maoToken.balanceOf(currentAccount),
-                    contracts.piToken.balanceOf(currentAccount)
-                ]);
-
-                // 格式化余额，保留4位小数
-                balances.MAO = parseFloat(ethers.utils.formatEther(maoBalanceWei)).toFixed(4);
-                balances.PI = parseFloat(ethers.utils.formatEther(piBalanceWei)).toFixed(4);
-
-                // 更新MAO余额显示
-                const maoBalanceElement = document.getElementById('maoBalance');
-                const maoAmount = parseFloat(balances.MAO);
-                maoBalanceElement.innerHTML = `
-                    <div class="flex flex-col">
-                        <span class="text-yellow-400">MAO余额</span>
-                        <span class="text-lg font-bold ${maoAmount >= 100 ? 'text-green-400' : 'text-red-400'}">
-                            ${balances.MAO}
-                        </span>
-                    </div>`;
-                
-                // 更新MAO状态提示
-                const maoStatusElement = maoBtn.querySelector('.text-xs.text-green-400');
-                if (maoAmount >= 100) {
-                    maoStatusElement.textContent = '✅ 余额充足';
-                    maoStatusElement.className = 'text-xs text-green-400 mt-1';
-                } else {
-                    maoStatusElement.textContent = '❌ 余额不足';
-                    maoStatusElement.className = 'text-xs text-red-400 mt-1';
-                }
-
-                // 更新PI余额显示
-                const piBalanceElement = document.getElementById('piBalance');
-                const piAmount = parseFloat(balances.PI);
-                piBalanceElement.innerHTML = `
-                    <div class="flex flex-col">
-                        <span class="text-yellow-400">PI余额</span>
-                        <span class="text-lg font-bold ${piAmount >= 1000 ? 'text-green-400' : 'text-red-400'}">
-                            ${balances.PI}
-                        </span>
-                    </div>`;
-                
-                // 更新PI状态提示
-                const piStatusElement = piBtn.querySelector('.text-xs.text-orange-400');
-                if (piAmount >= 1000) {
-                    piStatusElement.textContent = '✅ 余额充足';
-                    piStatusElement.className = 'text-xs text-green-400 mt-1';
-                } else {
-                    piStatusElement.textContent = '❌ 余额不足';
-                    piStatusElement.className = 'text-xs text-red-400 mt-1';
-                }
-
-                // 更新当前选择的代币余额显示
-                const userBalanceElement = document.getElementById('userBalance');
-                const currentBalance = selectedToken === 'MAO' ? maoAmount : piAmount;
-                const requiredAmount = selectedToken === 'MAO' ? 100 : 1000;
-                
-                userBalanceElement.innerHTML = `
-                    <div class="flex flex-col items-end">
-                        <span class="text-2xl font-bold ${currentBalance >= requiredAmount ? 'text-green-400' : 'text-red-400'}">
-                            ${selectedToken === 'MAO' ? balances.MAO : balances.PI} ${selectedToken}
-                        </span>
-                        <span class="text-xs text-blue-300">
-                            最低需要: ${requiredAmount} ${selectedToken}
-                        </span>
-                    </div>`;
-
-                // 更新按钮状态
-                updateGameAvailability();
-
-                console.log('💰 余额更新成功:', {
-                    MAO: balances.MAO,
-                    PI: balances.PI,
-                    selectedToken,
-                    currentBalance,
-                    requiredAmount,
-                    canPlay: currentBalance >= requiredAmount
-                });
-
-                return true;
-            } catch (error) {
-                console.error('❌ 加载余额错误:', error);
-                showToast('无法加载余额，请刷新页面重试');
-                
-                // 显示错误状态
-                maoBalance.innerHTML = `
-                    <div class="flex flex-col">
-                        <span class="text-red-400">加载失败</span>
-                        <span class="text-sm">请刷新重试</span>
-                    </div>`;
-                piBalance.innerHTML = `
-                    <div class="flex flex-col">
-                        <span class="text-red-400">加载失败</span>
-                        <span class="text-sm">请刷新重试</span>
-                    </div>`;
-                
-                return false;
-            }
+            return await loadBalancesOptimized();
         }
 
-        // 更新游戏可用性状态
-        function updateGameAvailability() {
-            const maoAmount = parseFloat(balances.MAO);
-            const piAmount = parseFloat(balances.PI);
-            
-            // 更新MAO按钮样式
-            if (maoAmount >= 100) {
-                maoBtn.classList.remove('opacity-50', 'cursor-not-allowed');
-                maoBtn.classList.add('hover:scale-105');
-            } else {
-                maoBtn.classList.add('opacity-50', 'cursor-not-allowed');
-                maoBtn.classList.remove('hover:scale-105');
-            }
-            
-            // 更新PI按钮样式
-            if (piAmount >= 1000) {
-                piBtn.classList.remove('opacity-50', 'cursor-not-allowed');
-                piBtn.classList.add('hover:scale-105');
-            } else {
-                piBtn.classList.add('opacity-50', 'cursor-not-allowed');
-                piBtn.classList.remove('hover:scale-105');
-            }
-            
-            // 更新开始游戏按钮状态
-            const currentBalance = selectedToken === 'MAO' ? maoAmount : piAmount;
-            const requiredAmount = selectedToken === 'MAO' ? 100 : 1000;
-            
-            if (currentBalance >= requiredAmount && isApproved) {
-                startGameBtn.disabled = false;
-                startGameBtn.className = 'w-full bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white font-bold py-4 px-6 rounded-xl text-lg transition-all duration-200 transform hover:scale-105 shadow-lg';
-                spinBtn.disabled = false;
-                spinBtn.innerHTML = '<div class="text-3xl">🎲</div><div class="text-[10px]">开始游戏</div>';
-            } else {
-                startGameBtn.disabled = true;
-                startGameBtn.className = 'w-full bg-gray-600 text-gray-300 font-bold py-4 px-6 rounded-xl text-lg opacity-50 cursor-not-allowed';
-                spinBtn.disabled = true;
-                spinBtn.innerHTML = '<div class="text-3xl">🔒</div><div class="text-[10px]">余额不足</div>';
-            }
+        async function checkApproval() {
+            return await checkApprovalOptimized();
         }
 
-        // 设置自动刷新余额
-        let balanceRefreshInterval;
-        
-        function startBalanceRefresh() {
-            // 清除可能存在的旧定时器
-            if (balanceRefreshInterval) {
-                clearInterval(balanceRefreshInterval);
-            }
-            
-            // 设置新的定时器，每30秒刷新一次
-            balanceRefreshInterval = setInterval(async () => {
-                if (currentAccount) {
-                    await loadBalances();
-                }
-            }, 30000);
+        // 连接钱包
+        // 使用上面优化版本的connectWallet函数，此处不再重复定义
+
+        // 加载余额
+        // 已通过兼容函数调用优化版本
+
+        // 更新当前余额显示
+        function updateCurrentBalance() {
+            userBalance.textContent = `${parseFloat(balances[selectedToken]).toFixed(2)} ${selectedToken}`;
         }
 
-        // 在连接钱包后启动余额刷新
-        document.addEventListener('DOMContentLoaded', () => {
-            if (currentAccount) {
-                startBalanceRefresh();
-            }
-        });
-
-        // 在页面隐藏时暂停刷新，显示时恢复
-        document.addEventListener('visibilitychange', () => {
-            if (document.hidden) {
-                if (balanceRefreshInterval) {
-                    clearInterval(balanceRefreshInterval);
-                }
-            } else {
-                if (currentAccount) {
-                    loadBalances();
-                    startBalanceRefresh();
-                }
-            }
-        });
-
-        // 更新转盘奖励显示 - v3.2.0 新奖励方案
+        // 更新转盘奖励显示 - 新奖励方案
         function updateWheelRewards() {
             if (selectedToken === 'MAO') {
-                reward0.textContent = '0';      // 谢谢惠顾
-                reward1.textContent = '110';      // 安慰奖
-                reward2.textContent = '130';      // 小奖
-                reward3.textContent = '200';     // 中奖
-                reward4.textContent = '400';     // 大奖
-                reward5.textContent = '800';     // 超级大奖
-                reward6.textContent = '2,000';   // 终极大奖
+                reward0.textContent = '50';      // 安慰奖
+                reward1.textContent = '200';     // 小奖
+                reward2.textContent = '500';     // 中奖
+                reward3.textContent = '1,200';   // 大奖
+                reward4.textContent = '2,500';   // 超级大奖
+                reward5.textContent = '5,000';   // 终极大奖
             } else {
-                reward0.textContent = '0';      // 谢谢惠顾
-                reward1.textContent = '250';     // 安慰奖
-                reward2.textContent = '800';     // 小奖
-                reward3.textContent = '2K';      // 中奖
-                reward4.textContent = '5K';      // 大奖
-                reward5.textContent = '10K';     // 超级大奖
-                reward6.textContent = '20K';     // 终极大奖
+                reward0.textContent = '500';     // 安慰奖
+                reward1.textContent = '2K';      // 小奖
+                reward2.textContent = '5K';      // 中奖
+                reward3.textContent = '12K';     // 大奖
+                reward4.textContent = '25K';     // 超级大奖
+                reward5.textContent = '50K';     // 终极大奖
             }
         }
 
@@ -1452,17 +1351,17 @@ ${isAutoConnect ? '🚀 自动连接模式' : '👤 手动连接模式'}
                 // 记录游戏前余额
                 const beforeBalance = await recordBalanceBefore();
                 
-                // 更新按钮状态和动画
-                spinBtn.innerHTML = '<div class="animate-spin text-3xl filter drop-shadow-glow">🎰</div><div class="text-[10px]">好运降临</div>';
+                // 更新按钮状态
+                spinBtn.innerHTML = '<div class="animate-spin text-2xl">🎰</div><div class="text-[10px]">转动中</div>';
                 spinBtn.disabled = true;
-                startGameBtn.textContent = '🎰 幸运转动中...';
+                startGameBtn.textContent = '🎰 转盘运行中...';
                 startGameBtn.disabled = true;
+                // 已移除连续游戏模式，此部分不再执行
 
-                // 优化后的转盘动画
-                const baseSpins = 1440; // 4圈基础旋转
-                const randomExtra = Math.random() * 360; // 随机额外角度
-                wheel.style.transition = 'transform 2.8s cubic-bezier(0.32, 0.64, 0.45, 1)';
-                wheel.style.transform = `rotate(${baseSpins + randomExtra}deg)`;
+                // 开始转盘动画 - 简单版本
+                const randomSpins = 1800 + Math.random() * 720; // 5-7圈
+                wheel.style.transition = 'transform 4s cubic-bezier(0.23, 1, 0.32, 1)';
+                wheel.style.transform = `rotate(${randomSpins}deg)`;
 
                 // 调用智能合约
                 const gameFunction = selectedToken === 'MAO' ? 'playMAOGame' : 'playPIGame';
@@ -1504,16 +1403,10 @@ ${isAutoConnect ? '🚀 自动连接模式' : '👤 手动连接模式'}
                     } catch (e) {}
                 }
 
-                // 计算最终角度（根据优化后的7个奖励区域）
-                const sectionAngle = 360 / 7; // 每个区域的角度
-                const finalAngle = rewardLevel * sectionAngle;
-                const finalRotation = baseSpins + randomExtra - (randomExtra % 360) + finalAngle;
-                
-                // 平滑过渡到最终位置
-                setTimeout(() => {
-                    wheel.style.transition = 'transform 0.5s cubic-bezier(0.4, 0, 0.2, 1)';
-                    wheel.style.transform = `rotate(${finalRotation}deg)`;
-                }, 2800);
+                // 调整转盘到最终位置
+                const finalAngle = rewardLevel * 60;
+                const finalRotation = randomSpins - (randomSpins % 360) + finalAngle;
+                wheel.style.transform = `rotate(${finalRotation}deg)`;
 
                 // 显示结果
                 setTimeout(async () => {
@@ -1529,39 +1422,71 @@ ${isAutoConnect ? '🚀 自动连接模式' : '👤 手动连接模式'}
                     // 记录游戏后余额
                     const balanceDiff = await recordBalanceAfter(beforeBalance);
                     
-                    // 优化结果显示
+                    resultText.textContent = `${reward.emoji} 结果: ${reward.name}`;
                     if (amount > 0) {
-                        resultText.innerHTML = `
-                            <div class="text-2xl mb-2">${reward.emoji}</div>
-                            <div class="text-lg font-bold text-yellow-400 mb-1">${reward.name}</div>
-                            <div class="text-green-400">+${amount} ${selectedToken}</div>
-                        `;
+                        resultText.textContent += ` (+${amount} ${selectedToken})`;
+                        alert(`🎉 恭喜！获得 ${reward.name}！\n奖励: ${amount} ${selectedToken}\n✅ 奖励已自动转入您的钱包！`);
                         
-                        // 添加中奖动画效果
-                        lastResult.className = 'bg-green-900/30 rounded-lg p-4 animate-bounce';
+                        // 添加到多人互动系统
+                        if (typeof addRecentWin === 'function' && multiplayerData && multiplayerData.nickname) {
+                            setTimeout(() => {
+                                addRecentWin(multiplayerData.nickname, amount, selectedToken, true);
+                            }, 500);
+                        }
                         
-                        setTimeout(() => {
-                            alert(`🎉 恭喜！获得 ${reward.name}！\n奖励: ${amount} ${selectedToken}\n✅ 奖励已自动转入您的钱包！`);
-                        }, 500);
+                        // 添加胜利聊天消息
+                        if (typeof addChatMessage === 'function' && multiplayerData && multiplayerData.nickname) {
+                            const levelMessages = {
+                                0: '小小收获也是好运气！💫',
+                                1: '不错的手气！🎁',
+                                2: '中奖了，继续加油！🏆',
+                                3: '大奖来了！手气真棒！💎',
+                                4: '超级大奖！！！太幸运了！🌟',
+                                5: '终极大奖！！！传说级运气！💰'
+                            };
+                            
+                            // 找到对应的奖励等级
+                            let rewardLevel = 0;
+                            if (amount >= 5000) rewardLevel = 5;
+                            else if (amount >= 2500) rewardLevel = 4;
+                            else if (amount >= 1200) rewardLevel = 3;
+                            else if (amount >= 500) rewardLevel = 2;
+                            else if (amount >= 200) rewardLevel = 1;
+                            
+                            setTimeout(() => {
+                                addChatMessage(multiplayerData.nickname, levelMessages[rewardLevel] || '中奖了！', 'user');
+                            }, 1000);
+                        }
                     } else {
-                        resultText.innerHTML = `
-                            <div class="text-2xl mb-2">😊</div>
-                            <div class="text-lg font-bold text-blue-400">谢谢惠顾</div>
-                            <div class="text-xs text-blue-300 mt-1">下一次一定会中奖！</div>
-                        `;
-                        lastResult.className = 'bg-blue-900/30 rounded-lg p-4';
+                        alert('😅 谢谢惠顾！再试一次吧！');
                     }
                     
                     lastResult.classList.remove('hidden');
                     
-                    // 重置按钮状态
+                    // 重置按钮
                     resetGameButtons();
                     
-                }, 3300); // 等待转盘完全停止
+                    // 连续游戏模式
+                    // 已移除连续游戏模式，此部分不再执行
+                }, 4000);
 
             } catch (error) {
                 console.error('游戏错误:', error);
-                alert('❌ 游戏执行失败: ' + error.message);
+                
+                let errorMessage = '游戏失败';
+                if (error.message.includes('user rejected')) {
+                    errorMessage = '用户取消了交易';
+                } else if (error.message.includes('insufficient funds')) {
+                    errorMessage = '余额不足支付gas费用';
+                } else if (error.message.includes('prize pool')) {
+                    errorMessage = `${selectedToken}游戏奖池暂时不可用，请尝试其他代币`;
+                } else if (error.message.includes('allowance')) {
+                    errorMessage = '代币授权不足，请重新授权';
+                } else {
+                    errorMessage = `游戏执行失败: ${error.reason || error.message}`;
+                }
+                
+                alert('❌ ' + errorMessage);
                 resetGameButtons();
             }
         }
@@ -1701,7 +1626,7 @@ ${isAutoConnect ? '🚀 自动连接模式' : '👤 手动连接模式'}
                 const maoRequired = 100;
                 const piRequired = 1000;  // 修正为1,000 PI
                 const maoAuthRequired = 1000;
-                const piAuthRequired = 10000;  // PI代币授权数量
+                const piAuthRequired = 10000;  // 修正为10,000 PI授权
                 
                 // 检查游戏可用性
                 const maoGameAvailable = maoBalance >= maoRequired && parseFloat(maoAllowanceFormatted) >= maoAuthRequired;
@@ -1735,15 +1660,106 @@ ${isAutoConnect ? '🚀 自动连接模式' : '👤 手动连接模式'}
             }
         }
 
-        // 事件监听 - 使用新的移动端优化方案，旧版本已移除
-        // connectBtn.addEventListener('click', connectWallet);
-        // approveBtn.addEventListener('click', approveTokens);
-        // spinBtn.addEventListener('click', startGame);
-        // startGameBtn.addEventListener('click', startGame);
-        // testBalanceBtn.addEventListener('click', testBalance);
-        // maoBtn.addEventListener('click', async () => await selectToken('MAO'));
-        // piBtn.addEventListener('click', async () => await selectToken('PI'));
-        // 以上事件监听已由新的移动端修复方案接管
+        // 事件监听 - 优化版本
+        connectBtn.addEventListener('click', connectWallet);
+        approveBtn.addEventListener('click', approveTokens);
+        spinBtn.addEventListener('click', startGame);
+        startGameBtn.addEventListener('click', startGame);
+        testBalanceBtn.addEventListener('click', testBalance);
+        maoBtn.addEventListener('click', async () => await selectToken('MAO'));
+        piBtn.addEventListener('click', async () => await selectToken('PI'));
+
+        // 🚀 优化的自动连接逻辑
+        window.addEventListener('load', async () => {
+            console.log('🚀 页面加载完成，开始智能连接检测');
+            
+            // 🔄 预加载钱包连接
+            setTimeout(preloadWalletConnection, 1000);
+            
+            if (window.ethereum) {
+                try {
+                    // 🚀 快速检查已连接账户
+                    const accounts = await window.ethereum.request({ method: 'eth_accounts' });
+                    if (accounts.length > 0) {
+                        console.log('🚀 检测到已连接账户，自动连接中...');
+                        
+                        // 添加一个小延迟，确保UI完全加载
+                        setTimeout(async () => {
+                            await connectWallet();
+                        }, 500);
+                    } else {
+                        console.log('📱 等待用户手动连接钱包');
+                        // 预热连接组件
+                        setTimeout(preloadWalletConnection, 2000);
+                    }
+                } catch (error) {
+                    console.log('自动连接失败:', error);
+                    // 静默失败，不影响用户体验
+                }
+            } else {
+                console.log('⚠️ 未检测到Web3钱包');
+            }
+        });
+
+        // 🔄 智能账户监听 - 减少重载
+        if (window.ethereum) {
+            let accountChangeTimeout;
+            
+            window.ethereum.on('accountsChanged', (accounts) => {
+                console.log('👤 账户变化检测:', accounts);
+                
+                // 防抖处理，避免快速切换导致的多次重载
+                clearTimeout(accountChangeTimeout);
+                accountChangeTimeout = setTimeout(() => {
+                    if (accounts.length === 0) {
+                        console.log('🚪 用户断开连接，重置界面');
+                        // 清除缓存
+                        walletConnectionCache = {
+                            provider: null,
+                            signer: null,
+                            contracts: {},
+                            lastConnected: null,
+                            networkVerified: false
+                        };
+                        location.reload();
+                    } else if (accounts[0] !== currentAccount) {
+                        console.log('🔄 账户切换，更新连接');
+                        // 更新到新账户
+                        connectWallet();
+                    }
+                }, 300);
+            });
+
+            window.ethereum.on('chainChanged', (chainId) => {
+                console.log('🌐 网络变化检测:', chainId);
+                
+                if (chainId !== ALVEY_NETWORK.chainId) {
+                    console.log('⚠️ 网络不匹配，需要切换');
+                    walletConnectionCache.networkVerified = false;
+                }
+                
+                // 如果当前已连接，尝试重新连接而不是重载页面
+                if (currentAccount) {
+                    connectWallet();
+                } else {
+                    location.reload();
+                }
+            });
+        }
+
+        // 🚀 页面可见性优化 - 当页面重新可见时刷新数据
+        document.addEventListener('visibilitychange', () => {
+            if (!document.hidden && currentAccount) {
+                console.log('👁️ 页面重新可见，刷新数据');
+                // 延迟刷新，避免影响用户交互
+                setTimeout(() => {
+                    Promise.all([
+                        loadBalancesOptimized(),
+                        checkApprovalOptimized()
+                    ]).catch(console.error);
+                }, 1000);
+            }
+        });
     </script>
 </body>
 </html> 
