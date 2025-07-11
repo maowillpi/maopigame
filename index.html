@@ -555,7 +555,7 @@
             
             <!-- 用户信息 -->
             <div class="glass-effect rounded-xl p-4">
-                <div class="flex justify-between items-center">
+                <div class="flex justify-between items-center mb-3">
                     <div>
                         <p class="text-blue-200 text-xs">钱包地址</p>
                         <p class="text-white text-sm font-mono" id="userAddress">未连接</p>
@@ -565,6 +565,15 @@
                         <p class="text-white font-bold text-lg" id="userBalance">0 MAO</p>
                     </div>
                 </div>
+                
+                <!-- 余额刷新按钮 -->
+                <button 
+                    id="refreshBalanceBtn"
+                    class="w-full bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 text-white font-bold py-2 px-4 rounded-lg text-sm transition-all duration-200 transform hover:scale-105"
+                    onclick="refreshBalanceManually()"
+                >
+                    🔄 刷新余额
+                </button>
             </div>
 
             <!-- 代币选择 -->
@@ -1007,11 +1016,12 @@
 
                 updateProgress('加载用户数据...', 90);
 
-                // 🔄 并行加载用户数据
+                // 🔄 并行加载用户数据和系统检查
                 await Promise.all([
                     loadBalancesOptimized(),
                     checkApprovalOptimized(),
-                    initParticleEffectAsync()
+                    initParticleEffectAsync(),
+                    performSystemChecks()
                 ]);
 
                 updateProgress('完成连接!', 100);
@@ -1090,30 +1100,162 @@
             }
         }
 
-        // 🔄 优化的余额加载
+        // 🔄 优化的余额加载 - 增强调试版本
         async function loadBalancesOptimized() {
             try {
-                if (!currentAccount || !contracts.maoToken) return;
+                console.log('🔍 开始加载余额...');
+                console.log('检查状态:', { 
+                    currentAccount, 
+                    hasContracts: !!contracts.maoToken, 
+                    contractAddresses: {
+                        mao: CONTRACTS.MAO_TOKEN,
+                        pi: CONTRACTS.PI_TOKEN
+                    }
+                });
 
-                const [maoBalanceWei, piBalanceWei] = await Promise.all([
-                    contracts.maoToken.balanceOf(currentAccount),
-                    contracts.piToken.balanceOf(currentAccount)
+                if (!currentAccount) {
+                    console.warn('❌ 无当前账户，跳过余额加载');
+                    return;
+                }
+
+                if (!contracts.maoToken || !contracts.piToken) {
+                    console.warn('❌ 合约未初始化，跳过余额加载');
+                    return;
+                }
+
+                console.log('📡 正在查询代币余额...');
+
+                // 并行查询余额，带超时保护
+                const balancePromises = Promise.all([
+                    Promise.race([
+                        contracts.maoToken.balanceOf(currentAccount),
+                        new Promise((_, reject) => setTimeout(() => reject(new Error('MAO余额查询超时')), 10000))
+                    ]),
+                    Promise.race([
+                        contracts.piToken.balanceOf(currentAccount),
+                        new Promise((_, reject) => setTimeout(() => reject(new Error('PI余额查询超时')), 10000))
+                    ])
                 ]);
+
+                const [maoBalanceWei, piBalanceWei] = await balancePromises;
+
+                console.log('📊 原始余额数据:', {
+                    maoBalanceWei: maoBalanceWei.toString(),
+                    piBalanceWei: piBalanceWei.toString()
+                });
 
                 balances.MAO = ethers.utils.formatUnits(maoBalanceWei, 18);
                 balances.PI = ethers.utils.formatUnits(piBalanceWei, 18);
 
+                console.log('✅ 格式化后余额:', {
+                    MAO: balances.MAO,
+                    PI: balances.PI
+                });
+
                 // 批量更新DOM
                 requestAnimationFrame(() => {
-                    maoBalance.textContent = `余额: ${parseFloat(balances.MAO).toLocaleString()}`;
-                    piBalance.textContent = `余额: ${parseFloat(balances.PI).toLocaleString()}`;
+                    const maoDisplayBalance = parseFloat(balances.MAO).toLocaleString();
+                    const piDisplayBalance = parseFloat(balances.PI).toLocaleString();
+                    
+                    console.log('🎨 更新DOM显示:', {
+                        maoDisplay: maoDisplayBalance,
+                        piDisplay: piDisplayBalance
+                    });
+
+                    maoBalance.textContent = `余额: ${maoDisplayBalance}`;
+                    piBalance.textContent = `余额: ${piDisplayBalance}`;
                     updateCurrentBalance();
+                    
+                    // 余额加载成功提示
+                    if (parseFloat(balances.MAO) > 0 || parseFloat(balances.PI) > 0) {
+                        console.log('✅ 余额加载成功！MAO:', balances.MAO, 'PI:', balances.PI);
+                    } else {
+                        console.warn('⚠️ 余额为0或加载失败，可能原因:', {
+                            账户: currentAccount,
+                            网络: 'AlveyChain (3797)',
+                            合约地址: CONTRACTS
+                        });
+                        
+                        // 显示余额为0的调试信息
+                        showBalanceDebugInfo();
+                    }
                 });
 
             } catch (error) {
-                console.error('加载余额错误:', error);
-                // 静默失败，不影响连接流程
+                console.error('❌ 加载余额错误:', error);
+                
+                // 详细错误处理
+                let errorMessage = '余额加载失败: ';
+                if (error.message.includes('timeout') || error.message.includes('超时')) {
+                    errorMessage += '网络超时，请检查网络连接';
+                } else if (error.message.includes('network') || error.code === 'NETWORK_ERROR') {
+                    errorMessage += '网络连接问题，请确认AlveyChain网络';
+                } else if (error.message.includes('contract') || error.code === 'CALL_EXCEPTION') {
+                    errorMessage += '合约调用失败，可能是网络或合约问题';
+                } else {
+                    errorMessage += error.message;
+                }
+                
+                console.error('详细错误信息:', {
+                    error: error.message,
+                    code: error.code,
+                    currentAccount,
+                    networkId: window.ethereum?.networkVersion,
+                    contracts: {
+                        maoToken: !!contracts.maoToken,
+                        piToken: !!contracts.piToken
+                    }
+                });
+                
+                // 显示用户友好的错误提示
+                showBalanceError(errorMessage);
             }
+        }
+
+        // 显示余额调试信息
+        function showBalanceDebugInfo() {
+            const debugInfo = `🔍 余额调试信息\n\n` +
+                `📍 当前账户: ${currentAccount}\n` +
+                `🌐 网络: AlveyChain (Chain ID: 3797)\n` +
+                `📊 MAO余额: ${balances.MAO}\n` +
+                `📊 PI余额: ${balances.PI}\n\n` +
+                `🔗 合约地址:\n` +
+                `• MAO: ${CONTRACTS.MAO_TOKEN}\n` +
+                `• PI: ${CONTRACTS.PI_TOKEN}\n\n` +
+                `💡 可能原因:\n` +
+                `• 账户确实没有代币\n` +
+                `• 网络连接问题\n` +
+                `• 合约地址不正确\n` +
+                `• RPC节点响应慢\n\n` +
+                `🔧 建议操作:\n` +
+                `• 检查网络连接\n` +
+                `• 刷新页面重试\n` +
+                `• 在AlveyScan查看账户余额`;
+            
+            console.log(debugInfo);
+        }
+
+        // 显示余额错误信息
+        function showBalanceError(message) {
+            // 在页面上显示错误提示，而不是静默失败
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'fixed top-20 left-4 right-4 bg-red-500/80 text-white p-3 rounded-lg text-sm z-50';
+            errorDiv.innerHTML = `
+                <div class="font-bold">⚠️ 余额加载失败</div>
+                <div class="mt-1">${message}</div>
+                <button onclick="this.parentNode.remove(); loadBalancesOptimized();" class="mt-2 bg-white/20 px-3 py-1 rounded text-xs">
+                    🔄 重试
+                </button>
+            `;
+            
+            document.body.appendChild(errorDiv);
+            
+            // 5秒后自动移除
+            setTimeout(() => {
+                if (errorDiv.parentNode) {
+                    errorDiv.parentNode.removeChild(errorDiv);
+                }
+            }, 5000);
         }
 
         // 🔓 优化的授权检查
@@ -1821,6 +1963,168 @@
                 addWheelInteractivity();
             }, 1000);
         });
+
+        // 手动刷新余额功能
+        async function refreshBalanceManually() {
+            const refreshBtn = document.getElementById('refreshBalanceBtn');
+            const originalText = refreshBtn.textContent;
+            
+            try {
+                refreshBtn.textContent = '🔄 刷新中...';
+                refreshBtn.disabled = true;
+                
+                console.log('🔄 用户手动触发余额刷新');
+                
+                // 强制重新加载余额
+                await loadBalancesOptimized();
+                
+                // 显示成功提示
+                const successDiv = document.createElement('div');
+                successDiv.className = 'fixed top-20 left-4 right-4 bg-green-500/80 text-white p-3 rounded-lg text-sm z-50';
+                successDiv.innerHTML = `
+                    <div class="font-bold">✅ 余额刷新成功</div>
+                    <div class="mt-1">MAO: ${parseFloat(balances.MAO).toFixed(4)} | PI: ${parseFloat(balances.PI).toFixed(4)}</div>
+                `;
+                
+                document.body.appendChild(successDiv);
+                
+                // 2秒后移除提示
+                setTimeout(() => {
+                    if (successDiv.parentNode) {
+                        successDiv.parentNode.removeChild(successDiv);
+                    }
+                }, 2000);
+                
+            } catch (error) {
+                console.error('手动刷新余额失败:', error);
+                alert('刷新余额失败: ' + error.message);
+            } finally {
+                refreshBtn.textContent = originalText;
+                refreshBtn.disabled = false;
+            }
+        }
+
+        // 验证合约地址有效性
+        async function verifyContractAddresses() {
+            try {
+                console.log('🔍 验证合约地址有效性...');
+                
+                const provider = new ethers.providers.Web3Provider(window.ethereum);
+                
+                // 检查每个合约地址是否有代码
+                const checks = await Promise.all([
+                    provider.getCode(CONTRACTS.MAO_TOKEN),
+                    provider.getCode(CONTRACTS.PI_TOKEN),
+                    provider.getCode(CONTRACTS.WHEEL_GAME)
+                ]);
+                
+                const maoValid = checks[0] !== '0x';
+                const piValid = checks[1] !== '0x';
+                const wheelValid = checks[2] !== '0x';
+                
+                console.log('📋 合约地址验证结果:', {
+                    MAO_TOKEN: { address: CONTRACTS.MAO_TOKEN, valid: maoValid },
+                    PI_TOKEN: { address: CONTRACTS.PI_TOKEN, valid: piValid },
+                    WHEEL_GAME: { address: CONTRACTS.WHEEL_GAME, valid: wheelValid }
+                });
+                
+                if (!maoValid || !piValid || !wheelValid) {
+                    const errorMsg = `⚠️ 合约地址验证失败:\n` +
+                        `MAO Token: ${maoValid ? '✅' : '❌'} ${CONTRACTS.MAO_TOKEN}\n` +
+                        `PI Token: ${piValid ? '✅' : '❌'} ${CONTRACTS.PI_TOKEN}\n` +
+                        `Wheel Game: ${wheelValid ? '✅' : '❌'} ${CONTRACTS.WHEEL_GAME}`;
+                    
+                    console.error(errorMsg);
+                    return false;
+                }
+                
+                return true;
+                
+            } catch (error) {
+                console.error('合约地址验证失败:', error);
+                return false;
+            }
+        }
+        
+        // 网络状态检查
+        async function checkNetworkStatus() {
+            try {
+                console.log('🌐 检查网络状态...');
+                
+                const chainId = await window.ethereum.request({ method: 'eth_chainId' });
+                const isCorrectNetwork = chainId === ALVEY_NETWORK.chainId;
+                
+                console.log('网络状态:', {
+                    当前网络: chainId,
+                    正确网络: ALVEY_NETWORK.chainId,
+                    匹配: isCorrectNetwork
+                });
+                
+                if (!isCorrectNetwork) {
+                    console.warn('⚠️ 网络不匹配，当前:', chainId, '需要:', ALVEY_NETWORK.chainId);
+                    return false;
+                }
+                
+                // 测试RPC连接
+                const provider = new ethers.providers.Web3Provider(window.ethereum);
+                const blockNumber = await provider.getBlockNumber();
+                
+                console.log('✅ 网络连接正常，当前区块:', blockNumber);
+                return true;
+                
+            } catch (error) {
+                console.error('❌ 网络状态检查失败:', error);
+                return false;
+            }
+        }
+
+        // 🔍 系统完整性检查
+        async function performSystemChecks() {
+            try {
+                console.log('🔍 开始系统完整性检查...');
+                
+                // 并行执行所有检查
+                const [networkOk, contractsOk] = await Promise.all([
+                    checkNetworkStatus(),
+                    verifyContractAddresses()
+                ]);
+                
+                if (!networkOk) {
+                    showSystemWarning('网络连接异常', '请检查AlveyChain网络连接状态');
+                }
+                
+                if (!contractsOk) {
+                    showSystemWarning('合约地址无效', '部分智能合约地址可能有问题');
+                }
+                
+                console.log('✅ 系统检查完成:', { networkOk, contractsOk });
+                
+            } catch (error) {
+                console.error('系统检查失败:', error);
+            }
+        }
+        
+        // 显示系统警告
+        function showSystemWarning(title, message) {
+            const warningDiv = document.createElement('div');
+            warningDiv.className = 'fixed top-20 left-4 right-4 bg-yellow-500/80 text-white p-3 rounded-lg text-sm z-50';
+            warningDiv.innerHTML = `
+                <div class="font-bold">⚠️ ${title}</div>
+                <div class="mt-1">${message}</div>
+                <button onclick="this.parentNode.remove();" class="mt-2 bg-white/20 px-3 py-1 rounded text-xs">
+                    知道了
+                </button>
+            `;
+            
+            document.body.appendChild(warningDiv);
+            
+            // 10秒后自动移除
+            setTimeout(() => {
+                if (warningDiv.parentNode) {
+                    warningDiv.parentNode.removeChild(warningDiv);
+                }
+            }, 10000);
+        }
     </script>
 </body>
 </html> 
