@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>合约验证</title>
+    <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
+</head>
+<body style="padding: 20px; font-family: Arial, sans-serif;">
+    <h1>🔍 AlveyChain 合约验证</h1>
+    
+    <button onclick="verifyContracts()" style="padding: 10px 20px; font-size: 16px; margin: 10px;">
+        验证合约地址
+    </button>
+    
+    <div id="result" style="margin-top: 20px; padding: 10px; background: #f0f0f0; border-radius: 5px;"></div>
+
+    <script>
+        // 合约地址
+        const CONTRACTS = {
+            MAO_TOKEN: "0x22f49bcb3dad370a9268ba3fca33cb037ca3d022",
+            PI_TOKEN: "0xfd4680e25e05b3435c7f698668d1ce80d2a9f444",
+            WHEEL_GAME: "0xc27e29BCe41db77815435a9415329424849Daeb6"
+        };
+
+        // AlveyChain 网络配置
+        const ALVEY_NETWORK = {
+            chainId: '0xED5', // 3797
+            chainName: 'AlveyChain Mainnet',
+            rpcUrls: [
+                'https://elves-core1.alvey.io/',
+                'https://elves-core2.alvey.io/',
+                'https://elves-core3.alvey.io/'
+            ]
+        };
+
+        async function verifyContracts() {
+            const resultDiv = document.getElementById('result');
+            
+            try {
+                resultDiv.innerHTML = '🔄 验证中...';
+                
+                // 1. 检查网络
+                if (window.ethereum) {
+                    const chainId = await window.ethereum.request({ method: 'eth_chainId' });
+                    resultDiv.innerHTML += `<br>当前网络: ${chainId} (需要: ${ALVEY_NETWORK.chainId})`;
+                    
+                    if (chainId !== ALVEY_NETWORK.chainId) {
+                        resultDiv.innerHTML += `<br>❌ 网络不匹配！请切换到AlveyChain`;
+                        return;
+                    }
+                }
+                
+                // 2. 创建provider
+                const provider = new ethers.providers.Web3Provider(window.ethereum);
+                
+                // 3. 验证每个合约
+                let report = '<h3>📋 合约验证报告</h3>';
+                
+                for (const [name, address] of Object.entries(CONTRACTS)) {
+                    try {
+                        const code = await provider.getCode(address);
+                        const hasCode = code !== '0x';
+                        const status = hasCode ? '✅ 存在' : '❌ 不存在';
+                        
+                        report += `<p><strong>${name}:</strong> ${address}<br>状态: ${status}</p>`;
+                        
+                        if (hasCode) {
+                            // 如果是代币合约，尝试调用一些基本函数
+                            if (name.includes('TOKEN')) {
+                                const erc20ABI = [
+                                    "function name() view returns (string)",
+                                    "function symbol() view returns (string)",
+                                    "function decimals() view returns (uint8)",
+                                    "function totalSupply() view returns (uint256)"
+                                ];
+                                
+                                try {
+                                    const contract = new ethers.Contract(address, erc20ABI, provider);
+                                    const [tokenName, symbol, decimals] = await Promise.all([
+                                        contract.name(),
+                                        contract.symbol(), 
+                                        contract.decimals()
+                                    ]);
+                                    
+                                    report += `&nbsp;&nbsp;• 名称: ${tokenName}<br>`;
+                                    report += `&nbsp;&nbsp;• 符号: ${symbol}<br>`;
+                                    report += `&nbsp;&nbsp;• 精度: ${decimals}<br>`;
+                                } catch (funcError) {
+                                    report += `&nbsp;&nbsp;• ⚠️ ERC20函数调用失败: ${funcError.message}<br>`;
+                                }
+                            }
+                        }
+                    } catch (error) {
+                        report += `<p><strong>${name}:</strong> ${address}<br>❌ 验证失败: ${error.message}</p>`;
+                    }
+                }
+                
+                // 4. 测试网络连接
+                try {
+                    const blockNumber = await provider.getBlockNumber();
+                    report += `<p><strong>网络状态:</strong> ✅ 正常<br>当前区块: ${blockNumber}</p>`;
+                } catch (error) {
+                    report += `<p><strong>网络状态:</strong> ❌ 连接失败: ${error.message}</p>`;
+                }
+                
+                resultDiv.innerHTML = report;
+                
+            } catch (error) {
+                console.error('验证失败:', error);
+                resultDiv.innerHTML = `❌ 验证失败: ${error.message}`;
+            }
+        }
+    </script>
+</body>
+</html> 
