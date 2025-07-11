@@ -40,7 +40,7 @@
 
         /* 确保游戏按钮总是可见 */
         .game-container {
-            min-height: 50vh;
+            min-height: 45vh;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -51,26 +51,44 @@
             position: relative;
             margin-bottom: 20px;
         }
+
+        /* 连接状态指示器 */
+        .connection-indicator {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background-color: #ef4444;
+            transition: all 0.3s ease;
+        }
+
+        .connection-indicator.connected {
+            background-color: #22c55e;
+            box-shadow: 0 0 10px rgba(34, 197, 94, 0.5);
+        }
     </style>
 </head>
 <body class="bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 min-h-screen">
-    <div class="container mx-auto px-4 py-4 max-w-lg">
+    <div class="container mx-auto px-4 py-4 max-w-lg relative">
+        
+        <!-- 连接状态指示器 -->
+        <div id="connectionIndicator" class="connection-indicator" title="钱包连接状态"></div>
         
         <!-- 标题 -->
         <div class="text-center mb-4">
             <h1 class="text-2xl font-bold text-white mb-1">🎰 MAO转盘游戏</h1>
-            <p class="text-blue-200 text-sm">简单版本 - 专注游戏体验</p>
+            <p class="text-blue-200 text-sm">简洁版本 - 专注游戏体验</p>
         </div>
 
-        <!-- 连接状态 -->
-        <div class="bg-white/10 rounded-xl p-3 mb-4">
+        <!-- 连接钱包 -->
+        <div id="walletConnect" class="bg-white/10 rounded-xl p-4 mb-4">
             <div class="text-center">
                 <button id="connectBtn" onclick="connectWallet()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-xl">
-                    🔗 连接钱包
+                    🔗 连接钱包开始游戏
                 </button>
-                <div id="walletInfo" class="mt-2 text-sm text-blue-200" style="display:none;">
-                    钱包: <span id="address" class="text-white"></span>
-                </div>
+                <p class="text-blue-200 text-xs mt-2">支持TP钱包、Trust Wallet、MetaMask</p>
             </div>
         </div>
 
@@ -79,7 +97,7 @@
             
             <!-- 代币选择 -->
             <div class="bg-white/10 rounded-xl p-3 mb-3">
-                <h3 class="text-white font-bold text-center mb-2 text-sm">选择代币</h3>
+                <h3 class="text-white font-bold text-center mb-2 text-sm">🎯 选择代币</h3>
                 <div class="flex gap-2">
                     <button id="maoBtn" onclick="selectToken('MAO')" class="flex-1 bg-blue-600 text-white py-2 rounded-lg font-bold text-sm">
                         MAO (100)
@@ -104,13 +122,13 @@
             <div class="bg-white/10 rounded-xl p-3">
                 <div class="game-container">
                     <div class="wheel-container">
-                        <div id="wheel" class="w-40 h-40 rounded-full wheel mx-auto relative">
+                        <div id="wheel" class="w-44 h-44 rounded-full wheel mx-auto relative">
                             <!-- 指针 -->
                             <div class="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-2">
                                 <div class="w-0 h-0 border-l-3 border-r-3 border-b-6 border-transparent border-b-yellow-400"></div>
                             </div>
                             <!-- 中心 -->
-                            <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-12 h-12 bg-white rounded-full flex items-center justify-center font-bold text-sm">
+                            <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-14 h-14 bg-white rounded-full flex items-center justify-center font-bold text-lg">
                                 MAO
                             </div>
                         </div>
@@ -118,15 +136,15 @@
                         
                     <!-- 游戏按钮 - 确保可见 -->
                     <div class="text-center mb-3">
-                        <button id="spinBtn" onclick="spin()" disabled class="spin-btn w-16 h-16 rounded-full text-white font-bold disabled:opacity-50">
-                            <div class="text-lg">🎲</div>
+                        <button id="spinBtn" onclick="spin()" disabled class="spin-btn w-18 h-18 rounded-full text-white font-bold disabled:opacity-50">
+                            <div class="text-xl">🎲</div>
                             <div class="text-xs">开始</div>
                         </button>
                     </div>
                     
                     <!-- 游戏状态 -->
                     <div class="text-center">
-                        <p id="gameStatus" class="text-white text-sm">请连接钱包并授权</p>
+                        <p id="gameStatus" class="text-white text-sm">🎮 选择代币并授权开始游戏</p>
                     </div>
                 </div>
             </div>
@@ -139,6 +157,9 @@
                     </button>
                     <button onclick="forceEnable()" class="flex-1 bg-red-600 hover:bg-red-700 text-white font-bold py-1 rounded text-xs">
                         ⚡ 强制启用
+                    </button>
+                    <button onclick="showWalletInfo()" class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-1 rounded text-xs">
+                        👤 钱包信息
                     </button>
                 </div>
             </div>
@@ -164,13 +185,34 @@
         const WHEEL_ABI = ["function playMAOGame() external", "function playPIGame() external"];
         const TOKEN_ABI = ["function approve(address spender, uint256 amount) returns (bool)", "function allowance(address owner, address spender) view returns (uint256)"];
 
+        // 更新连接状态指示器
+        function updateConnectionIndicator(connected) {
+            const indicator = document.getElementById('connectionIndicator');
+            if (connected) {
+                indicator.classList.add('connected');
+                indicator.title = '✅ 钱包已连接';
+            } else {
+                indicator.classList.remove('connected');
+                indicator.title = '❌ 钱包未连接';
+            }
+        }
+
+        // 显示钱包信息
+        function showWalletInfo() {
+            if (account) {
+                alert(`💼 钱包信息:\n地址: ${account}\n网络: AlveyChain (3797)\n状态: 已连接`);
+            } else {
+                alert('❌ 钱包未连接');
+            }
+        }
+
         // 强制启用游戏按钮
         function forceEnable() {
             const btn = document.getElementById('spinBtn');
             btn.disabled = false;
-            btn.className = 'spin-btn w-16 h-16 rounded-full text-white font-bold';
-            btn.innerHTML = '<div class="text-lg">🎲</div><div class="text-xs">开始</div>';
-            document.getElementById('gameStatus').textContent = '🔧 强制启用模式';
+            btn.className = 'spin-btn w-18 h-18 rounded-full text-white font-bold';
+            btn.innerHTML = '<div class="text-xl">🎲</div><div class="text-xs">开始</div>';
+            document.getElementById('gameStatus').textContent = '🔧 强制启用模式 - 可以游戏';
             alert('🎲 游戏按钮已强制启用！');
         }
 
@@ -214,10 +256,9 @@
                 };
 
                 // 显示连接成功
-                document.getElementById('address').textContent = account.slice(0, 8) + '...';
-                document.getElementById('walletInfo').style.display = 'block';
+                document.getElementById('walletConnect').style.display = 'none';
                 document.getElementById('gameArea').style.display = 'block';
-                btn.style.display = 'none';
+                updateConnectionIndicator(true);
 
                 // 检查授权
                 await checkApproval();
@@ -234,8 +275,9 @@
         // 重置连接按钮
         function resetConnectButton() {
             const btn = document.getElementById('connectBtn');
-            btn.textContent = '🔗 连接钱包';
+            btn.textContent = '🔗 连接钱包开始游戏';
             btn.disabled = false;
+            updateConnectionIndicator(false);
         }
 
         // 切换网络
@@ -320,18 +362,18 @@
                 approveBtn.className = 'w-full bg-green-600 text-white font-bold py-2 rounded-xl cursor-not-allowed text-sm';
                 
                 spinBtn.disabled = false;
-                spinBtn.className = 'spin-btn w-16 h-16 rounded-full text-white font-bold';
+                spinBtn.className = 'spin-btn w-18 h-18 rounded-full text-white font-bold';
                 status.textContent = '✅ 已授权，可以游戏';
-                gameStatus.textContent = '🎯 点击开始游戏！';
+                gameStatus.textContent = '🎯 点击🎲开始游戏！';
             } else {
                 approveBtn.textContent = `🔓 授权 ${selectedToken}`;
                 approveBtn.disabled = false;
                 approveBtn.className = 'w-full bg-orange-600 hover:bg-orange-700 text-white font-bold py-2 rounded-xl text-sm';
                 
                 spinBtn.disabled = true;
-                spinBtn.className = 'spin-btn w-16 h-16 rounded-full text-white font-bold disabled:opacity-50';
+                spinBtn.className = 'spin-btn w-18 h-18 rounded-full text-white font-bold disabled:opacity-50';
                 status.textContent = '❌ 需要授权';
-                gameStatus.textContent = '请先授权代币';
+                gameStatus.textContent = '🔓 请先授权代币';
             }
         }
 
@@ -380,7 +422,7 @@
                 const status = document.getElementById('gameStatus');
 
                 // 按钮状态
-                btn.innerHTML = '<div class="text-lg">⏳</div><div class="text-xs">游戏中</div>';
+                btn.innerHTML = '<div class="text-xl">⏳</div><div class="text-xs">游戏中</div>';
                 btn.disabled = true;
                 status.textContent = '🎰 转盘旋转中...';
 
@@ -418,11 +460,11 @@
                 // 恢复按钮状态 - 检查授权状态
                 if (approvalStatus[selectedToken]) {
                     const btn = document.getElementById('spinBtn');
-                    btn.innerHTML = '<div class="text-lg">🎲</div><div class="text-xs">开始</div>';
+                    btn.innerHTML = '<div class="text-xl">🎲</div><div class="text-xs">开始</div>';
                     btn.disabled = false;
-                    btn.className = 'spin-btn w-16 h-16 rounded-full text-white font-bold';
+                    btn.className = 'spin-btn w-18 h-18 rounded-full text-white font-bold';
                     if (document.getElementById('gameStatus').textContent.includes('游戏中') || document.getElementById('gameStatus').textContent.includes('等待')) {
-                        document.getElementById('gameStatus').textContent = '🎯 点击开始游戏！';
+                        document.getElementById('gameStatus').textContent = '🎯 点击🎲开始游戏！';
                     }
                 } else {
                     // 如果授权状态有问题，重新检查
@@ -435,6 +477,7 @@
         if (window.ethereum) {
             window.ethereum.on('accountsChanged', (accounts) => {
                 if (accounts.length === 0) {
+                    updateConnectionIndicator(false);
                     location.reload();
                 } else if (accounts[0] !== account) {
                     location.reload();
@@ -448,6 +491,7 @@
 
         // 页面加载完成后检查是否已连接
         window.addEventListener('load', async () => {
+            updateConnectionIndicator(false);
             if (window.ethereum) {
                 try {
                     const accounts = await window.ethereum.request({ method: 'eth_accounts' });
