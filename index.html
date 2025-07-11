@@ -776,6 +776,17 @@
             { name: '终极大奖', mao: 700, pi: 7000, emoji: '💰', probability: '0.5%' }
         ];
 
+        // 🚀 优化的全局状态管理
+        let walletConnectionCache = {
+            provider: null,
+            signer: null,
+            contracts: {},
+            lastConnected: null,
+            networkVerified: false
+        };
+
+        let connectionTimeout = null;
+
         // 游戏状态
         let currentAccount = null;
         let provider = null;
@@ -840,77 +851,315 @@
             });
         }
 
-        // 连接钱包
+        // 连接钱包 - 优化版本
         async function connectWallet() {
             try {
-                // 检查ethers是否加载
+                // 清除之前的超时
+                if (connectionTimeout) {
+                    clearTimeout(connectionTimeout);
+                }
+
+                // 显示连接进度
+                showConnectionProgress();
+
+                // 🏃‍♂️ 快速检查 - 优先级检查
                 if (typeof ethers === 'undefined') {
-                    alert('区块链库正在加载中，请稍候重试...');
-                    setTimeout(() => location.reload(), 2000);
-                    return;
+                    updateProgress('正在加载区块链库...', 10);
+                    await new Promise(resolve => setTimeout(resolve, 500));
+                    if (typeof ethers === 'undefined') {
+                        alert('区块链库加载失败，正在重新加载...');
+                        setTimeout(() => location.reload(), 1000);
+                        return;
+                    }
                 }
 
                 if (!window.ethereum) {
+                    hideConnectionProgress();
                     alert('请使用支持Web3的钱包浏览器！\n推荐使用：TP钱包、Trust Wallet、MetaMask等');
                     return;
                 }
 
-                connectBtn.textContent = '连接中...';
-                connectBtn.disabled = true;
+                updateProgress('正在连接钱包...', 20);
 
-                // 初始化粒子效果
-                initParticleEffect();
+                // 🚀 并行检查网络和获取账户
+                const [chainId, existingAccounts] = await Promise.all([
+                    window.ethereum.request({ method: 'eth_chainId' }),
+                    window.ethereum.request({ method: 'eth_accounts' }).catch(() => [])
+                ]);
 
-                // 检查并切换网络
-                const chainId = await window.ethereum.request({ method: 'eth_chainId' });
+                updateProgress('验证网络配置...', 40);
+
+                // 🔄 智能网络处理
                 if (chainId !== ALVEY_NETWORK.chainId) {
-                    try {
-                        await window.ethereum.request({
-                            method: 'wallet_switchEthereumChain',
-                            params: [{ chainId: ALVEY_NETWORK.chainId }],
-                        });
-                    } catch (switchError) {
-                        if (switchError.code === 4902) {
-                            await window.ethereum.request({
-                                method: 'wallet_addEthereumChain',
-                                params: [ALVEY_NETWORK],
-                            });
-                        }
-                    }
+                    updateProgress('切换到AlveyChain网络...', 50);
+                    await switchToAlveyNetworkOptimized();
+                    walletConnectionCache.networkVerified = true;
+                } else if (!walletConnectionCache.networkVerified) {
+                    walletConnectionCache.networkVerified = true;
                 }
 
-                // 请求账户连接
-                const accounts = await window.ethereum.request({
-                    method: 'eth_requestAccounts',
-                });
+                updateProgress('请求账户授权...', 70);
 
-                if (accounts.length > 0) {
-                    currentAccount = accounts[0];
-                    provider = new ethers.providers.Web3Provider(window.ethereum);
-                    signer = provider.getSigner();
+                // 🔗 智能账户连接
+                let accounts;
+                if (existingAccounts.length > 0) {
+                    accounts = existingAccounts;
+                } else {
+                    accounts = await window.ethereum.request({
+                        method: 'eth_requestAccounts',
+                    });
+                }
 
-                    // 初始化合约
-                    contracts.wheelGame = new ethers.Contract(CONTRACTS.WHEEL_GAME, WHEEL_GAME_ABI, signer);
-                    contracts.maoToken = new ethers.Contract(CONTRACTS.MAO_TOKEN, ERC20_ABI, signer);
-                    contracts.piToken = new ethers.Contract(CONTRACTS.PI_TOKEN, ERC20_ABI, signer);
+                if (accounts.length === 0) {
+                    hideConnectionProgress();
+                    alert('未获得账户授权');
+                    return;
+                }
 
-                    // 更新界面
-                    userAddress.textContent = currentAccount.slice(0, 6) + '...' + currentAccount.slice(-4);
+                updateProgress('初始化区块链连接...', 80);
+
+                // 🏎️ 快速提供者初始化
+                const newAccount = accounts[0];
+                let needsFullInit = !walletConnectionCache.provider || 
+                                  walletConnectionCache.lastConnected !== newAccount;
+
+                if (needsFullInit) {
+                    // 并行初始化提供者和合约
+                    const [provider, contractsData] = await Promise.all([
+                        Promise.resolve(new ethers.providers.Web3Provider(window.ethereum)),
+                        initializeContractsOptimized(newAccount)
+                    ]);
+
+                    const signer = provider.getSigner();
                     
-                    // 加载余额
-                    await loadBalances();
-                    await checkApproval();
-                    updateWheelRewards();
-
-                    // 显示游戏界面
-                    walletConnect.style.display = 'none';
-                    gameInterface.style.display = 'block';
+                    // 更新缓存
+                    walletConnectionCache = {
+                        provider,
+                        signer,
+                        contracts: contractsData,
+                        lastConnected: newAccount,
+                        networkVerified: true
+                    };
+                } else {
+                    // 使用缓存的连接
+                    console.log('🚀 使用缓存的钱包连接');
                 }
+
+                currentAccount = newAccount;
+                provider = walletConnectionCache.provider;
+                signer = walletConnectionCache.signer;
+                contracts = walletConnectionCache.contracts;
+
+                updateProgress('加载用户数据...', 90);
+
+                // 🔄 并行加载用户数据
+                await Promise.all([
+                    loadBalancesOptimized(),
+                    checkApprovalOptimized(),
+                    initParticleEffectAsync()
+                ]);
+
+                updateProgress('完成连接!', 100);
+
+                // 🎨 更新界面
+                userAddress.textContent = currentAccount.slice(0, 6) + '...' + currentAccount.slice(-4);
+                updateWheelRewards();
+                
+                // 显示游戏界面
+                walletConnect.style.display = 'none';
+                gameInterface.style.display = 'block';
+
+                // 延迟隐藏进度条，让用户看到完成状态
+                setTimeout(hideConnectionProgress, 500);
+
             } catch (error) {
                 console.error('连接钱包错误:', error);
-                alert('连接钱包失败: ' + error.message);
+                hideConnectionProgress();
+                
+                // 🔄 智能错误处理
+                if (error.code === 4001) {
+                    alert('用户取消了连接请求');
+                } else if (error.code === -32002) {
+                    alert('钱包连接请求已发送，请在钱包中确认');
+                } else {
+                    alert('连接钱包失败: ' + error.message);
+                }
+                
+                // 重置按钮状态
                 connectBtn.textContent = '🔗 连接钱包开始游戏';
                 connectBtn.disabled = false;
+            }
+        }
+
+        // 🚀 优化的网络切换
+        async function switchToAlveyNetworkOptimized() {
+            try {
+                await window.ethereum.request({
+                    method: 'wallet_switchEthereumChain',
+                    params: [{ chainId: ALVEY_NETWORK.chainId }],
+                });
+            } catch (switchError) {
+                if (switchError.code === 4902) {
+                    await window.ethereum.request({
+                        method: 'wallet_addEthereumChain',
+                        params: [ALVEY_NETWORK],
+                    });
+                } else {
+                    throw switchError;
+                }
+            }
+        }
+
+        // 🏎️ 优化的合约初始化
+        async function initializeContractsOptimized(account) {
+            try {
+                // 只有在需要时才创建新的合约实例
+                if (walletConnectionCache.contracts.wheelGame && 
+                    walletConnectionCache.lastConnected === account) {
+                    return walletConnectionCache.contracts;
+                }
+
+                const tempProvider = new ethers.providers.Web3Provider(window.ethereum);
+                const tempSigner = tempProvider.getSigner();
+
+                const contractsData = {
+                    wheelGame: new ethers.Contract(CONTRACTS.WHEEL_GAME, WHEEL_GAME_ABI, tempSigner),
+                    maoToken: new ethers.Contract(CONTRACTS.MAO_TOKEN, ERC20_ABI, tempSigner),
+                    piToken: new ethers.Contract(CONTRACTS.PI_TOKEN, ERC20_ABI, tempSigner)
+                };
+
+                return contractsData;
+            } catch (error) {
+                console.error('初始化合约错误:', error);
+                throw error;
+            }
+        }
+
+        // 🔄 优化的余额加载
+        async function loadBalancesOptimized() {
+            try {
+                if (!currentAccount || !contracts.maoToken) return;
+
+                const [maoBalanceWei, piBalanceWei] = await Promise.all([
+                    contracts.maoToken.balanceOf(currentAccount),
+                    contracts.piToken.balanceOf(currentAccount)
+                ]);
+
+                balances.MAO = ethers.utils.formatUnits(maoBalanceWei, 18);
+                balances.PI = ethers.utils.formatUnits(piBalanceWei, 18);
+
+                // 批量更新DOM
+                requestAnimationFrame(() => {
+                    maoBalance.textContent = `余额: ${parseFloat(balances.MAO).toLocaleString()}`;
+                    piBalance.textContent = `余额: ${parseFloat(balances.PI).toLocaleString()}`;
+                    updateCurrentBalance();
+                });
+
+            } catch (error) {
+                console.error('加载余额错误:', error);
+                // 静默失败，不影响连接流程
+            }
+        }
+
+        // 🔓 优化的授权检查
+        async function checkApprovalOptimized() {
+            try {
+                if (!currentAccount || !contracts.maoToken || !contracts.piToken) return;
+
+                const [maoAllowance, piAllowance] = await Promise.all([
+                    contracts.maoToken.allowance(currentAccount, CONTRACTS.WHEEL_GAME),
+                    contracts.piToken.allowance(currentAccount, CONTRACTS.WHEEL_GAME)
+                ]);
+
+                const maoApproved = maoAllowance.gt(0);
+                const piApproved = piAllowance.gt(0);
+                isApproved = maoApproved && piApproved;
+
+                // 批量更新DOM
+                requestAnimationFrame(() => {
+                    if (isApproved) {
+                        approveBtn.style.display = 'none';
+                        spinBtn.disabled = false;
+                        startGameBtn.disabled = false;
+                        continuousBtn.disabled = false;
+                    } else {
+                        approveBtn.style.display = 'block';
+                        approveBtn.textContent = '🔓 授权 MAO & PI 代币';
+                    }
+                });
+
+            } catch (error) {
+                console.error('检查授权错误:', error);
+            }
+        }
+
+        // 🎆 异步粒子效果初始化
+        async function initParticleEffectAsync() {
+            return new Promise(resolve => {
+                setTimeout(() => {
+                    initParticleEffect();
+                    resolve();
+                }, 100);
+            });
+        }
+
+        // 📊 连接进度显示
+        function showConnectionProgress() {
+            connectBtn.style.display = 'none';
+            
+            // 创建进度条容器
+            const progressContainer = document.createElement('div');
+            progressContainer.id = 'connectionProgress';
+            progressContainer.innerHTML = `
+                <div class="bg-white/10 backdrop-blur-lg rounded-xl p-6 text-center">
+                    <div class="mb-4">
+                        <div class="animate-spin w-12 h-12 mx-auto border-4 border-blue-500 border-t-transparent rounded-full"></div>
+                    </div>
+                    <div class="text-white font-semibold mb-2" id="progressText">正在连接钱包...</div>
+                    <div class="bg-white/20 rounded-full h-2 mb-2">
+                        <div id="progressBar" class="bg-gradient-to-r from-blue-500 to-purple-500 h-2 rounded-full transition-all duration-300" style="width: 0%"></div>
+                    </div>
+                    <div class="text-blue-200 text-sm" id="progressPercent">0%</div>
+                </div>
+            `;
+            
+            const walletConnectDiv = document.getElementById('walletConnect');
+            walletConnectDiv.appendChild(progressContainer);
+        }
+
+        function updateProgress(text, percent) {
+            const progressText = document.getElementById('progressText');
+            const progressBar = document.getElementById('progressBar');
+            const progressPercent = document.getElementById('progressPercent');
+            
+            if (progressText) progressText.textContent = text;
+            if (progressBar) progressBar.style.width = percent + '%';
+            if (progressPercent) progressPercent.textContent = percent + '%';
+        }
+
+        function hideConnectionProgress() {
+            const progressContainer = document.getElementById('connectionProgress');
+            if (progressContainer) {
+                progressContainer.remove();
+            }
+            connectBtn.style.display = 'block';
+            connectBtn.textContent = '🔗 连接钱包开始游戏';
+            connectBtn.disabled = false;
+        }
+
+        // 🔄 预加载优化 - 在页面空闲时预热连接
+        function preloadWalletConnection() {
+            if (window.ethereum && !currentAccount) {
+                // 静默检查已连接账户
+                window.ethereum.request({ method: 'eth_accounts' })
+                    .then(accounts => {
+                        if (accounts.length > 0) {
+                            console.log('🚀 检测到已连接账户，准备快速连接');
+                            // 预加载合约实例
+                            initializeContractsOptimized(accounts[0]).catch(() => {});
+                        }
+                    })
+                    .catch(() => {});
             }
         }
 
@@ -1315,34 +1564,97 @@
         maoBtn.addEventListener('click', () => selectToken('MAO'));
         piBtn.addEventListener('click', () => selectToken('PI'));
 
-        // 自动连接已连接的钱包
+        // 自动连接已连接的钱包 - 优化版本
         window.addEventListener('load', async () => {
+            console.log('🚀 页面加载完成，开始智能连接检测');
+            
+            // 🔄 预加载钱包连接
+            setTimeout(preloadWalletConnection, 1000);
+            
             if (window.ethereum) {
                 try {
+                    // 🚀 快速检查已连接账户
                     const accounts = await window.ethereum.request({ method: 'eth_accounts' });
                     if (accounts.length > 0) {
-                        await connectWallet();
+                        console.log('🚀 检测到已连接账户，自动连接中...');
+                        
+                        // 添加一个小延迟，确保UI完全加载
+                        setTimeout(async () => {
+                            await connectWallet();
+                        }, 500);
+                    } else {
+                        console.log('📱 等待用户手动连接钱包');
+                        // 预热连接组件
+                        setTimeout(preloadWalletConnection, 2000);
                     }
                 } catch (error) {
                     console.log('自动连接失败:', error);
+                    // 静默失败，不影响用户体验
                 }
+            } else {
+                console.log('⚠️ 未检测到Web3钱包');
             }
         });
 
-        // 监听账户变化
+        // 🔄 智能账户监听 - 减少重载
         if (window.ethereum) {
+            let accountChangeTimeout;
+            
             window.ethereum.on('accountsChanged', (accounts) => {
-                if (accounts.length === 0) {
-                    location.reload();
-                } else if (accounts[0] !== currentAccount) {
+                console.log('👤 账户变化检测:', accounts);
+                
+                // 防抖处理，避免快速切换导致的多次重载
+                clearTimeout(accountChangeTimeout);
+                accountChangeTimeout = setTimeout(() => {
+                    if (accounts.length === 0) {
+                        console.log('🚪 用户断开连接，重置界面');
+                        // 清除缓存
+                        walletConnectionCache = {
+                            provider: null,
+                            signer: null,
+                            contracts: {},
+                            lastConnected: null,
+                            networkVerified: false
+                        };
+                        location.reload();
+                    } else if (accounts[0] !== currentAccount) {
+                        console.log('🔄 账户切换，更新连接');
+                        // 更新到新账户
+                        connectWallet();
+                    }
+                }, 300);
+            });
+
+            window.ethereum.on('chainChanged', (chainId) => {
+                console.log('🌐 网络变化检测:', chainId);
+                
+                if (chainId !== ALVEY_NETWORK.chainId) {
+                    console.log('⚠️ 网络不匹配，需要切换');
+                    walletConnectionCache.networkVerified = false;
+                }
+                
+                // 如果当前已连接，尝试重新连接而不是重载页面
+                if (currentAccount) {
+                    connectWallet();
+                } else {
                     location.reload();
                 }
             });
-
-            window.ethereum.on('chainChanged', () => {
-                location.reload();
-            });
         }
+
+        // 🚀 页面可见性优化 - 当页面重新可见时刷新数据
+        document.addEventListener('visibilitychange', () => {
+            if (!document.hidden && currentAccount) {
+                console.log('👁️ 页面重新可见，刷新数据');
+                // 延迟刷新，避免影响用户交互
+                setTimeout(() => {
+                    Promise.all([
+                        loadBalancesOptimized(),
+                        checkApprovalOptimized()
+                    ]).catch(console.error);
+                }, 1000);
+            }
+        });
 
         // 🎊 庆祝粒子效果
         function createCelebrationParticles() {
