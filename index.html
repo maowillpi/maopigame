@@ -1100,7 +1100,7 @@
             }
         }
 
-        // 💡 超级简化的余额加载 - 你说得对，就是这么简单！
+        // 💡 超级简化的余额加载 - 加强错误处理
         async function loadBalancesOptimized() {
             try {
                 console.log('🔍 开始加载余额...');
@@ -1116,6 +1116,26 @@
                 }
 
                 console.log('📡 调用 balanceOf...');
+
+                // 添加合约地址验证
+                const provider = new ethers.providers.Web3Provider(window.ethereum);
+                
+                // 首先验证合约是否存在
+                console.log('🔍 验证合约地址...');
+                const [maoCode, piCode] = await Promise.all([
+                    provider.getCode(CONTRACTS.MAO_TOKEN),
+                    provider.getCode(CONTRACTS.PI_TOKEN)
+                ]);
+                
+                if (maoCode === '0x') {
+                    throw new Error(`MAO合约地址无效: ${CONTRACTS.MAO_TOKEN}`);
+                }
+                
+                if (piCode === '0x') {
+                    throw new Error(`PI合约地址无效: ${CONTRACTS.PI_TOKEN}`);
+                }
+                
+                console.log('✅ 合约地址验证通过');
 
                 // 就是这么简单！调用合约的 balanceOf 函数
                 const [maoBalanceWei, piBalanceWei] = await Promise.all([
@@ -1140,8 +1160,27 @@
             } catch (error) {
                 console.error('❌ 余额获取失败:', error);
                 
-                // 简单的错误提示
-                showBalanceError(`余额获取失败: ${error.message}`);
+                // 详细的错误处理
+                let errorMessage = '';
+                if (error.message.includes('合约地址无效')) {
+                    errorMessage = `⚠️ 合约地址问题: ${error.message}\n\n请检查合约是否部署在AlveyChain网络上。`;
+                } else if (error.code === 'CALL_EXCEPTION') {
+                    errorMessage = `⚠️ 合约调用失败\n\n可能原因:\n1. 合约地址不存在\n2. 网络连接问题\n3. 合约未部署在AlveyChain\n\n建议访问 https://alveyscan.com/ 验证合约地址`;
+                } else if (error.code === 'NETWORK_ERROR') {
+                    errorMessage = `⚠️ 网络连接问题\n\n请检查:\n1. AlveyChain网络连接\n2. RPC节点状态\n3. 网络切换是否正确`;
+                } else {
+                    errorMessage = `余额获取失败: ${error.message}`;
+                }
+                
+                // 显示详细错误信息
+                showBalanceError(errorMessage);
+                
+                // 设置默认值避免界面异常
+                balances.MAO = '0';
+                balances.PI = '0';
+                maoBalance.textContent = '余额: 0';
+                piBalance.textContent = '余额: 0';
+                updateCurrentBalance();
             }
         }
 
