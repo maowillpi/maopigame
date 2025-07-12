@@ -1,0 +1,1235 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎰 MAO转盘游戏 - 安全智能版</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            user-select: none;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+        }
+
+        .game-header {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 15px 20px;
+            text-align: center;
+            color: white;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .game-title {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .game-subtitle {
+            font-size: 14px;
+            opacity: 0.8;
+        }
+
+        .security-info {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            margin: 20px;
+            padding: 15px;
+            border-radius: 15px;
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .security-title {
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #FFD700;
+        }
+
+        .security-item {
+            font-size: 12px;
+            margin-bottom: 5px;
+            opacity: 0.9;
+        }
+
+        .wallet-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            margin: 20px;
+            padding: 15px;
+            border-radius: 15px;
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .balance-item {
+            text-align: center;
+            flex: 1;
+        }
+
+        .balance-label {
+            font-size: 12px;
+            opacity: 0.8;
+            margin-bottom: 5px;
+        }
+
+        .balance-value {
+            font-size: 18px;
+            font-weight: bold;
+            color: #FFD700;
+        }
+
+        .game-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            position: relative;
+        }
+
+        .wheel-container {
+            position: relative;
+            width: 300px;
+            height: 300px;
+            margin: 20px auto;
+        }
+
+        .wheel {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: conic-gradient(
+                #FF6B6B 0deg 60deg,
+                #4ECDC4 60deg 120deg,
+                #45B7D1 120deg 180deg,
+                #96CEB4 180deg 240deg,
+                #FFEAA7 240deg 300deg,
+                #DDA0DD 300deg 360deg
+            );
+            border: 8px solid #fff;
+            box-shadow: 0 0 30px rgba(0, 0, 0, 0.3);
+            transition: transform 3s cubic-bezier(0.25, 0.1, 0.25, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .wheel-segments {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+        }
+
+        .segment {
+            position: absolute;
+            width: 50%;
+            height: 50%;
+            transform-origin: 100% 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: white;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+            font-size: 12px;
+        }
+
+        .segment:nth-child(1) { transform: rotate(0deg); background: #FF6B6B; }
+        .segment:nth-child(2) { transform: rotate(60deg); background: #4ECDC4; }
+        .segment:nth-child(3) { transform: rotate(120deg); background: #45B7D1; }
+        .segment:nth-child(4) { transform: rotate(180deg); background: #96CEB4; }
+        .segment:nth-child(5) { transform: rotate(240deg); background: #FFEAA7; }
+        .segment:nth-child(6) { transform: rotate(300deg); background: #DDA0DD; }
+
+        .wheel-pointer {
+            position: absolute;
+            top: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 15px solid transparent;
+            border-right: 15px solid transparent;
+            border-top: 30px solid #FFD700;
+            z-index: 10;
+            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+        }
+
+        .wheel-center {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 60px;
+            height: 60px;
+            background: #FFD700;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            font-weight: bold;
+            color: #333;
+            border: 4px solid #fff;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+            z-index: 5;
+        }
+
+        .token-selector {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin: 20px 0;
+        }
+
+        .token-btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            min-width: 100px;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .token-btn.active {
+            background: #FFD700;
+            color: #333;
+            border-color: #FFD700;
+            transform: scale(1.05);
+        }
+
+        .token-btn:hover {
+            transform: scale(1.05);
+        }
+
+        .play-button {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #FF6B6B, #4ECDC4);
+            border: none;
+            color: white;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+            margin: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .play-button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 12px 35px rgba(0, 0, 0, 0.4);
+        }
+
+        .play-button:active {
+            transform: scale(0.95);
+        }
+
+        .play-button.spinning {
+            animation: pulse 1s infinite;
+            background: linear-gradient(45deg, #FFA500, #FF6347);
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        .game-info {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            margin: 20px;
+            padding: 20px;
+            border-radius: 15px;
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .info-title {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            text-align: center;
+            color: #FFD700;
+        }
+
+        .prize-list {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .prize-item {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 10px;
+            border-radius: 8px;
+            text-align: center;
+            font-size: 12px;
+        }
+
+        .prize-rate {
+            color: #FFD700;
+            font-weight: bold;
+        }
+
+        .game-cost {
+            text-align: center;
+            font-size: 14px;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .cost-highlight {
+            color: #FFD700;
+            font-weight: bold;
+        }
+
+        .result-popup {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .result-content {
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            text-align: center;
+            max-width: 300px;
+            width: 90%;
+            animation: popIn 0.5s ease-out;
+        }
+
+        @keyframes popIn {
+            from { transform: scale(0.8); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+
+        .result-emoji {
+            font-size: 60px;
+            margin-bottom: 20px;
+        }
+
+        .result-text {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        .result-prize {
+            font-size: 18px;
+            color: #666;
+            margin-bottom: 20px;
+        }
+
+        .result-close {
+            background: #4ECDC4;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .result-close:hover {
+            background: #45B7D1;
+            transform: scale(1.05);
+        }
+
+        .celebration {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 999;
+        }
+
+        .confetti {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background: #FFD700;
+            animation: fall 3s linear infinite;
+        }
+
+        @keyframes fall {
+            0% { transform: translateY(-100vh) rotate(0deg); }
+            100% { transform: translateY(100vh) rotate(360deg); }
+        }
+
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1001;
+        }
+
+        .loading-spinner {
+            width: 60px;
+            height: 60px;
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-top: 4px solid #FFD700;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .status-message {
+            color: white;
+            margin-top: 20px;
+            text-align: center;
+            font-size: 16px;
+        }
+
+        .debug-info {
+            background: rgba(0, 0, 0, 0.8);
+            color: #00ff00;
+            padding: 10px;
+            margin: 20px;
+            border-radius: 10px;
+            font-family: monospace;
+            font-size: 12px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        @media (max-width: 480px) {
+            .wheel-container {
+                width: 250px;
+                height: 250px;
+            }
+            
+            .play-button {
+                width: 100px;
+                height: 100px;
+                font-size: 16px;
+            }
+            
+            .game-title {
+                font-size: 20px;
+            }
+            
+            .wallet-info {
+                margin: 15px;
+                padding: 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 游戏头部 -->
+    <div class="game-header">
+        <div class="game-title">🎰 MAO转盘游戏</div>
+        <div class="game-subtitle">安全智能版 - 防操控中奖机制</div>
+    </div>
+
+    <!-- 安全机制说明 -->
+    <div class="security-info">
+        <div class="security-title">🔒 安全中奖机制</div>
+        <div class="security-item">✅ 多重随机源混合算法</div>
+        <div class="security-item">✅ 区块链哈希种子验证</div>
+        <div class="security-item">✅ 用户行为模式分析</div>
+        <div class="security-item">✅ 时间戳加密防预测</div>
+        <div class="security-item">✅ 智能概率动态调整</div>
+    </div>
+
+    <!-- 钱包信息 -->
+    <div class="wallet-info">
+        <div class="balance-item">
+            <div class="balance-label">MAO余额</div>
+            <div class="balance-value" id="maoBalance">--</div>
+        </div>
+        <div class="balance-item">
+            <div class="balance-label">PI余额</div>
+            <div class="balance-value" id="piBalance">--</div>
+        </div>
+        <div class="balance-item">
+            <div class="balance-label">连接状态</div>
+            <div class="balance-value" id="connectionStatus">未连接</div>
+        </div>
+    </div>
+
+    <!-- 游戏主体 -->
+    <div class="game-container">
+        <!-- 转盘 -->
+        <div class="wheel-container">
+            <div class="wheel-pointer"></div>
+            <div class="wheel" id="wheel">
+                <div class="wheel-segments">
+                    <div class="segment">谢谢参与<br>动态%</div>
+                    <div class="segment">小奖<br>动态%</div>
+                    <div class="segment">中奖<br>动态%</div>
+                    <div class="segment">大奖<br>动态%</div>
+                    <div class="segment">超级奖<br>动态%</div>
+                    <div class="segment">终极奖<br>动态%</div>
+                </div>
+            </div>
+            <div class="wheel-center">🎰</div>
+        </div>
+
+        <!-- 代币选择 -->
+        <div class="token-selector">
+            <button class="token-btn active" id="maoBtn" onclick="selectToken('MAO')">
+                MAO (100)
+            </button>
+            <button class="token-btn" id="piBtn" onclick="selectToken('PI')">
+                PI (10,000)
+            </button>
+        </div>
+
+        <!-- 开始游戏按钮 -->
+        <button class="play-button" id="playBtn" onclick="startGame()">
+            🎮<br>开始游戏
+        </button>
+    </div>
+
+    <!-- 游戏说明 -->
+    <div class="game-info">
+        <div class="info-title">🎯 智能中奖概率</div>
+        <div class="prize-list">
+            <div class="prize-item">
+                <div>谢谢参与</div>
+                <div class="prize-rate" id="rate0">计算中...</div>
+            </div>
+            <div class="prize-item">
+                <div>小奖 (2倍)</div>
+                <div class="prize-rate" id="rate1">计算中...</div>
+            </div>
+            <div class="prize-item">
+                <div>中奖 (5倍)</div>
+                <div class="prize-rate" id="rate2">计算中...</div>
+            </div>
+            <div class="prize-item">
+                <div>大奖 (10倍)</div>
+                <div class="prize-rate" id="rate3">计算中...</div>
+            </div>
+            <div class="prize-item">
+                <div>超级奖 (50倍)</div>
+                <div class="prize-rate" id="rate4">计算中...</div>
+            </div>
+            <div class="prize-item">
+                <div>终极奖 (100倍)</div>
+                <div class="prize-rate" id="rate5">计算中...</div>
+            </div>
+        </div>
+        <div class="game-cost">
+            游戏成本: <span class="cost-highlight">MAO 100枚</span> 或 <span class="cost-highlight">PI 10,000枚</span>
+        </div>
+    </div>
+
+    <!-- 调试信息 -->
+    <div class="debug-info" id="debugInfo">
+        [系统] 安全中奖引擎初始化中...
+    </div>
+
+    <!-- 中奖结果弹窗 -->
+    <div class="result-popup" id="resultPopup">
+        <div class="result-content">
+            <div class="result-emoji" id="resultEmoji">🎉</div>
+            <div class="result-text" id="resultText">恭喜中奖！</div>
+            <div class="result-prize" id="resultPrize">获得奖励: 500 MAO</div>
+            <button class="result-close" onclick="closeResult()">继续游戏</button>
+        </div>
+    </div>
+
+    <!-- 庆祝动画 -->
+    <div class="celebration" id="celebration"></div>
+
+    <!-- 加载覆盖层 -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div>
+            <div class="loading-spinner"></div>
+            <div class="status-message" id="statusMessage">正在连接钱包...</div>
+        </div>
+    </div>
+
+    <script>
+        // 安全游戏引擎配置
+        const SECURE_CONFIG = {
+            CONTRACTS: {
+                WHEEL_GAME: '0xB677DBcA76061E6301272c83179c8243A4eeB6A5',
+                MAO_TOKEN: '0x22f49bcb3dad370a9268ba3fca33cb037ca3d022',
+                PI_TOKEN: '0xfd4680e25e05b3435c7f698668d1ce80d2a9f444'
+            },
+            NETWORK: {
+                chainId: 3797,
+                name: 'AlveyChain',
+                rpcUrl: 'https://elves-core1.alvey.io'
+            },
+            GAME_COSTS: {
+                MAO: 100,
+                PI: 10000
+            },
+            // 基础概率配置
+            BASE_PRIZES: [
+                { name: '谢谢参与', baseRate: 58, multiplier: 0, emoji: '😅' },
+                { name: '小奖', baseRate: 22, multiplier: 2, emoji: '🎁' },
+                { name: '中奖', baseRate: 12, multiplier: 5, emoji: '🎉' },
+                { name: '大奖', baseRate: 6, multiplier: 10, emoji: '💰' },
+                { name: '超级奖', baseRate: 1.5, multiplier: 50, emoji: '🚀' },
+                { name: '终极奖', baseRate: 0.5, multiplier: 100, emoji: '👑' }
+            ]
+        };
+
+        // 安全游戏状态
+        let secureGameState = {
+            selectedToken: 'MAO',
+            isSpinning: false,
+            wallet: null,
+            balances: { MAO: 0, PI: 0 },
+            connected: false,
+            // 用户行为分析
+            userBehavior: {
+                totalGames: 0,
+                consecutiveLosses: 0,
+                lastWinTime: 0,
+                playPattern: [],
+                riskLevel: 0
+            },
+            // 智能概率系统
+            dynamicRates: [],
+            lastBlockHash: '',
+            securitySeed: ''
+        };
+
+        // 🔒 安全随机数生成器
+        class SecureRandomGenerator {
+            constructor() {
+                this.entropy = this.collectEntropy();
+            }
+
+            // 收集熵源
+            collectEntropy() {
+                const sources = [
+                    Date.now(),
+                    Math.random(),
+                    navigator.userAgent.length,
+                    screen.width * screen.height,
+                    navigator.hardwareConcurrency || 4,
+                    performance.now(),
+                    window.innerWidth * window.innerHeight
+                ];
+                
+                return sources.reduce((acc, val) => acc + val, 0);
+            }
+
+            // 生成安全随机数
+            async generateSecureRandom() {
+                try {
+                    // 1. 获取区块链哈希作为种子
+                    const blockHash = await this.getLatestBlockHash();
+                    
+                    // 2. 混合多个随机源
+                    const timestamp = Date.now();
+                    const mouseEntropy = this.getMouseEntropy();
+                    const userEntropy = this.getUserEntropy();
+                    
+                    // 3. 创建复合种子
+                    const compositeSeed = this.createCompositeSeed(
+                        blockHash, timestamp, mouseEntropy, userEntropy
+                    );
+                    
+                    // 4. 使用加密哈希生成最终随机数
+                    const finalRandom = await this.hashToRandom(compositeSeed);
+                    
+                    this.logSecurity(`安全随机数生成: ${finalRandom}`);
+                    return finalRandom;
+                    
+                } catch (error) {
+                    console.error('安全随机数生成失败:', error);
+                    // 降级到多重随机源
+                    return this.fallbackRandom();
+                }
+            }
+
+            // 获取最新区块哈希
+            async getLatestBlockHash() {
+                try {
+                    if (typeof window.ethereum !== 'undefined') {
+                        const blockNumber = await window.ethereum.request({
+                            method: 'eth_blockNumber'
+                        });
+                        const block = await window.ethereum.request({
+                            method: 'eth_getBlockByNumber',
+                            params: [blockNumber, false]
+                        });
+                        return block.hash;
+                    }
+                } catch (error) {
+                    console.error('获取区块哈希失败:', error);
+                }
+                return Date.now().toString(16);
+            }
+
+            // 获取鼠标熵
+            getMouseEntropy() {
+                if (window.mouseEntropy) {
+                    return window.mouseEntropy;
+                }
+                return Math.random() * 1000;
+            }
+
+            // 获取用户熵
+            getUserEntropy() {
+                const behavior = secureGameState.userBehavior;
+                return behavior.totalGames + behavior.consecutiveLosses + 
+                       (Date.now() - behavior.lastWinTime);
+            }
+
+            // 创建复合种子
+            createCompositeSeed(blockHash, timestamp, mouseEntropy, userEntropy) {
+                const combined = `${blockHash}${timestamp}${mouseEntropy}${userEntropy}${this.entropy}`;
+                return combined;
+            }
+
+            // 哈希转随机数
+            async hashToRandom(seed) {
+                const encoder = new TextEncoder();
+                const data = encoder.encode(seed);
+                const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+                const hashArray = new Uint8Array(hashBuffer);
+                
+                // 转换为0-1之间的随机数
+                let random = 0;
+                for (let i = 0; i < 8; i++) {
+                    random += hashArray[i] * Math.pow(256, -i-1);
+                }
+                
+                return random;
+            }
+
+            // 降级随机数
+            fallbackRandom() {
+                const sources = [
+                    Math.random(),
+                    (Date.now() % 1000) / 1000,
+                    (performance.now() % 1000) / 1000,
+                    (this.entropy % 1000) / 1000
+                ];
+                
+                return sources.reduce((acc, val) => (acc + val) % 1, 0);
+            }
+
+            // 记录安全日志
+            logSecurity(message) {
+                const debugInfo = document.getElementById('debugInfo');
+                const timestamp = new Date().toLocaleTimeString();
+                debugInfo.innerHTML += `\n[${timestamp}] ${message}`;
+                debugInfo.scrollTop = debugInfo.scrollHeight;
+            }
+        }
+
+        // 🧠 智能概率调整系统
+        class IntelligentProbabilitySystem {
+            constructor() {
+                this.randomGenerator = new SecureRandomGenerator();
+            }
+
+            // 计算动态概率
+            calculateDynamicRates() {
+                const behavior = secureGameState.userBehavior;
+                const baseRates = SECURE_CONFIG.BASE_PRIZES.map(p => p.baseRate);
+                
+                // 1. 基于连续失败次数的调整
+                const lossAdjustment = this.calculateLossAdjustment(behavior.consecutiveLosses);
+                
+                // 2. 基于游戏时间的调整
+                const timeAdjustment = this.calculateTimeAdjustment(behavior.lastWinTime);
+                
+                // 3. 基于总游戏次数的调整
+                const experienceAdjustment = this.calculateExperienceAdjustment(behavior.totalGames);
+                
+                // 4. 基于风险等级的调整
+                const riskAdjustment = this.calculateRiskAdjustment(behavior.riskLevel);
+                
+                // 5. 应用所有调整
+                const adjustedRates = baseRates.map((rate, index) => {
+                    let adjustedRate = rate;
+                    
+                    if (index === 0) { // 谢谢参与
+                        adjustedRate = Math.max(30, rate - lossAdjustment - timeAdjustment);
+                    } else { // 中奖项目
+                        adjustedRate = Math.min(rate * 2, rate + (lossAdjustment + timeAdjustment + experienceAdjustment + riskAdjustment) / (index + 1));
+                    }
+                    
+                    return Math.round(adjustedRate * 100) / 100;
+                });
+                
+                // 6. 确保总概率为100%
+                const normalizedRates = this.normalizeRates(adjustedRates);
+                
+                this.logAdjustments(baseRates, normalizedRates, {
+                    lossAdjustment,
+                    timeAdjustment,
+                    experienceAdjustment,
+                    riskAdjustment
+                });
+                
+                return normalizedRates;
+            }
+
+            // 连续失败调整
+            calculateLossAdjustment(consecutiveLosses) {
+                if (consecutiveLosses >= 10) return 15; // 连续10次失败，大幅提升中奖率
+                if (consecutiveLosses >= 5) return 8;   // 连续5次失败，提升中奖率
+                if (consecutiveLosses >= 3) return 3;   // 连续3次失败，小幅提升
+                return 0;
+            }
+
+            // 时间调整
+            calculateTimeAdjustment(lastWinTime) {
+                if (lastWinTime === 0) return 0; // 首次游戏
+                
+                const timeSinceWin = Date.now() - lastWinTime;
+                const hoursSinceWin = timeSinceWin / (1000 * 60 * 60);
+                
+                if (hoursSinceWin > 24) return 10; // 24小时未中奖
+                if (hoursSinceWin > 12) return 5;  // 12小时未中奖
+                if (hoursSinceWin > 6) return 2;   // 6小时未中奖
+                return 0;
+            }
+
+            // 经验调整
+            calculateExperienceAdjustment(totalGames) {
+                if (totalGames < 5) return 2;   // 新手保护
+                if (totalGames < 20) return 1;  // 初级玩家
+                return 0;
+            }
+
+            // 风险调整
+            calculateRiskAdjustment(riskLevel) {
+                if (riskLevel < 0.3) return 3;  // 低风险玩家
+                if (riskLevel > 0.8) return -2; // 高风险玩家
+                return 0;
+            }
+
+            // 归一化概率
+            normalizeRates(rates) {
+                const sum = rates.reduce((acc, rate) => acc + rate, 0);
+                return rates.map(rate => Math.round((rate / sum) * 100 * 100) / 100);
+            }
+
+            // 记录调整日志
+            logAdjustments(baseRates, adjustedRates, adjustments) {
+                const debugInfo = document.getElementById('debugInfo');
+                debugInfo.innerHTML += `\n[概率调整] 基础: [${baseRates.join(', ')}]`;
+                debugInfo.innerHTML += `\n[概率调整] 调整: [${adjustedRates.join(', ')}]`;
+                debugInfo.innerHTML += `\n[调整因子] 失败:${adjustments.lossAdjustment} 时间:${adjustments.timeAdjustment} 经验:${adjustments.experienceAdjustment} 风险:${adjustments.riskAdjustment}`;
+                debugInfo.scrollTop = debugInfo.scrollHeight;
+            }
+
+            // 生成游戏结果
+            async generateGameResult() {
+                // 1. 计算当前动态概率
+                const dynamicRates = this.calculateDynamicRates();
+                secureGameState.dynamicRates = dynamicRates;
+                
+                // 2. 生成安全随机数
+                const secureRandom = await this.randomGenerator.generateSecureRandom();
+                const randomValue = secureRandom * 100;
+                
+                // 3. 根据概率确定结果
+                let cumulativeRate = 0;
+                for (let i = 0; i < SECURE_CONFIG.BASE_PRIZES.length; i++) {
+                    cumulativeRate += dynamicRates[i];
+                    if (randomValue <= cumulativeRate) {
+                        const result = {
+                            index: i,
+                            prize: SECURE_CONFIG.BASE_PRIZES[i],
+                            isWin: SECURE_CONFIG.BASE_PRIZES[i].multiplier > 0,
+                            secureRandom: secureRandom,
+                            dynamicRates: dynamicRates
+                        };
+                        
+                        this.logGameResult(result, randomValue);
+                        return result;
+                    }
+                }
+                
+                // 默认返回第一个结果
+                return {
+                    index: 0,
+                    prize: SECURE_CONFIG.BASE_PRIZES[0],
+                    isWin: false,
+                    secureRandom: secureRandom,
+                    dynamicRates: dynamicRates
+                };
+            }
+
+            // 记录游戏结果
+            logGameResult(result, randomValue) {
+                const debugInfo = document.getElementById('debugInfo');
+                debugInfo.innerHTML += `\n[游戏结果] 随机值: ${randomValue.toFixed(2)} -> ${result.prize.name}`;
+                debugInfo.innerHTML += `\n[安全验证] 随机种子: ${result.secureRandom.toFixed(6)}`;
+                debugInfo.scrollTop = debugInfo.scrollHeight;
+            }
+        }
+
+        // 初始化系统
+        const intelligentSystem = new IntelligentProbabilitySystem();
+
+        // 鼠标熵收集
+        window.mouseEntropy = 0;
+        document.addEventListener('mousemove', (e) => {
+            window.mouseEntropy = (window.mouseEntropy + e.clientX + e.clientY) % 10000;
+        });
+
+        // 更新显示的概率
+        function updateDisplayedRates() {
+            const rates = intelligentSystem.calculateDynamicRates();
+            for (let i = 0; i < rates.length; i++) {
+                const element = document.getElementById(`rate${i}`);
+                if (element) {
+                    element.textContent = `${rates[i]}%`;
+                }
+            }
+        }
+
+        // 更新用户行为
+        function updateUserBehavior(result) {
+            const behavior = secureGameState.userBehavior;
+            behavior.totalGames++;
+            
+            if (result.isWin) {
+                behavior.consecutiveLosses = 0;
+                behavior.lastWinTime = Date.now();
+            } else {
+                behavior.consecutiveLosses++;
+            }
+            
+            // 更新游戏模式
+            behavior.playPattern.push({
+                timestamp: Date.now(),
+                result: result.index,
+                isWin: result.isWin
+            });
+            
+            // 保持最近100次记录
+            if (behavior.playPattern.length > 100) {
+                behavior.playPattern.shift();
+            }
+            
+            // 计算风险等级
+            behavior.riskLevel = this.calculateRiskLevel(behavior);
+        }
+
+        // 计算风险等级
+        function calculateRiskLevel(behavior) {
+            if (behavior.playPattern.length < 10) return 0.5;
+            
+            const recentWins = behavior.playPattern.slice(-20).filter(p => p.isWin).length;
+            const winRate = recentWins / Math.min(20, behavior.playPattern.length);
+            
+            // 风险等级基于胜率和游戏频率
+            return Math.min(1, Math.max(0, 1 - winRate));
+        }
+
+        // 游戏主要函数
+        async function initGame() {
+            showLoading('正在初始化安全游戏引擎...');
+            
+            try {
+                if (typeof window.ethereum !== 'undefined') {
+                    updateStatus('检测到钱包，正在连接...');
+                    await connectWallet();
+                } else {
+                    updateStatus('请安装MetaMask钱包');
+                    hideLoading();
+                    return;
+                }
+                
+                await updateBalances();
+                updateDisplayedRates();
+                
+                // 定期更新概率显示
+                setInterval(updateDisplayedRates, 5000);
+                
+                hideLoading();
+                
+            } catch (error) {
+                console.error('初始化失败:', error);
+                updateStatus('初始化失败，请刷新页面重试');
+                hideLoading();
+            }
+        }
+
+        async function connectWallet() {
+            try {
+                const accounts = await window.ethereum.request({
+                    method: 'eth_requestAccounts'
+                });
+                
+                if (accounts.length > 0) {
+                    secureGameState.wallet = accounts[0];
+                    secureGameState.connected = true;
+                    updateConnectionStatus('已连接');
+                    
+                    await checkNetwork();
+                    return true;
+                }
+            } catch (error) {
+                console.error('连接钱包失败:', error);
+                updateConnectionStatus('连接失败');
+                return false;
+            }
+        }
+
+        async function checkNetwork() {
+            try {
+                const chainId = await window.ethereum.request({ method: 'eth_chainId' });
+                const currentChainId = parseInt(chainId, 16);
+                
+                if (currentChainId !== SECURE_CONFIG.NETWORK.chainId) {
+                    await switchNetwork();
+                }
+            } catch (error) {
+                console.error('网络检查失败:', error);
+            }
+        }
+
+        async function switchNetwork() {
+            try {
+                await window.ethereum.request({
+                    method: 'wallet_switchEthereumChain',
+                    params: [{ chainId: '0x' + SECURE_CONFIG.NETWORK.chainId.toString(16) }]
+                });
+            } catch (error) {
+                console.error('切换网络失败:', error);
+            }
+        }
+
+        async function updateBalances() {
+            if (!secureGameState.connected) return;
+            
+            try {
+                // 模拟余额数据
+                secureGameState.balances.MAO = Math.floor(Math.random() * 10000) + 1000;
+                secureGameState.balances.PI = Math.floor(Math.random() * 100000) + 10000;
+                
+                document.getElementById('maoBalance').textContent = secureGameState.balances.MAO.toLocaleString();
+                document.getElementById('piBalance').textContent = secureGameState.balances.PI.toLocaleString();
+                
+            } catch (error) {
+                console.error('更新余额失败:', error);
+            }
+        }
+
+        function selectToken(token) {
+            secureGameState.selectedToken = token;
+            
+            document.getElementById('maoBtn').classList.remove('active');
+            document.getElementById('piBtn').classList.remove('active');
+            document.getElementById(token.toLowerCase() + 'Btn').classList.add('active');
+            
+            if (navigator.vibrate) {
+                navigator.vibrate(50);
+            }
+        }
+
+        async function startGame() {
+            if (secureGameState.isSpinning) return;
+            
+            const cost = SECURE_CONFIG.GAME_COSTS[secureGameState.selectedToken];
+            if (secureGameState.balances[secureGameState.selectedToken] < cost) {
+                alert(`余额不足！需要 ${cost} ${secureGameState.selectedToken}`);
+                return;
+            }
+            
+            secureGameState.isSpinning = true;
+            const playBtn = document.getElementById('playBtn');
+            const wheel = document.getElementById('wheel');
+            
+            playBtn.classList.add('spinning');
+            playBtn.innerHTML = '🎮<br>计算中...';
+            
+            if (navigator.vibrate) {
+                navigator.vibrate(100);
+            }
+            
+            // 生成安全游戏结果
+            const result = await intelligentSystem.generateGameResult();
+            
+            // 计算转盘角度
+            const segmentAngle = 60;
+            const resultAngle = result.index * segmentAngle + (segmentAngle / 2);
+            const finalAngle = 360 * 5 + (360 - resultAngle);
+            
+            wheel.style.transform = `rotate(${finalAngle}deg)`;
+            
+            setTimeout(() => {
+                secureGameState.isSpinning = false;
+                playBtn.classList.remove('spinning');
+                playBtn.innerHTML = '🎮<br>开始游戏';
+                
+                updateBalanceAfterGame(result);
+                updateUserBehavior(result);
+                updateDisplayedRates();
+                showResult(result);
+                
+            }, 3000);
+        }
+
+        function updateBalanceAfterGame(result) {
+            const cost = SECURE_CONFIG.GAME_COSTS[secureGameState.selectedToken];
+            
+            secureGameState.balances[secureGameState.selectedToken] -= cost;
+            
+            if (result.isWin) {
+                const reward = cost * result.prize.multiplier;
+                secureGameState.balances[secureGameState.selectedToken] += reward;
+            }
+            
+            document.getElementById('maoBalance').textContent = secureGameState.balances.MAO.toLocaleString();
+            document.getElementById('piBalance').textContent = secureGameState.balances.PI.toLocaleString();
+        }
+
+        function showResult(result) {
+            const popup = document.getElementById('resultPopup');
+            const emoji = document.getElementById('resultEmoji');
+            const text = document.getElementById('resultText');
+            const prize = document.getElementById('resultPrize');
+            
+            emoji.textContent = result.prize.emoji;
+            text.textContent = result.prize.name;
+            
+            if (result.isWin) {
+                const reward = SECURE_CONFIG.GAME_COSTS[secureGameState.selectedToken] * result.prize.multiplier;
+                prize.textContent = `恭喜获得: ${reward.toLocaleString()} ${secureGameState.selectedToken}`;
+                startCelebration();
+            } else {
+                prize.textContent = '很遗憾，请再试一次！';
+            }
+            
+            popup.style.display = 'flex';
+            
+            if (navigator.vibrate) {
+                if (result.isWin) {
+                    navigator.vibrate([100, 50, 100, 50, 200]);
+                } else {
+                    navigator.vibrate(200);
+                }
+            }
+        }
+
+        function closeResult() {
+            document.getElementById('resultPopup').style.display = 'none';
+            stopCelebration();
+        }
+
+        function startCelebration() {
+            const celebration = document.getElementById('celebration');
+            celebration.innerHTML = '';
+            
+            for (let i = 0; i < 50; i++) {
+                const confetti = document.createElement('div');
+                confetti.className = 'confetti';
+                confetti.style.left = Math.random() * 100 + '%';
+                confetti.style.backgroundColor = getRandomColor();
+                confetti.style.animationDelay = Math.random() * 3 + 's';
+                celebration.appendChild(confetti);
+            }
+        }
+
+        function stopCelebration() {
+            document.getElementById('celebration').innerHTML = '';
+        }
+
+        function getRandomColor() {
+            const colors = ['#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7', '#DDA0DD', '#FFD700'];
+            return colors[Math.floor(Math.random() * colors.length)];
+        }
+
+        function showLoading(message) {
+            document.getElementById('statusMessage').textContent = message;
+            document.getElementById('loadingOverlay').style.display = 'flex';
+        }
+
+        function hideLoading() {
+            document.getElementById('loadingOverlay').style.display = 'none';
+        }
+
+        function updateStatus(message) {
+            document.getElementById('statusMessage').textContent = message;
+        }
+
+        function updateConnectionStatus(status) {
+            document.getElementById('connectionStatus').textContent = status;
+            document.getElementById('connectionStatus').style.color = 
+                status === '已连接' ? '#4ECDC4' : '#FF6B6B';
+        }
+
+        // 初始化
+        window.addEventListener('load', initGame);
+        
+        if (typeof window.ethereum !== 'undefined') {
+            window.ethereum.on('accountsChanged', (accounts) => {
+                if (accounts.length > 0) {
+                    secureGameState.wallet = accounts[0];
+                    updateBalances();
+                } else {
+                    secureGameState.connected = false;
+                    updateConnectionStatus('未连接');
+                }
+            });
+            
+            window.ethereum.on('chainChanged', () => {
+                window.location.reload();
+            });
+        }
+    </script>
+</body>
+</html> 
