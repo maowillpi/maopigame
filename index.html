@@ -350,7 +350,7 @@
             cursor: pointer;
             transition: all 0.3s ease;
         }
-
+        
         .result-close:hover {
             background: #45B7D1;
             transform: scale(1.05);
@@ -441,26 +441,26 @@
     <div class="header">
         <div class="title">🎰 MAO转盘游戏</div>
         <div class="subtitle">公平 · 透明 · 刺激</div>
-    </div>
+            </div>
 
     <!-- 钱包连接 -->
     <div class="wallet-section">
         <div class="wallet-status">
             <span id="walletAddress">未连接钱包</span>
             <button class="connect-btn" id="connectBtn" onclick="connectWallet()">连接钱包</button>
-        </div>
+                            </div>
         <div class="balance-info">
             <div class="balance-item">
                 <div class="balance-label">MAO余额</div>
                 <div class="balance-value" id="maoBalance">--</div>
-            </div>
+                            </div>
             <div class="balance-item">
                 <div class="balance-label">PI余额</div>
                 <div class="balance-value" id="piBalance">--</div>
-            </div>
-        </div>
-    </div>
-
+                            </div>
+                            </div>
+                            </div>
+                            
     <!-- 游戏主体 -->
     <div class="game-container">
         <!-- 转盘 -->
@@ -468,8 +468,8 @@
             <div class="wheel-pointer"></div>
             <div class="wheel" id="wheel"></div>
             <div class="wheel-center">🎰</div>
-        </div>
-
+                            </div>
+                            
         <!-- 代币选择 -->
         <div class="token-selector">
             <button class="token-btn active" id="maoBtn" onclick="selectToken('MAO')">
@@ -478,13 +478,13 @@
             <button class="token-btn" id="piBtn" onclick="selectToken('PI')">
                 PI (15,000)
             </button>
-        </div>
-
+                        </div>
+                        
         <!-- 开始游戏按钮 -->
         <button class="play-button" id="playBtn" onclick="startGame()">
             🎮<br>开始游戏
-        </button>
-    </div>
+                            </button>
+                </div>
 
     <!-- 奖励说明 -->
     <div class="prizes-info">
@@ -493,32 +493,32 @@
             <div class="prize-item">
                 <div>谢谢参与</div>
                 <div class="prize-rate">65%</div>
-            </div>
+                            </div>
             <div class="prize-item">
                 <div>小奖 (1.8倍)</div>
                 <div class="prize-rate">20%</div>
-            </div>
+                            </div>
             <div class="prize-item">
                 <div>中奖 (3倍)</div>
                 <div class="prize-rate">7%</div>
-            </div>
+                            </div>
             <div class="prize-item">
                 <div>大奖 (6倍)</div>
                 <div class="prize-rate">2.5%</div>
-            </div>
+                        </div>
             <div class="prize-item">
                 <div>超级奖 (20倍)</div>
                 <div class="prize-rate">0.4%</div>
-            </div>
+                        </div>
             <div class="prize-item">
                 <div>终极奖 (30倍)</div>
                 <div class="prize-rate">0.1%</div>
-            </div>
-        </div>
+                    </div>
+                </div>
         <div class="game-cost">
             游戏成本: <span class="cost-highlight">MAO 150枚</span> 或 <span class="cost-highlight">PI 15,000枚</span>
-        </div>
-    </div>
+                    </div>
+                </div>
 
     <!-- 中奖结果弹窗 -->
     <div class="result-popup" id="resultPopup">
@@ -527,8 +527,8 @@
             <div class="result-text" id="resultText">恭喜中奖！</div>
             <div class="result-prize" id="resultPrize">获得奖励: 500 MAO</div>
             <button class="result-close" onclick="closeResult()">继续游戏</button>
-        </div>
-    </div>
+                </div>
+            </div>
 
     <!-- 庆祝动画 -->
     <div class="celebration" id="celebration"></div>
@@ -538,8 +538,8 @@
         <div>
             <div class="loading-spinner"></div>
             <div class="status-message" id="statusMessage">正在连接钱包...</div>
-        </div>
-    </div>
+                    </div>
+                </div>
 
     <script>
         // 游戏配置
@@ -682,15 +682,15 @@
                 alert('请先连接钱包');
                 return;
             }
-            
+
             if (gameState.isSpinning) return;
             
             const cost = CONFIG.COSTS[gameState.selectedToken];
             if (gameState.balances[gameState.selectedToken] < cost) {
                 alert(`余额不足！需要 ${cost} ${gameState.selectedToken}`);
-                return;
-            }
-            
+                    return;
+                }
+
             gameState.isSpinning = true;
             const playBtn = document.getElementById('playBtn');
             const wheel = document.getElementById('wheel');
@@ -792,7 +792,7 @@
                 const reward = Math.floor(CONFIG.COSTS[gameState.selectedToken] * result.prize.multiplier);
                 prize.textContent = `恭喜获得: ${reward.toLocaleString()} ${gameState.selectedToken}`;
                 startCelebration();
-            } else {
+                    } else {
                 prize.textContent = '很遗憾，请再试一次！';
             }
             
