@@ -172,13 +172,7 @@ contract OptimizedWheelGame is ReentrancyGuard, Ownable {
         uint8 rewardLevel = getRewardLevel(randomSeed);
         uint256 rewardAmount = maoRewards[rewardLevel];
         
-        // 从奖金池发放奖励
-        if (rewardAmount > 0) {
-            require(maoToken.allowance(prizePool, address(this)) >= rewardAmount, "Insufficient prize pool allowance");
-            require(maoToken.transferFrom(prizePool, msg.sender, rewardAmount), "Reward transfer failed");
-        }
-        
-        // 记录游戏结果
+        // 记录游戏结果（不再发奖）
         GameResult memory gameResult = GameResult({
             player: msg.sender,
             tokenType: 0,
@@ -228,13 +222,7 @@ contract OptimizedWheelGame is ReentrancyGuard, Ownable {
         uint8 rewardLevel = getRewardLevel(randomSeed);
         uint256 rewardAmount = piRewards[rewardLevel];
         
-        // 从奖金池发放奖励
-        if (rewardAmount > 0) {
-            require(piToken.allowance(prizePool, address(this)) >= rewardAmount, "Insufficient prize pool allowance");
-            require(piToken.transferFrom(prizePool, msg.sender, rewardAmount), "Reward transfer failed");
-        }
-        
-        // 记录游戏结果
+        // 记录游戏结果（不再发奖）
         GameResult memory gameResult = GameResult({
             player: msg.sender,
             tokenType: 1,
