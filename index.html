@@ -14,34 +14,39 @@
             -webkit-user-select: none;
             user-select: none;
         }
+        html, body {
+            height: 100%;
+            overflow-x: hidden;
+            overflow-y: auto;
+        }
         body {
             font-family: 'Arial Rounded MT Bold', 'Arial', sans-serif;
             background: linear-gradient(135deg, #4f8cff 0%, #a259ff 100%);
             min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
             color: #fff;
-            overflow-x: hidden;
+            padding: 10px;
+            padding-bottom: 60px; /* 重要：底部留出足够空间 */
         }
         .game-container {
             background: rgba(30, 30, 60, 0.85);
             border-radius: 24px;
-            padding: 32px 18px 24px 18px;
+            padding: 20px 15px 30px 15px; /* 增加底部内边距 */
             max-width: 400px;
-            width: 95vw;
+            width: 100%;
+            margin: 0 auto;
             box-shadow: 0 8px 32px rgba(0,0,0,0.35);
             text-align: center;
+            min-height: auto; /* 让容器自适应内容高度 */
         }
         .title {
-            font-size: 2.2em;
+            font-size: 2em;
             font-weight: bold;
             letter-spacing: 2px;
             margin-bottom: 8px;
             text-shadow: 0 2px 8px #0006;
         }
         .desc {
-            font-size: 1.1em;
+            font-size: 1em;
             margin-bottom: 18px;
             color: #ffe066;
             font-weight: bold;
@@ -74,23 +79,26 @@
             transition: all 0.2s;
             touch-action: manipulation;
             -webkit-tap-highlight-color: transparent;
+            min-height: 44px;
         }
         .connect-btn:hover, .connect-btn:active { 
             filter: brightness(1.1); 
             transform: scale(0.98);
         }
-        .game-section { margin: 18px 0 0 0; }
+        .game-section { 
+            margin: 18px 0 20px 0; /* 增加底部外边距 */
+        }
         .token-selector {
             display: flex;
             justify-content: center;
             gap: 16px;
-            margin-bottom: 12px;
+            margin-bottom: 15px;
         }
         .token-btn {
             background: rgba(255,255,255,0.12);
             border: 2px solid transparent;
             color: #fff;
-            padding: 10px 20px;
+            padding: 12px 20px;
             border-radius: 20px;
             font-size: 1em;
             font-weight: bold;
@@ -112,9 +120,9 @@
         }
         .wheel-container {
             position: relative;
-            width: 270px;
-            height: 270px;
-            margin: 0 auto 18px auto;
+            width: 250px;
+            height: 250px;
+            margin: 0 auto 20px auto; /* 增加底部间距 */
         }
         .svg-wheel {
             width: 100%; 
@@ -123,7 +131,7 @@
             touch-action: none;
         }
         .wheel-pointer {
-            position: absolute; 
+            position: absolute;
             top: -18px; 
             left: 50%; 
             transform: translateX(-50%);
@@ -136,20 +144,20 @@
             filter: drop-shadow(0 2px 6px #0008);
         }
         .wheel-center-btn {
-            position: absolute; 
-            top: 50%; 
-            left: 50%; 
+            position: absolute;
+            top: 50%;
+            left: 50%;
             transform: translate(-50%,-50%);
-            width: 70px; 
-            height: 70px; 
+            width: 60px;
+            height: 60px;
             background: linear-gradient(145deg,#ffe066 60%,#fffbe6 100%);
             border-radius: 50%; 
-            display: flex; 
-            align-items: center; 
+            display: flex;
+            align-items: center;
             justify-content: center;
-            font-size: 2em; 
+            font-size: 1.8em; 
             color: #a259ff; 
-            font-weight: bold; 
+            font-weight: bold;
             z-index: 5;
             box-shadow: 0 0 16px #ffe06699, 0 2px 12px #0003;
             border: 3px solid #fffbe6;
@@ -158,12 +166,12 @@
             background: linear-gradient(90deg, #4f8cff 0%, #a259ff 100%) !important;
             color: #fff !important; 
             border: none !important; 
-            padding: 16px 48px !important;
+            padding: 16px 40px !important;
             border-radius: 24px !important; 
             font-size: 1.2em !important; 
             font-weight: bold !important;
             cursor: pointer !important; 
-            margin-top: 10px !important; 
+            margin: 20px auto !important; /* 增加上下边距，居中显示 */
             transition: all 0.2s !important;
             box-shadow: 0 4px 16px #4f8cff44 !important;
             display: block !important;
@@ -204,16 +212,17 @@
             background: #fff; 
             color: #333; 
             border-radius: 18px; 
-            padding: 36px 32px 28px 32px;
+            padding: 30px 25px 25px 25px;
             text-align: center; 
-            min-width: 220px; 
+            min-width: 200px; 
+            max-width: 90vw;
             box-shadow: 0 8px 32px #0005;
             animation: popIn 0.4s;
         }
         @keyframes popIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-        .result-emoji { font-size: 2.8em; margin-bottom: 10px; }
-        .result-title { font-size: 1.3em; font-weight: bold; margin-bottom: 8px; }
-        .result-amount { font-size: 1.1em; color: #a259ff; font-weight: bold; }
+        .result-emoji { font-size: 2.5em; margin-bottom: 10px; }
+        .result-title { font-size: 1.2em; font-weight: bold; margin-bottom: 8px; }
+        .result-amount { font-size: 1em; color: #a259ff; font-weight: bold; }
         .celebration { 
             position: fixed; 
             top: 0; 
@@ -224,10 +233,10 @@
             z-index: 1100; 
         }
         .confetti { 
-            position: absolute; 
+            position: absolute;
             width: 12px; 
             height: 12px; 
-            border-radius: 50%; 
+            border-radius: 50%;
             background: #ffe066; 
             animation: confetti-fall 2.2s linear infinite; 
         }
@@ -235,29 +244,56 @@
             0% { transform: translateY(-100vh) rotate(0deg); opacity: 1; }
             100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
         }
+        
+        /* 移动端专用样式 */
         @media (max-width: 500px) {
+            body {
+                padding: 5px;
+                padding-bottom: 80px; /* 移动端增加更多底部空间 */
+            }
             .game-container { 
-                padding: 16px 4vw 16px 4vw; 
+                padding: 15px 10px 40px 10px; /* 移动端增加底部内边距 */
                 width: 98vw;
+                margin: 5px auto;
+            }
+            .title {
+                font-size: 1.8em;
             }
             .wheel-container { 
-                width: 85vw; 
-                height: 85vw; 
-                max-width: 300px; 
-                max-height: 300px; 
+                width: 220px; 
+                height: 220px; 
+                margin: 0 auto 25px auto; /* 增加底部间距 */
+            }
+            .wheel-center-btn {
+                width: 50px;
+                height: 50px;
+                font-size: 1.5em;
             }
             .result-content { 
-                padding: 24px 6vw 24px 6vw; 
-                margin: 0 4vw;
+                padding: 20px 15px 20px 15px; 
+                margin: 0 10px;
             }
             .token-btn {
-                padding: 12px 16px;
+                padding: 10px 15px;
                 font-size: 0.9em;
+                min-width: 90px;
             }
             .play-btn {
                 width: 180px !important;
-                padding: 14px 32px !important;
+                padding: 14px 30px !important;
                 font-size: 1.1em !important;
+                margin: 25px auto !important; /* 移动端增加更多边距 */
+            }
+        }
+        
+        /* 确保内容可以滚动 */
+        @media (max-height: 700px) {
+            .wheel-container {
+                width: 200px;
+                height: 200px;
+            }
+            .game-container {
+                margin: 5px auto;
             }
         }
     </style>
@@ -355,6 +391,16 @@
                 playBtn.style.pointerEvents = 'auto';
                 playBtn.style.zIndex = '999';
                 playBtn.disabled = false;
+            }
+        }
+
+        // 滚动到按钮位置的函数
+        function scrollToButton() {
+            if (playBtn) {
+                playBtn.scrollIntoView({ 
+                    behavior: 'smooth', 
+                    block: 'center' 
+                });
             }
         }
 
@@ -530,6 +576,8 @@
             balanceDisplay.style.display = 'flex';
             gameSection.style.display = 'block';
             ensureButtonVisible();
+            // 滚动到游戏区域
+            setTimeout(() => scrollToButton(), 500);
         }
 
         // 更新余额显示
