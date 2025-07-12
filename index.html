@@ -120,9 +120,20 @@
             border-radius: 24px; font-size: 1.2em; font-weight: bold;
             cursor: pointer; margin-top: 10px; transition: all 0.2s;
             box-shadow: 0 4px 16px #4f8cff44;
+            display: block !important;
+            opacity: 1 !important;
+            pointer-events: auto !important;
+            visibility: visible !important;
         }
-        .play-btn:disabled { background: #888; cursor: not-allowed; }
-        .play-btn:hover { filter: brightness(1.1); }
+        .play-btn:disabled { 
+            background: #888; 
+            cursor: not-allowed; 
+            opacity: 0.6;
+        }
+        .play-btn:hover:not(:disabled) { 
+            filter: brightness(1.1); 
+            transform: translateY(-2px);
+        }
         .result-popup {
             position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
             background: rgba(0,0,0,0.7); display: flex; align-items: center; justify-content: center;
@@ -161,39 +172,39 @@
                 <div class="balance-item">
                     <div class="balance-label">MAO余额</div>
                     <div class="balance-value" id="maoBalance">0</div>
-    </div>
+                </div>
                 <div class="balance-item">
                     <div class="balance-label">PI余额</div>
                     <div class="balance-value" id="piBalance">0</div>
+                </div>
             </div>
-                    </div>
-                    </div>
+        </div>
         <div class="game-section" id="gameSection" style="display: none;">
             <div class="token-selector">
                 <button class="token-btn active" data-token="MAO">MAO (100)</button>
                 <button class="token-btn" data-token="PI">PI (1000)</button>
-                    </div>
+            </div>
             <div class="wheel-container">
                 <div class="wheel-pointer"></div>
                 <svg class="svg-wheel" id="svgWheel" viewBox="0 0 270 270"></svg>
                 <div class="wheel-center-btn">🎰</div>
-                    </div>
+            </div>
             <button class="play-btn" id="playBtn">🎮 开始游戏</button>
-                </div>
-                </div>
+        </div>
+    </div>
     <div class="celebration" id="celebration"></div>
     <div class="result-popup" id="resultPopup" style="display:none;">
         <div class="result-content" id="resultContent"></div>
-            </div>
+    </div>
     <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
     <script>
         // 游戏配置
         const CONFIG = {
             ALVEY_NETWORK: {
-            chainId: '0xED5',
-            chainName: 'AlveyChain Mainnet',
+                chainId: '0xED5',
+                chainName: 'AlveyChain Mainnet',
                 nativeCurrency: { name: 'Alvey', symbol: 'ALV', decimals: 18 },
-            rpcUrls: ['https://elves-core2.alvey.io', 'https://elves-core3.alvey.io', 'https://elves-core1.alvey.io'],
+                rpcUrls: ['https://elves-core2.alvey.io', 'https://elves-core3.alvey.io', 'https://elves-core1.alvey.io'],
                 blockExplorerUrls: ['https://alveyscan.com']
             },
             CONTRACTS: {
@@ -216,10 +227,13 @@
                 { icon: '👑', mult: '10x', label: '终极奖', color: '#F97316' }
             ]
         };
+
         let gameState = {
             provider: null, signer: null, contracts: {}, account: null,
             balances: { MAO: 0, PI: 0 }, selectedToken: 'MAO', isSpinning: false
         };
+
+        // 获取 DOM 元素
         const connectBtn = document.getElementById('connectBtn');
         const balanceDisplay = document.getElementById('balanceDisplay');
         const gameSection = document.getElementById('gameSection');
@@ -231,15 +245,19 @@
         const resultContent = document.getElementById('resultContent');
         const celebration = document.getElementById('celebration');
         let currentRotation = 0;
-        connectBtn.addEventListener('click', connectWallet);
-        playBtn.addEventListener('click', playGame);
-        document.querySelectorAll('.token-btn').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                document.querySelectorAll('.token-btn').forEach(b => b.classList.remove('active'));
-                e.target.classList.add('active');
-                gameState.selectedToken = e.target.dataset.token;
-            });
-        });
+
+        // 强制确保按钮可见
+        function ensureButtonVisible() {
+            if (playBtn) {
+                playBtn.style.display = 'block';
+                playBtn.style.opacity = '1';
+                playBtn.style.visibility = 'visible';
+                playBtn.style.pointerEvents = 'auto';
+                playBtn.disabled = false;
+            }
+        }
+
+        // 绘制转盘
         function drawSVGWheel(highlightIdx = -1) {
             const cx = 135, cy = 135, r = 120, n = 6;
             svgWheel.innerHTML = '';
@@ -265,7 +283,6 @@
                     fill="url(#${gradId})"
                     stroke="${highlight ? '#ffe066' : '#fff'}" stroke-width="${highlight ? 7 : 3}" filter="drop-shadow(0 2px 8px #0004)"/>
                 `;
-                // 图标和倍数
                 const midAngle = ((i + 0.5) * 60 - 30) * Math.PI / 180;
                 const tx = cx + (r - 38) * Math.cos(midAngle);
                 const ty = cy + (r - 38) * Math.sin(midAngle);
@@ -275,35 +292,59 @@
                 `;
             }
         }
-        drawSVGWheel();
+
+        // 连接钱包
         async function connectWallet() {
             try {
-                if (!window.ethereum) { alert('请安装支持Web3的钱包'); return; }
-                connectBtn.innerHTML = '<span class="loading"></span> 连接中...';
+                console.log('🔗 开始连接钱包...');
+                if (!window.ethereum) { 
+                    alert('请安装支持Web3的钱包（如MetaMask）'); 
+                    return; 
+                }
+                
+                connectBtn.innerHTML = '连接中...';
                 const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
                 if (accounts.length === 0) throw new Error('未选择账户');
+                
                 const chainId = await window.ethereum.request({ method: 'eth_chainId' });
                 if (chainId !== CONFIG.ALVEY_NETWORK.chainId) await switchNetwork();
+                
                 gameState.provider = new ethers.providers.Web3Provider(window.ethereum);
                 gameState.signer = gameState.provider.getSigner();
                 gameState.account = accounts[0];
+                
                 await initializeContracts();
-                    await loadBalances();
+                await loadBalances();
                 updateUI();
+                
+                console.log('✅ 钱包连接成功');
             } catch (error) {
+                console.error('钱包连接失败:', error);
                 alert('连接钱包失败: ' + error.message);
                 connectBtn.innerHTML = '🔗 连接钱包';
             }
         }
+
+        // 切换网络
         async function switchNetwork() {
             try {
-                await window.ethereum.request({ method: 'wallet_switchEthereumChain', params: [{ chainId: CONFIG.ALVEY_NETWORK.chainId }] });
+                await window.ethereum.request({ 
+                    method: 'wallet_switchEthereumChain', 
+                    params: [{ chainId: CONFIG.ALVEY_NETWORK.chainId }] 
+                });
             } catch (error) {
                 if (error.code === 4902) {
-                    await window.ethereum.request({ method: 'wallet_addEthereumChain', params: [CONFIG.ALVEY_NETWORK] });
-                } else { throw error; }
+                    await window.ethereum.request({ 
+                        method: 'wallet_addEthereumChain', 
+                        params: [CONFIG.ALVEY_NETWORK] 
+                    });
+                } else { 
+                    throw error; 
+                }
             }
         }
+
+        // 初始化合约
         async function initializeContracts() {
             const wheelGameABI = [
                 "function playMAOGame() external",
@@ -315,12 +356,15 @@
                 "function approve(address spender, uint256 amount) returns (bool)",
                 "function allowance(address owner, address spender) view returns (uint256)"
             ];
+            
             gameState.contracts = {
                 wheelGame: new ethers.Contract(CONFIG.CONTRACTS.WHEEL_GAME, wheelGameABI, gameState.signer),
                 maoToken: new ethers.Contract(CONFIG.CONTRACTS.MAO_TOKEN, erc20ABI, gameState.signer),
                 piToken: new ethers.Contract(CONFIG.CONTRACTS.PI_TOKEN, erc20ABI, gameState.signer)
             };
         }
+
+        // 加载余额
         async function loadBalances() {
             try {
                 const maoBalance = await gameState.contracts.maoToken.balanceOf(gameState.account);
@@ -328,49 +372,68 @@
                 gameState.balances.MAO = parseFloat(ethers.utils.formatEther(maoBalance));
                 gameState.balances.PI = parseFloat(ethers.utils.formatEther(piBalance));
                 updateBalanceDisplay();
-            } catch (error) { }
+            } catch (error) {
+                console.error('余额加载失败:', error);
+            }
         }
+
+        // 更新UI
         function updateUI() {
             connectBtn.style.display = 'none';
             balanceDisplay.style.display = 'flex';
             gameSection.style.display = 'block';
+            ensureButtonVisible();
         }
+
+        // 更新余额显示
         function updateBalanceDisplay() {
             maoBalance.textContent = gameState.balances.MAO.toFixed(2);
             piBalance.textContent = gameState.balances.PI.toFixed(2);
         }
+
+        // 游戏主函数
         async function playGame() {
             if (gameState.isSpinning) return;
+            
             try {
                 const cost = CONFIG.COSTS[gameState.selectedToken];
                 const currentBalance = gameState.balances[gameState.selectedToken];
-                if (currentBalance < cost) { alert(`余额不足！需要 ${cost} ${gameState.selectedToken}`); return; }
+                
+                if (currentBalance < cost) { 
+                    alert(`余额不足！需要 ${cost} ${gameState.selectedToken}`); 
+                    return; 
+                }
+                
                 gameState.isSpinning = true;
                 playBtn.disabled = true;
-                playBtn.innerHTML = '<span class="loading"></span> 游戏中...';
+                playBtn.innerHTML = '游戏中...';
+                
+                // 检查授权
                 const tokenContract = gameState.selectedToken === 'MAO' ? gameState.contracts.maoToken : gameState.contracts.piToken;
                 const requiredAmount = ethers.utils.parseEther(cost.toString());
                 let allowance = await tokenContract.allowance(gameState.account, CONFIG.CONTRACTS.WHEEL_GAME);
+                
                 if (allowance.lt(requiredAmount)) {
-                    alert('PI授权不足，请在钱包确认授权！');
+                    alert('需要授权代币，请在钱包中确认！');
                     playBtn.innerHTML = '等待授权...';
-                    try {
-                        const approveTx = await tokenContract.approve(CONFIG.CONTRACTS.WHEEL_GAME, ethers.constants.MaxUint256);
-                        await approveTx.wait();
-                        alert('授权成功，正在自动开始游戏...');
-                        allowance = await tokenContract.allowance(gameState.account, CONFIG.CONTRACTS.WHEEL_GAME);
-                        if (allowance.lt(requiredAmount)) throw new Error('授权额度仍然不足');
-                    } catch (e) {
-                        alert('授权失败，请重试！');
-                        resetGame();
-                    return;
+                    
+                    const approveTx = await tokenContract.approve(CONFIG.CONTRACTS.WHEEL_GAME, ethers.constants.MaxUint256);
+                    await approveTx.wait();
+                    alert('授权成功！正在开始游戏...');
                 }
-                }
+                
+                // 开始转盘动画
                 startWheelAnimation();
-                playBtn.innerHTML = '<span class="loading"></span> 区块链处理中...';
-                const tx = gameState.selectedToken === 'MAO' ? await gameState.contracts.wheelGame.playMAOGame() : await gameState.contracts.wheelGame.playPIGame();
+                playBtn.innerHTML = '区块链处理中...';
+                
+                // 调用合约
+                const tx = gameState.selectedToken === 'MAO' ? 
+                    await gameState.contracts.wheelGame.playMAOGame() : 
+                    await gameState.contracts.wheelGame.playPIGame();
+                
                 const receipt = await tx.wait();
                 const gameEvent = receipt.events.find(event => event.event === 'GamePlayed');
+                
                 if (gameEvent) {
                     const { rewardAmount, rewardLevel } = gameEvent.args;
                     const result = {
@@ -378,25 +441,32 @@
                         amount: parseFloat(ethers.utils.formatEther(rewardAmount)),
                         isWin: rewardLevel > 0
                     };
+                    
                     stopWheelAt(result.level);
-                            setTimeout(() => {
+                    
+                    setTimeout(() => {
                         showResult(result);
                         if (result.isWin) createCelebration();
                         loadBalances();
                         resetGame();
-                }, 4000);
+                    }, 4000);
                 }
-                } catch (error) {
+                
+            } catch (error) {
+                console.error('游戏失败:', error);
                 alert('游戏失败: ' + error.message);
                 resetGame();
             }
         }
+
+        // 转盘动画
         function startWheelAnimation() {
             const randomRotation = 1800 + Math.random() * 720;
             currentRotation = randomRotation;
             svgWheel.style.transition = 'transform 4s cubic-bezier(0.25,0.1,0.25,1)';
             svgWheel.style.transform = `rotate(${randomRotation}deg)`;
         }
+
         function stopWheelAt(level) {
             const segmentAngle = 60;
             const targetAngle = level * segmentAngle;
@@ -406,6 +476,8 @@
             setTimeout(() => drawSVGWheel(level), 900);
             setTimeout(() => drawSVGWheel(-1), 3000);
         }
+
+        // 显示结果
         function showResult(result) {
             const seg = CONFIG.SEGMENTS[result.level];
             let html = `<div class='result-emoji'>${seg.icon}</div>`;
@@ -418,6 +490,8 @@
             resultPopup.style.display = 'flex';
             setTimeout(() => { resultPopup.style.display = 'none'; }, 2600);
         }
+
+        // 庆祝动画
         function createCelebration() {
             for (let i = 0; i < 40; i++) {
                 const confetti = document.createElement('div');
@@ -429,17 +503,41 @@
                 setTimeout(() => { confetti.remove(); }, 2200);
             }
         }
+
+        // 重置游戏
         function resetGame() {
             gameState.isSpinning = false;
             playBtn.disabled = false;
             playBtn.innerHTML = '🎮 开始游戏';
+            ensureButtonVisible();
         }
-        window.addEventListener('load', async () => {
+
+        // 事件监听器
+        connectBtn.addEventListener('click', connectWallet);
+        playBtn.addEventListener('click', playGame);
+        
+        document.querySelectorAll('.token-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                document.querySelectorAll('.token-btn').forEach(b => b.classList.remove('active'));
+                e.target.classList.add('active');
+                gameState.selectedToken = e.target.dataset.token;
+            });
+        });
+
+        // 页面加载初始化
+        window.addEventListener('load', () => {
+            console.log('🚀 页面加载完成');
             drawSVGWheel();
+            ensureButtonVisible();
+            
+            // 定期检查按钮状态
+            setInterval(ensureButtonVisible, 1000);
+            
+            // 自动连接钱包（如果已连接）
             if (window.ethereum && window.ethereum.selectedAddress) {
-                await connectWallet();
+                setTimeout(connectWallet, 1000);
             }
         });
     </script>
 </body>
-</html> 
+</html>
