@@ -49,18 +49,9 @@
             justify-content: space-around;
             margin: 10px 0 0 0;
         }
-        .balance-item {
-            min-width: 90px;
-        }
-        .balance-label {
-            font-size: 0.9em;
-            opacity: 0.8;
-        }
-        .balance-value {
-            font-size: 1.2em;
-            font-weight: bold;
-            color: #ffe066;
-        }
+        .balance-item { min-width: 90px; }
+        .balance-label { font-size: 0.9em; opacity: 0.8; }
+        .balance-value { font-size: 1.2em; font-weight: bold; color: #ffe066; }
         .connect-btn {
             background: linear-gradient(90deg, #ffe066 0%, #ffb347 100%);
             color: #333;
@@ -103,24 +94,9 @@
             height: 270px;
             margin: 0 auto 18px auto;
         }
-        .wheel {
-            width: 100%; height: 100%; border-radius: 50%; position: relative;
-            border: 6px solid #ffe066; box-shadow: 0 0 24px #ffe06644;
-            transition: transform 4s cubic-bezier(0.25,0.1,0.25,1);
-            background: #222;
+        .svg-wheel {
+            width: 100%; height: 100%; display: block;
         }
-        .wheel-segment {
-            position: absolute;
-            width: 50%; height: 50%;
-            left: 50%; top: 50%;
-            transform-origin: 0% 0%;
-            display: flex; flex-direction: column; align-items: flex-end; justify-content: flex-end;
-            font-weight: bold; font-size: 1em;
-            color: #fff; text-shadow: 0 1px 4px #000a;
-            padding: 0 12px 12px 0;
-        }
-        .wheel-segment .seg-icon { font-size: 1.5em; margin-bottom: 2px; }
-        .wheel-segment .seg-mult { font-size: 1.1em; font-weight: bold; }
         .wheel-pointer {
             position: absolute; top: -18px; left: 50%; transform: translateX(-50%);
             width: 0; height: 0;
@@ -130,12 +106,13 @@
             z-index: 10;
             filter: drop-shadow(0 2px 6px #0008);
         }
-        .wheel-center {
+        .wheel-center-btn {
             position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%);
-            width: 60px; height: 60px; background: #ffe066;
+            width: 70px; height: 70px; background: linear-gradient(145deg,#ffe066 60%,#fffbe6 100%);
             border-radius: 50%; display: flex; align-items: center; justify-content: center;
             font-size: 2em; color: #a259ff; font-weight: bold; z-index: 5;
-            box-shadow: 0 0 16px #ffe06699;
+            box-shadow: 0 0 16px #ffe06699, 0 2px 12px #0003;
+            border: 3px solid #fffbe6;
         }
         .play-btn {
             background: linear-gradient(90deg, #4f8cff 0%, #a259ff 100%);
@@ -198,27 +175,8 @@
             </div>
             <div class="wheel-container">
                 <div class="wheel-pointer"></div>
-                <div class="wheel" id="wheel">
-                    <div class="wheel-segment" style="transform: rotate(0deg) skewY(-30deg); background: #6B7280;">
-                        <span class="seg-icon">😅</span><span class="seg-mult">0x</span><br>谢谢惠顾
-                    </div>
-                    <div class="wheel-segment" style="transform: rotate(60deg) skewY(-30deg); background: #F59E0B;">
-                        <span class="seg-icon">🎁</span><span class="seg-mult">1.05x</span><br>小奖
-                    </div>
-                    <div class="wheel-segment" style="transform: rotate(120deg) skewY(-30deg); background: #EF4444;">
-                        <span class="seg-icon">🎉</span><span class="seg-mult">1.25x</span><br>中奖
-                    </div>
-                    <div class="wheel-segment" style="transform: rotate(180deg) skewY(-30deg); background: #8B5CF6;">
-                        <span class="seg-icon">💰</span><span class="seg-mult">2x</span><br>大奖
-                    </div>
-                    <div class="wheel-segment" style="transform: rotate(240deg) skewY(-30deg); background: #10B981;">
-                        <span class="seg-icon">🚀</span><span class="seg-mult">6x</span><br>超级奖
-                    </div>
-                    <div class="wheel-segment" style="transform: rotate(300deg) skewY(-30deg); background: #F97316;">
-                        <span class="seg-icon">👑</span><span class="seg-mult">10x</span><br>终极奖
-                    </div>
-                </div>
-                <div class="wheel-center">🎰</div>
+                <svg class="svg-wheel" id="svgWheel" viewBox="0 0 270 270"></svg>
+                <div class="wheel-center-btn">🎰</div>
             </div>
             <button class="play-btn" id="playBtn">🎮 开始游戏</button>
         </div>
@@ -250,12 +208,12 @@
             PROBABILITIES: [5000, 7200, 9200, 9900, 9980, 10000],
             COSTS: { MAO: 100, PI: 1000 },
             SEGMENTS: [
-                { icon: '😅', mult: '0x', label: '谢谢惠顾' },
-                { icon: '🎁', mult: '1.05x', label: '小奖' },
-                { icon: '🎉', mult: '1.25x', label: '中奖' },
-                { icon: '💰', mult: '2x', label: '大奖' },
-                { icon: '🚀', mult: '6x', label: '超级奖' },
-                { icon: '👑', mult: '10x', label: '终极奖' }
+                { icon: '😅', mult: '0x', label: '谢谢惠顾', color: '#6B7280' },
+                { icon: '🎁', mult: '1.05x', label: '小奖', color: '#F59E0B' },
+                { icon: '🎉', mult: '1.25x', label: '中奖', color: '#EF4444' },
+                { icon: '💰', mult: '2x', label: '大奖', color: '#8B5CF6' },
+                { icon: '🚀', mult: '6x', label: '超级奖', color: '#10B981' },
+                { icon: '👑', mult: '10x', label: '终极奖', color: '#F97316' }
             ]
         };
         let gameState = {
@@ -268,10 +226,11 @@
         const maoBalance = document.getElementById('maoBalance');
         const piBalance = document.getElementById('piBalance');
         const playBtn = document.getElementById('playBtn');
-        const wheel = document.getElementById('wheel');
+        const svgWheel = document.getElementById('svgWheel');
         const resultPopup = document.getElementById('resultPopup');
         const resultContent = document.getElementById('resultContent');
         const celebration = document.getElementById('celebration');
+        let currentRotation = 0;
         connectBtn.addEventListener('click', connectWallet);
         playBtn.addEventListener('click', playGame);
         document.querySelectorAll('.token-btn').forEach(btn => {
@@ -281,6 +240,42 @@
                 gameState.selectedToken = e.target.dataset.token;
             });
         });
+        function drawSVGWheel(highlightIdx = -1) {
+            const cx = 135, cy = 135, r = 120, n = 6;
+            svgWheel.innerHTML = '';
+            for (let i = 0; i < n; i++) {
+                const startAngle = (i * 60 - 30) * Math.PI / 180;
+                const endAngle = ((i + 1) * 60 - 30) * Math.PI / 180;
+                const x1 = cx + r * Math.cos(startAngle);
+                const y1 = cy + r * Math.sin(startAngle);
+                const x2 = cx + r * Math.cos(endAngle);
+                const y2 = cy + r * Math.sin(endAngle);
+                const largeArc = 0;
+                const color = CONFIG.SEGMENTS[i].color;
+                const gradId = `grad${i}`;
+                const highlight = (i === highlightIdx);
+                svgWheel.innerHTML += `
+                <defs>
+                    <radialGradient id="${gradId}" cx="50%" cy="50%" r="80%">
+                        <stop offset="0%" stop-color="#fff" stop-opacity="0.15"/>
+                        <stop offset="80%" stop-color="${color}" stop-opacity="1"/>
+                    </radialGradient>
+                </defs>
+                <path d="M${cx},${cy} L${x1},${y1} A${r},${r} 0 ${largeArc} 1 ${x2},${y2} Z"
+                    fill="url(#${gradId})"
+                    stroke="${highlight ? '#ffe066' : '#fff'}" stroke-width="${highlight ? 7 : 3}" filter="drop-shadow(0 2px 8px #0004)"/>
+                `;
+                // 图标和倍数
+                const midAngle = ((i + 0.5) * 60 - 30) * Math.PI / 180;
+                const tx = cx + (r - 38) * Math.cos(midAngle);
+                const ty = cy + (r - 38) * Math.sin(midAngle);
+                svgWheel.innerHTML += `
+                    <text x="${tx}" y="${ty}" text-anchor="middle" alignment-baseline="middle" font-size="22" font-weight="bold" fill="#fff" filter="drop-shadow(0 2px 4px #0008)">${CONFIG.SEGMENTS[i].icon}</text>
+                    <text x="${tx}" y="${ty + 22}" text-anchor="middle" alignment-baseline="middle" font-size="14" fill="#ffe066" font-weight="bold">${CONFIG.SEGMENTS[i].mult}</text>
+                `;
+            }
+        }
+        drawSVGWheel();
         async function connectWallet() {
             try {
                 if (!window.ethereum) { alert('请安装支持Web3的钱包'); return; }
@@ -355,11 +350,21 @@
                 playBtn.innerHTML = '<span class="loading"></span> 游戏中...';
                 const tokenContract = gameState.selectedToken === 'MAO' ? gameState.contracts.maoToken : gameState.contracts.piToken;
                 const requiredAmount = ethers.utils.parseEther(cost.toString());
-                const allowance = await tokenContract.allowance(gameState.account, CONFIG.CONTRACTS.WHEEL_GAME);
+                let allowance = await tokenContract.allowance(gameState.account, CONFIG.CONTRACTS.WHEEL_GAME);
                 if (allowance.lt(requiredAmount)) {
-                    playBtn.innerHTML = '授权中...';
-                    const approveTx = await tokenContract.approve(CONFIG.CONTRACTS.WHEEL_GAME, requiredAmount);
-                    await approveTx.wait();
+                    alert('PI授权不足，请在钱包确认授权！');
+                    playBtn.innerHTML = '等待授权...';
+                    try {
+                        const approveTx = await tokenContract.approve(CONFIG.CONTRACTS.WHEEL_GAME, ethers.constants.MaxUint256);
+                        await approveTx.wait();
+                        alert('授权成功，正在自动开始游戏...');
+                        allowance = await tokenContract.allowance(gameState.account, CONFIG.CONTRACTS.WHEEL_GAME);
+                        if (allowance.lt(requiredAmount)) throw new Error('授权额度仍然不足');
+                    } catch (e) {
+                        alert('授权失败，请重试！');
+                        resetGame();
+                        return;
+                    }
                 }
                 startWheelAnimation();
                 playBtn.innerHTML = '<span class="loading"></span> 区块链处理中...';
@@ -388,14 +393,18 @@
         }
         function startWheelAnimation() {
             const randomRotation = 1800 + Math.random() * 720;
-            wheel.style.transform = `rotate(${randomRotation}deg)`;
+            currentRotation = randomRotation;
+            svgWheel.style.transition = 'transform 4s cubic-bezier(0.25,0.1,0.25,1)';
+            svgWheel.style.transform = `rotate(${randomRotation}deg)`;
         }
         function stopWheelAt(level) {
             const segmentAngle = 60;
             const targetAngle = level * segmentAngle;
-            const currentRotation = 1800 + Math.random() * 720;
             const finalRotation = currentRotation - (currentRotation % 360) + targetAngle;
-            wheel.style.transform = `rotate(${finalRotation}deg)`;
+            svgWheel.style.transition = 'transform 1.2s cubic-bezier(0.25,0.1,0.25,1)';
+            svgWheel.style.transform = `rotate(${finalRotation}deg)`;
+            setTimeout(() => drawSVGWheel(level), 900);
+            setTimeout(() => drawSVGWheel(-1), 3000);
         }
         function showResult(result) {
             const seg = CONFIG.SEGMENTS[result.level];
@@ -426,6 +435,7 @@
             playBtn.innerHTML = '🎮 开始游戏';
         }
         window.addEventListener('load', async () => {
+            drawSVGWheel();
             if (window.ethereum && window.ethereum.selectedAddress) {
                 await connectWallet();
             }
