@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🚨 最终修复：营销钱包问题</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #ff4757 0%, #ff6b6b 100%);
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+            color: white;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: rgba(0,0,0,0.9);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+        h1 {
+            text-align: center;
+            color: #ff4757;
+            font-size: 2.5em;
+            margin-bottom: 20px;
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        .urgent {
+            background: #ff4757;
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            border: 3px solid #ff3742;
+            animation: blink 1s infinite;
+        }
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0.7; }
+        }
+        .step {
+            background: #333;
+            padding: 20px;
+            margin: 15px 0;
+            border-radius: 10px;
+            border-left: 5px solid #ff4757;
+        }
+        .step h3 {
+            color: #ff4757;
+            margin-top: 0;
+        }
+        .code {
+            background: #111;
+            color: #00ff00;
+            padding: 15px;
+            border-radius: 5px;
+            font-family: monospace;
+            overflow-x: auto;
+            margin: 10px 0;
+            border: 1px solid #333;
+        }
+        .button {
+            background: #ff4757;
+            color: white;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1em;
+            cursor: pointer;
+            margin: 10px;
+            transition: all 0.3s;
+            display: inline-block;
+            text-decoration: none;
+        }
+        .button:hover {
+            background: #ff3742;
+            transform: scale(1.05);
+        }
+        .button.success {
+            background: #2ed573;
+        }
+        .button.success:hover {
+            background: #26d466;
+        }
+        .status {
+            padding: 15px;
+            border-radius: 10px;
+            margin: 15px 0;
+            font-weight: bold;
+            text-align: center;
+        }
+        .status.error { background: #ff4757; }
+        .status.success { background: #2ed573; }
+        .status.warning { background: #ffa502; color: #000; }
+        .checklist {
+            background: #444;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+        .checklist h3 {
+            color: #ff4757;
+            margin-top: 0;
+        }
+        .checklist li {
+            margin: 10px 0;
+            padding: 10px;
+            background: #555;
+            border-radius: 5px;
+        }
+        .loss-info {
+            background: #2c2c2c;
+            border: 2px solid #ff4757;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+        .loss-info h3 {
+            color: #ff4757;
+            margin-top: 0;
+        }
+        .loss-amount {
+            font-size: 1.5em;
+            color: #ff4757;
+            font-weight: bold;
+            text-align: center;
+            margin: 15px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚨 最终修复：营销钱包问题</h1>
+        
+        <div class="urgent">
+            <h3>⚠️ 紧急状态</h3>
+            <p><strong>您的营销钱包仍在损失代币！</strong></p>
+            <p>测试显示您仍在使用旧合约，错误营销钱包余额还在增加。</p>
+            <p><strong>必须立即采取行动！</strong></p>
+        </div>
+        
+        <div class="loss-info">
+            <h3>💸 当前损失统计</h3>
+            <div class="loss-amount">
+                错误营销钱包收到的代币（本应属于您）：<br>
+                MAO: 606,930 个<br>
+                PI: 10,086,045 个
+            </div>
+            <p>这些代币本应发送到您的营销钱包 <code>0x861A48051eFaA1876D4B38904516C9F7bbCca36d</code></p>
+        </div>
+        
+        <div class="step">
+            <h3>🔍 问题确认</h3>
+            <p>我已经修复了所有52个HTML文件，但您的浏览器仍在使用缓存的旧版本。</p>
+            <div class="code">
+                ❌ 旧合约 (您仍在使用): 0xA9E4FD96B29e4f512a0a75E402C156B04D6E6c35<br>
+                ✅ 新合约 (已修复): 0xB677DBcA76061E6301272c83179c8243A4eeB6A5
+            </div>
+        </div>
+        
+        <div class="step">
+            <h3>🔄 立即执行步骤</h3>
+            <div class="checklist">
+                <h3>请按顺序执行以下步骤：</h3>
+                <ol>
+                    <li>
+                        <strong>关闭所有游戏标签页</strong>
+                        <button class="button" onclick="alert('请手动关闭所有游戏相关的浏览器标签页')">✅ 已关闭</button>
+                    </li>
+                    <li>
+                        <strong>清除浏览器缓存</strong>
+                        <br>按 Ctrl+Shift+Delete (Mac: Cmd+Shift+Delete)
+                        <br>选择"缓存的图片和文件"，时间范围选择"全部"
+                        <button class="button" onclick="clearAllStorage()">🗑️ 清除本地存储</button>
+                    </li>
+                    <li>
+                        <strong>重启浏览器</strong>
+                        <br>完全关闭浏览器，然后重新打开
+                        <button class="button" onclick="alert('请手动重启浏览器')">✅ 已重启</button>
+                    </li>
+                    <li>
+                        <strong>访问修复后的游戏</strong>
+                        <br>确保使用正确的URL和文件
+                        <a href="index.html?v=fixed&t=1736793600" class="button success">🎮 进入修复后的游戏</a>
+                    </li>
+                </ol>
+            </div>
+        </div>
+        
+        <div class="step">
+            <h3>✅ 验证修复效果</h3>
+            <p>进入游戏后，请检查：</p>
+            <ul>
+                <li>打开浏览器开发者工具 (F12)</li>
+                <li>在Console中输入: <code>CONFIG.CONTRACTS.WHEEL_GAME</code></li>
+                <li>确认显示的是: <code>0xB677DBcA76061E6301272c83179c8243A4eeB6A5</code></li>
+                <li>进行一次测试游戏</li>
+            </ul>
+            <button class="button" onclick="showValidationSteps()">📋 显示验证步骤</button>
+        </div>
+        
+        <div class="step">
+            <h3>🧪 最终测试</h3>
+            <p>完成游戏测试后，在终端运行：</p>
+            <div class="code">node test-marketing-wallet-fix.js</div>
+            <p>如果看到"新合约有游戏活动"，说明修复成功！</p>
+        </div>
+        
+        <div class="status error">
+            <h3>🚨 如果仍然不行</h3>
+            <p>请尝试以下极端措施：</p>
+            <ol>
+                <li>使用无痕/隐私浏览模式</li>
+                <li>尝试不同的浏览器</li>
+                <li>清除DNS缓存: <code>ipconfig /flushdns</code> (Windows) 或 <code>sudo dscacheutil -flushcache</code> (Mac)</li>
+                <li>检查是否有浏览器扩展干扰</li>
+            </ol>
+        </div>
+        
+        <div class="step">
+            <h3>📞 紧急联系</h3>
+            <p>如果按照所有步骤操作后仍有问题，请：</p>
+            <ul>
+                <li>截图开发者工具中的合约地址</li>
+                <li>运行测试脚本并截图结果</li>
+                <li>提供详细的操作步骤</li>
+            </ul>
+        </div>
+    </div>
+    
+    <script>
+        function clearAllStorage() {
+            try {
+                // 清除所有本地存储
+                localStorage.clear();
+                sessionStorage.clear();
+                
+                // 清除cookies
+                document.cookie.split(";").forEach(function(c) { 
+                    document.cookie = c.replace(/^ +/, "").replace(/=.*/, "=;expires=" + new Date().toUTCString() + ";path=/"); 
+                });
+                
+                // 清除缓存 (如果支持)
+                if ('caches' in window) {
+                    caches.keys().then(function(names) {
+                        names.forEach(function(name) {
+                            caches.delete(name);
+                        });
+                    });
+                }
+                
+                alert('✅ 本地存储已清除！\n\n现在请：\n1. 按 Ctrl+Shift+Delete 清除浏览器缓存\n2. 重启浏览器\n3. 重新访问游戏');
+            } catch (error) {
+                alert('❌ 清除存储失败: ' + error.message + '\n\n请手动清除浏览器缓存');
+            }
+        }
+        
+        function showValidationSteps() {
+            alert('验证步骤：\n\n' +
+                  '1. 进入游戏页面\n' +
+                  '2. 按 F12 打开开发者工具\n' +
+                  '3. 点击 Console 标签\n' +
+                  '4. 输入: CONFIG.CONTRACTS.WHEEL_GAME\n' +
+                  '5. 按回车查看结果\n' +
+                  '6. 确认显示: 0xB677DBcA76061E6301272c83179c8243A4eeB6A5\n\n' +
+                  '如果显示的是旧地址，说明缓存未清除完全！');
+        }
+        
+        // 页面加载时的警告
+        window.addEventListener('load', function() {
+            setTimeout(function() {
+                if (confirm('🚨 重要提醒：\n\n您的营销钱包正在损失代币！\n\n是否立即开始修复流程？')) {
+                    document.querySelector('.checklist').scrollIntoView({ behavior: 'smooth' });
+                }
+            }, 2000);
+        });
+    </script>
+</body>
+</html> 

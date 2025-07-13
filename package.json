@@ -16,7 +16,7 @@
     "@walletconnect/ethereum-provider": "^2.12.0",
     "@walletconnect/universal-provider": "^2.12.0",
     "@walletconnect/utils": "^2.12.0",
-    "dotenv": "^17.0.1",
+    "dotenv": "^17.2.0",
     "ethers": "^6.7.1",
     "next": "^13.5.0",
     "qrcode": "^1.5.4",

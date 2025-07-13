@@ -7,7 +7,7 @@
     <style>
         * { 
             margin: 0; 
-            padding: 0; 
+            padding: 0;
             box-sizing: border-box;
             -webkit-tap-highlight-color: transparent;
             -webkit-touch-callout: none;
@@ -170,6 +170,7 @@
             border-bottom: 32px solid #ffe066;
             z-index: 10;
             filter: drop-shadow(0 2px 6px #0008);
+            transform-origin: 50% 100%; /* 设置旋转中心为指针底部中心 */
         }
         .wheel-center-btn {
             position: absolute;
@@ -449,7 +450,7 @@
                 blockExplorerUrls: ['https://alveyscan.com']
             },
             CONTRACTS: {
-                WHEEL_GAME: '0xA9E4FD96B29e4f512a0a75E402C156B04D6E6c35',
+                WHEEL_GAME: '0xB677DBcA76061E6301272c83179c8243A4eeB6A5',
                 MAO_TOKEN: '0x22f49bcb3dad370a9268ba3fca33cb037ca3d022',
                 PI_TOKEN: '0xfd4680e25e05b3435c7f698668d1ce80d2a9f444'
             },
@@ -748,7 +749,14 @@
                     alert(t('approve-tokens'));
                     playBtn.innerHTML = t('authorizing');
                     
-                    const approveTx = await tokenContract.approve(CONFIG.CONTRACTS.WHEEL_GAME, ethers.constants.MaxUint256);
+                    // 优化授权交易的gas设置
+                    const gasLimit = 100000;
+                    const gasPrice = await gameState.provider.getGasPrice();
+                    
+                    const approveTx = await tokenContract.approve(CONFIG.CONTRACTS.WHEEL_GAME, ethers.constants.MaxUint256, {
+                        gasLimit: gasLimit,
+                        gasPrice: gasPrice.mul(110).div(100) // 增加10%的gas价格确保交易成功
+                    });
                     await approveTx.wait();
                     alert(t('approve-success'));
                 }
@@ -757,10 +765,19 @@
                 startWheelAnimation();
                 playBtn.innerHTML = t('processing');
                 
+                // 优化游戏交易的gas设置
+                const gameGasLimit = gameState.selectedToken === 'MAO' ? 300000 : 500000;
+                const gameGasPrice = await gameState.provider.getGasPrice();
+                
+                const gameOptions = {
+                    gasLimit: gameGasLimit,
+                    gasPrice: gameGasPrice.mul(110).div(100) // 增加10%的gas价格
+                };
+                
                 // 调用合约
                 const tx = gameState.selectedToken === 'MAO' ? 
-                    await gameState.contracts.wheelGame.playMAOGame() : 
-                    await gameState.contracts.wheelGame.playPIGame();
+                    await gameState.contracts.wheelGame.playMAOGame(gameOptions) : 
+                    await gameState.contracts.wheelGame.playPIGame(gameOptions);
                 
                 const receipt = await tx.wait();
                 const gameEvent = receipt.events.find(event => event.event === 'GamePlayed');
@@ -780,32 +797,74 @@
                         if (result.isWin) createCelebration();
                         loadBalances();
                         resetGame();
-                    }, 4000);
+                    }, 5000); // 调整为5秒，让转盘完全停止后再显示结果
                 }
 
             } catch (error) {
                 console.error('游戏失败:', error);
-                alert(t('game-failed') + ': ' + error.message);
+                
+                // 改进的错误处理
+                let errorMessage = t('game-failed');
+                if (error.code === 4001) {
+                    errorMessage = '用户取消了交易';
+                } else if (error.message.includes('insufficient funds')) {
+                    errorMessage = '余额不足支付Gas费用，请确保钱包有足够的ALV';
+                } else if (error.message.includes('gas')) {
+                    errorMessage = 'Gas费用问题，请稍后重试或增加Gas限制';
+                } else if (error.message.includes('nonce')) {
+                    errorMessage = '交易顺序错误，请刷新页面重试';
+                } else if (error.message.includes('network')) {
+                    errorMessage = '网络连接问题，请检查网络或切换RPC节点';
+                } else if (error.message.includes('allowance')) {
+                    errorMessage = '代币授权不足，请重新授权';
+                } else if (error.message.includes('prize pool')) {
+                    errorMessage = '奖池暂时不可用，请稍后重试';
+                } else {
+                    errorMessage = `交易失败: ${error.reason || error.message}`;
+                }
+                
+                alert('❌ ' + errorMessage);
                 resetGame();
             }
         }
 
         // 转盘动画
         function startWheelAnimation() {
-            const randomRotation = 1800 + Math.random() * 720;
-            currentRotation = randomRotation;
-            svgWheel.style.transition = 'transform 4s cubic-bezier(0.25,0.1,0.25,1)';
-            svgWheel.style.transform = `rotate(${randomRotation}deg)`;
+            // 转盘保持静止，只让指针旋转
+            // 先让指针快速旋转几圈
+            const randomSpins = 5 + Math.random() * 3; // 5-8圈
+            const baseRotation = randomSpins * 360;
+            const pointer = document.querySelector('.wheel-pointer');
+            pointer.style.transition = 'transform 3s cubic-bezier(0.25,0.1,0.25,1)';
+            pointer.style.transform = `translateX(-50%) rotate(${baseRotation}deg)`;
+            currentRotation = baseRotation;
         }
 
         function stopWheelAt(level) {
-            const segmentAngle = 60;
-            const targetAngle = level * segmentAngle;
+            // 转盘区域从-30度开始，每个区域60度
+            // 区域0：-30度到30度，中心在0度
+            // 区域1：30度到90度，中心在60度
+            // 区域2：90度到150度，中心在120度
+            // 区域3：150度到210度，中心在180度
+            // 区域4：210度到270度，中心在240度
+            // 区域5：270度到330度，中心在300度
+            
+            // 指针要指向level区域的中心
+            // 区域中心角度 = level * 60 度
+            const targetAngle = level * 60;
+            
+            // 计算最终旋转角度，保持之前的旋转圈数，只调整最终位置
             const finalRotation = currentRotation - (currentRotation % 360) + targetAngle;
-            svgWheel.style.transition = 'transform 1.2s cubic-bezier(0.25,0.1,0.25,1)';
-            svgWheel.style.transform = `rotate(${finalRotation}deg)`;
-            setTimeout(() => drawSVGWheel(level), 900);
-            setTimeout(() => drawSVGWheel(-1), 3000);
+            
+            // 缓慢精确停在目标位置
+            const pointer = document.querySelector('.wheel-pointer');
+            pointer.style.transition = 'transform 1.5s cubic-bezier(0.25,0.1,0.25,1)';
+            pointer.style.transform = `translateX(-50%) rotate(${finalRotation}deg)`;
+            
+            // 高亮中奖区域
+            setTimeout(() => drawSVGWheel(level), 1200);
+            // 移除高亮
+            setTimeout(() => drawSVGWheel(-1), 4000);
         }
 
         // 显示结果
@@ -841,6 +900,12 @@
             gameState.isSpinning = false;
             playBtn.disabled = false;
             playBtn.innerHTML = t('play');
+            
+            // 重置指针到初始位置
+            const pointer = document.querySelector('.wheel-pointer');
+            pointer.style.transition = 'transform 0.5s';
+            pointer.style.transform = 'translateX(-50%) rotate(0deg)';
+            
             ensureButtonVisible();
         }
 
@@ -851,6 +916,12 @@
             ensureButtonVisible();
             addTouchEvents();
             updateLanguage();
+            
+            // 初始化指针位置
+            const pointer = document.querySelector('.wheel-pointer');
+            if (pointer) {
+                pointer.style.transform = 'translateX(-50%) rotate(0deg)';
+            }
             
             // 定期检查按钮状态
             setInterval(ensureButtonVisible, 1000);
