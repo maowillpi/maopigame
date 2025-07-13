@@ -765,18 +765,19 @@
                 startWheelAnimation();
                 playBtn.innerHTML = t('processing');
                 
-                // Gas配置已注释（旧方法不需要）
-                // const gameGasLimit = gameState.selectedToken === 'MAO' ? 500000 : 800000;
-                // const gameGasPrice = await gameState.provider.getGasPrice();
-                // const gameOptions = {
-                //     gasLimit: gameGasLimit,
-                //     gasPrice: gameGasPrice.mul(150).div(100)
-                // };
+                // 优化游戏交易的gas设置
+                const gameGasLimit = gameState.selectedToken === 'MAO' ? 500000 : 800000;
+                const gameGasPrice = await gameState.provider.getGasPrice();
+                
+                const gameOptions = {
+                    gasLimit: gameGasLimit,
+                    gasPrice: gameGasPrice.mul(110).div(100) // 增加10%的gas价格
+                };
                 
                 // 调用合约
                 const tx = gameState.selectedToken === 'MAO' ? 
-                    await gameState.contracts.wheelGame.playMAOGame() : 
-                    await gameState.contracts.wheelGame.playPIGame();
+                    await gameState.contracts.wheelGame.playMAOGame(gameOptions) : 
+                    await gameState.contracts.wheelGame.playPIGame(gameOptions);
                 
                 const receipt = await tx.wait();
                 const gameEvent = receipt.events.find(event => event.event === 'GamePlayed');

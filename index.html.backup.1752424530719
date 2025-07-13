@@ -450,7 +450,7 @@
                 blockExplorerUrls: ['https://alveyscan.com']
             },
             CONTRACTS: {
-                WHEEL_GAME: '0xA9E4FD96B29e4f512a0a75E402C156B04D6E6c35',
+                WHEEL_GAME: '0xB677DBcA76061E6301272c83179c8243A4eeB6A5',
                 MAO_TOKEN: '0x22f49bcb3dad370a9268ba3fca33cb037ca3d022',
                 PI_TOKEN: '0xfd4680e25e05b3435c7f698668d1ce80d2a9f444'
             },
@@ -750,12 +750,12 @@
                     playBtn.innerHTML = t('authorizing');
                     
                     // 优化授权交易的gas设置
-                    const gasLimit = 150000;
+                    const gasLimit = 100000;
                     const gasPrice = await gameState.provider.getGasPrice();
                     
                     const approveTx = await tokenContract.approve(CONFIG.CONTRACTS.WHEEL_GAME, ethers.constants.MaxUint256, {
                         gasLimit: gasLimit,
-                        gasPrice: gasPrice.mul(150).div(100) // 增加10%的gas价格确保交易成功
+                        gasPrice: gasPrice.mul(110).div(100) // 增加10%的gas价格确保交易成功
                     });
                     await approveTx.wait();
                     alert(t('approve-success'));
@@ -765,18 +765,19 @@
                 startWheelAnimation();
                 playBtn.innerHTML = t('processing');
                 
-                // Gas配置已注释（旧方法不需要）
-                // const gameGasLimit = gameState.selectedToken === 'MAO' ? 500000 : 800000;
-                // const gameGasPrice = await gameState.provider.getGasPrice();
-                // const gameOptions = {
-                //     gasLimit: gameGasLimit,
-                //     gasPrice: gameGasPrice.mul(150).div(100)
-                // };
+                // 优化游戏交易的gas设置
+                const gameGasLimit = gameState.selectedToken === 'MAO' ? 300000 : 500000;
+                const gameGasPrice = await gameState.provider.getGasPrice();
+                
+                const gameOptions = {
+                    gasLimit: gameGasLimit,
+                    gasPrice: gameGasPrice.mul(110).div(100) // 增加10%的gas价格
+                };
                 
                 // 调用合约
                 const tx = gameState.selectedToken === 'MAO' ? 
-                    await gameState.contracts.wheelGame.playMAOGame() : 
-                    await gameState.contracts.wheelGame.playPIGame();
+                    await gameState.contracts.wheelGame.playMAOGame(gameOptions) : 
+                    await gameState.contracts.wheelGame.playPIGame(gameOptions);
                 
                 const receipt = await tx.wait();
                 const gameEvent = receipt.events.find(event => event.event === 'GamePlayed');
@@ -809,14 +810,6 @@
                 } else if (error.message.includes('insufficient funds')) {
                     errorMessage = '余额不足支付Gas费用，请确保钱包有足够的ALV';
                 } else if (error.message.includes('gas')) {
-                // 尝试使用更高的Gas价格重试
-                try {
-                    const fallbackGasPrice = ethers.utils.parseUnits('20', 'gwei');
-                    console.log('🔄 尝试使用备用Gas价格重试...');
-                    // 这里可以添加重试逻辑
-                } catch (retryError) {
-                    console.error('❌ 备用Gas价格也失败:', retryError);
-                }
                     errorMessage = 'Gas费用问题，请稍后重试或增加Gas限制';
                 } else if (error.message.includes('nonce')) {
                     errorMessage = '交易顺序错误，请刷新页面重试';
