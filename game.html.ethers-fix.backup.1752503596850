@@ -64,47 +64,6 @@
                 }
             }, 100);
         });
-    
-        // 🔍 ethers.js加载检查
-        window.addEventListener('load', function() {
-            if (typeof ethers === 'undefined') {
-                console.error('❌ ethers.js未正确加载！');
-                
-                // 显示用户友好的错误提示
-                const errorDiv = document.createElement('div');
-                errorDiv.style.cssText = `
-                    position: fixed;
-                    top: 50%;
-                    left: 50%;
-                    transform: translate(-50%, -50%);
-                    background: #ff4757;
-                    color: white;
-                    padding: 20px;
-                    border-radius: 10px;
-                    z-index: 10000;
-                    text-align: center;
-                    font-family: Arial, sans-serif;
-                    box-shadow: 0 4px 20px rgba(0,0,0,0.3);
-                `;
-                errorDiv.innerHTML = `
-                    <h3>🚨 网络错误</h3>
-                    <p>区块链库加载失败，请刷新页面重试</p>
-                    <button onclick="location.reload()" style="
-                        background: white;
-                        color: #ff4757;
-                        border: none;
-                        padding: 10px 20px;
-                        border-radius: 5px;
-                        margin-top: 10px;
-                        cursor: pointer;
-                        font-weight: bold;
-                    ">刷新页面</button>
-                `;
-                document.body.appendChild(errorDiv);
-            } else {
-                console.log('✅ ethers.js加载成功');
-            }
-        });
     </script>
     
     <!-- Tailwind CSS CDN -->
@@ -1032,7 +991,7 @@
                 );
                 
                 const balanceWei = await contract.balanceOf(gameState.account);
-                const balance = parseFloat(ethers.utils.formatEther(balanceWei)).toFixed(2);
+                const balance = parseFloat(ethers.formatEther(balanceWei)).toFixed(2);
                 
                 console.log(`✅ [余额查询] ${tokenName}余额查询成功: ${balance}`);
                 return balance;
