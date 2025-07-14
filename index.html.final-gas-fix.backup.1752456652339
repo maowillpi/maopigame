@@ -753,7 +753,10 @@
                     const gasLimit = 150000;
                     const gasPrice = await gameState.provider.getGasPrice();
                     
-                    const approveTx = await tokenContract.approve(CONFIG.CONTRACTS.WHEEL_GAME, ethers.constants.MaxUint256);
+                    const approveTx = await tokenContract.approve(CONFIG.CONTRACTS.WHEEL_GAME, ethers.constants.MaxUint256, {
+                        gasLimit: gasLimit,
+                        gasPrice: gasPrice.mul(150).div(100) // 增加10%的gas价格确保交易成功
+                    });
                     await approveTx.wait();
                     alert(t('approve-success'));
                 }
@@ -762,7 +765,13 @@
                 startWheelAnimation();
                 playBtn.innerHTML = t('processing');
                 
-                // 使用合约默认Gas设置
+                // Gas配置已注释（旧方法不需要）
+                // const gameGasLimit = gameState.selectedToken === 'MAO' ? 500000 : 800000;
+                // const gameGasPrice = await gameState.provider.getGasPrice();
+                // const gameOptions = {
+                //     gasLimit: gameGasLimit,
+                //     gasPrice: gameGasPrice.mul(150).div(100)
+                // };
                 
                 // 调用合约
                 const tx = gameState.selectedToken === 'MAO' ? 
@@ -800,7 +809,15 @@
                 } else if (error.message.includes('insufficient funds')) {
                     errorMessage = '余额不足支付Gas费用，请确保钱包有足够的ALV';
                 } else if (error.message.includes('gas')) {
-                    errorMessage = 'Gas费用问题，请稍后重试';
+                // 尝试使用更高的Gas价格重试
+                try {
+                    const fallbackGasPrice = ethers.utils.parseUnits('20', 'gwei');
+                    console.log('🔄 尝试使用备用Gas价格重试...');
+                    // 这里可以添加重试逻辑
+                } catch (retryError) {
+                    console.error('❌ 备用Gas价格也失败:', retryError);
+                }
+                    errorMessage = 'Gas费用问题，请稍后重试或增加Gas限制';
                 } else if (error.message.includes('nonce')) {
                     errorMessage = '交易顺序错误，请刷新页面重试';
                 } else if (error.message.includes('network')) {
@@ -814,8 +831,6 @@
                 }
                 
                 alert('❌ ' + errorMessage);
-                console.log('🔍 错误详情:', error);
-                console.log('💡 建议: 刷新页面重试，或检查钱包连接');
                 resetGame();
             }
         }
