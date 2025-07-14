@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔄 清除缓存 - MAO转盘游戏</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #4f8cff 0%, #a259ff 100%);
+            min-height: 100vh;
+            color: white;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        .container {
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 40px;
+            text-align: center;
+            max-width: 500px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+        h1 { font-size: 2.5em; margin-bottom: 20px; }
+        .step {
+            background: rgba(255,255,255,0.1);
+            border-radius: 15px;
+            padding: 20px;
+            margin: 15px 0;
+            border-left: 5px solid #FFE066;
+        }
+        .step h3 { color: #FFE066; margin-bottom: 10px; font-size: 1.2em; }
+        .step p { line-height: 1.6; }
+        .btn {
+            background: linear-gradient(45deg, #FF6B6B, #4ECDC4);
+            border: none;
+            color: white;
+            padding: 15px 30px;
+            border-radius: 25px;
+            font-size: 1.1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin: 10px;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .btn:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
+        .auto-refresh {
+            background: rgba(255,224,102,0.2);
+            border-radius: 10px;
+            padding: 15px;
+            margin: 20px 0;
+            border: 2px solid #FFE066;
+        }
+        .spinner {
+            border: 4px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            border-top: 4px solid #fff;
+            width: 40px;
+            height: 40px;
+            animation: spin 2s linear infinite;
+            margin: 20px auto;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .hidden { display: none; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔄 清除浏览器缓存</h1>
+        
+        <div class="step">
+            <h3>📱 手机用户（最有效）</h3>
+            <p><strong>1. 下拉刷新页面</strong><br>
+            在页面顶部用力向下拉，松手刷新</p>
+            <p><strong>2. 关闭并重新打开浏览器</strong><br>
+            完全退出浏览器应用，重新打开访问</p>
+        </div>
+
+        <div class="step">
+            <h3>🖥️ 电脑用户</h3>
+            <p><strong>强制刷新：</strong><br>
+            • Windows: <code>Ctrl + F5</code> 或 <code>Ctrl + Shift + R</code><br>
+            • Mac: <code>Cmd + Shift + R</code></p>
+        </div>
+
+        <div class="step">
+            <h3>🌐 浏览器设置清除</h3>
+            <p><strong>Chrome/Safari:</strong> 设置 → 隐私 → 清除浏览数据<br>
+            <strong>或者使用无痕模式访问</strong></p>
+        </div>
+
+        <div class="auto-refresh" id="autoRefresh">
+            <h3>⏰ 自动刷新中...</h3>
+            <div class="spinner"></div>
+            <p>正在尝试自动清除缓存并跳转到游戏页面</p>
+            <p id="countdown">10秒后自动跳转...</p>
+        </div>
+
+        <a href="https://maopi.me" class="btn" onclick="clearCacheAndRedirect()">
+            🎰 立即访问游戏
+        </a>
+        
+        <a href="https://maopi.me?v=<?php echo time(); ?>" class="btn">
+            🔄 带时间戳访问
+        </a>
+    </div>
+
+    <script>
+        // 自动清除缓存并跳转
+        let countdown = 10;
+        const countdownElement = document.getElementById('countdown');
+        
+        const timer = setInterval(() => {
+            countdown--;
+            countdownElement.textContent = `${countdown}秒后自动跳转...`;
+            
+            if (countdown <= 0) {
+                clearInterval(timer);
+                clearCacheAndRedirect();
+            }
+        }, 1000);
+
+        function clearCacheAndRedirect() {
+            // 清除各种缓存
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.getRegistrations().then(function(registrations) {
+                    for(let registration of registrations) {
+                        registration.unregister();
+                    }
+                });
+            }
+            
+            // 清除localStorage和sessionStorage
+            try {
+                localStorage.clear();
+                sessionStorage.clear();
+            } catch(e) {}
+            
+            // 添加随机参数强制刷新
+            const timestamp = new Date().getTime();
+            const randomParam = Math.random().toString(36).substring(7);
+            window.location.href = `https://maopi.me?v=${timestamp}&r=${randomParam}`;
+        }
+
+        // 页面加载完成后开始倒计时
+        window.addEventListener('load', function() {
+            // 预加载主页面
+            const link = document.createElement('link');
+            link.rel = 'prefetch';
+            link.href = 'https://maopi.me';
+            document.head.appendChild(link);
+        });
+    </script>
+</body>
+</html> 
