@@ -348,6 +348,13 @@
             <div class="balance-display" id="balanceDisplay" style="display: none;">
                 <div class="balance-item">
                     <div class="balance-label" data-i18n="mao-balance">MAO余额</div>
+                    
+                            <div>
+                                <span style="color: #ffeb3b;">PI:</span>
+                                <span id="totalBurnedPI" style="color: white; font-weight: bold;">加载中...</span>
+                            </div>
+                        </div>
+                    </div>
                     <div class="balance-value" id="maoBalance">0</div>
                 </div>
                 <div class="balance-item">
@@ -490,43 +497,6 @@
         window.addEventListener('unhandledrejection', function(event) {
             console.error('💥 未处理的Promise错误:', event.reason);
             event.preventDefault(); // 防止错误导致页面崩溃
-        });
-    
-        // 🚨 紧急修复：页面加载时立即修复余额显示
-        document.addEventListener('DOMContentLoaded', function() {
-            console.log('🚨 执行紧急修复...');
-            
-            // 修复可能的HTML结构问题
-            setTimeout(() => {
-                try {
-                    // 确保MAO余额显示正确
-                    const maoBalance = document.getElementById('maoBalance');
-                    if (maoBalance && maoBalance.textContent.includes('PI:')) {
-                        maoBalance.textContent = '0';
-                        console.log('✅ 修复MAO余额显示');
-                    }
-                    
-                    // 确保PI余额显示正确
-                    const piBalance = document.getElementById('piBalance');
-                    if (piBalance && piBalance.textContent.includes('加载中')) {
-                        piBalance.textContent = '0';
-                        console.log('✅ 修复PI余额显示');
-                    }
-                    
-                    // 清理可能的重复元素
-                    const allElements = document.querySelectorAll('*');
-                    allElements.forEach(element => {
-                        if (element.textContent && element.textContent.includes('PI: 加载中') && 
-                            !element.id.includes('totalBurned')) {
-                            element.style.display = 'none';
-                            console.log('✅ 隐藏重复的PI加载中元素');
-                        }
-                    });
-                    
-                } catch (error) {
-                    console.error('❌ 紧急修复失败:', error);
-                }
-            }, 100);
         });
     </script>
     <script>
@@ -1331,41 +1301,5 @@
                         <span>PI: <span id="totalBurnedPI">82,900</span></span>
                     </div>
                 </div>
-
-    <!-- 🔥 销毁总量显示 -->
-    <div class="burn-total-display" style="
-        position: fixed;
-        bottom: 20px;
-        left: 50%;
-        transform: translateX(-50%);
-        background: linear-gradient(135deg, #ff4757, #ffa726);
-        color: white;
-        padding: 8px 16px;
-        border-radius: 20px;
-        font-size: 12px;
-        font-weight: bold;
-        box-shadow: 0 4px 15px rgba(255, 71, 87, 0.3);
-        backdrop-filter: blur(10px);
-        z-index: 1000;
-        display: flex;
-        gap: 10px;
-        align-items: center;
-        border: 1px solid rgba(255, 255, 255, 0.2);
-    ">
-        <div style="display: flex; align-items: center; gap: 4px;">
-            <span>🔥</span>
-            <span>总销毁</span>
-        </div>
-        <div style="display: flex; gap: 8px; font-size: 11px;">
-            <div>
-                <span style="color: #ffeb3b;">MAO:</span>
-                <span id="totalBurnedMAO" style="color: white; font-weight: bold;">加载中...</span>
-            </div>
-            <div>
-                <span style="color: #ffeb3b;">PI:</span>
-                <span id="totalBurnedPI" style="color: white; font-weight: bold;">加载中...</span>
-            </div>
-        </div>
-    </div>
 </body>
 </html> 
