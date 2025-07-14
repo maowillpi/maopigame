@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔧 MAO转盘游戏 - 调试版</title>
+    <style>
+        body {
+            font-family: monospace;
+            background: #1a1a1a;
+            color: #00ff00;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        .section {
+            border: 1px solid #333;
+            margin: 10px 0;
+            padding: 15px;
+            border-radius: 5px;
+        }
+        .status {
+            background: #003300;
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 3px;
+        }
+        .error {
+            background: #330000;
+            color: #ff6666;
+        }
+        .success {
+            background: #003300;
+            color: #66ff66;
+        }
+        .warning {
+            background: #332200;
+            color: #ffff66;
+        }
+        button {
+            background: #333;
+            color: #00ff00;
+            border: 1px solid #666;
+            padding: 10px 20px;
+            margin: 5px;
+            cursor: pointer;
+            border-radius: 3px;
+        }
+        button:hover {
+            background: #555;
+        }
+        button:disabled {
+            background: #222;
+            color: #666;
+            cursor: not-allowed;
+        }
+        .log {
+            background: #111;
+            border: 1px solid #333;
+            padding: 10px;
+            max-height: 300px;
+            overflow-y: auto;
+            font-size: 12px;
+        }
+        .balance {
+            display: inline-block;
+            margin: 10px;
+            padding: 10px;
+            border: 1px solid #666;
+            border-radius: 3px;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔧 MAO转盘游戏调试控制台</h1>
+    
+    <div class="section">
+        <h3>📊 网络和合约状态</h3>
+        <div id="networkStatus" class="status">检查中...</div>
+        <div id="contractStatus" class="status">等待网络连接...</div>
+        <button onclick="checkNetworkAndContracts()">🔄 重新检查</button>
+    </div>
+
+    <div class="section">
+        <h3>💳 钱包连接</h3>
+        <div id="walletStatus" class="status">未连接</div>
+        <button id="connectBtn" onclick="connectWallet()">🔗 连接钱包</button>
+        <button onclick="disconnectWallet()">❌ 断开连接</button>
+    </div>
+
+    <div class="section">
+        <h3>💰 余额信息</h3>
+        <div class="balance">
+            <strong>MAO:</strong> <span id="maoBalance">-</span><br>
+            <strong>授权给游戏:</strong> <span id="maoAllowance">-</span>
+        </div>
+        <div class="balance">
+            <strong>PI:</strong> <span id="piBalance">-</span><br>
+            <strong>授权给游戏:</strong> <span id="piAllowance">-</span>
+        </div>
+        <button onclick="updateBalances()">🔄 刷新余额</button>
+        <button onclick="approveMAO()">✅ 授权MAO</button>
+        <button onclick="approvePI()">✅ 授权PI</button>
+    </div>
+
+    <div class="section">
+        <h3>🎮 游戏测试</h3>
+        <div id="gameStatus" class="status">等待准备...</div>
+        <button id="playMAOBtn" onclick="testPlayMAO()" disabled>🎯 测试MAO游戏</button>
+        <button id="playPIBtn" onclick="testPlayPI()" disabled>🎯 测试PI游戏</button>
+        <button onclick="checkGameResults()">📊 查看最近游戏结果</button>
+    </div>
+
+    <div class="section">
+        <h3>🏦 营销钱包监控</h3>
+        <div id="marketingStatus" class="status">监控中...</div>
+        <button onclick="checkMarketingWallet()">💰 检查营销钱包</button>
+        <button onclick="estimateBurnedTokens()">🔥 估算销毁代币</button>
+    </div>
+
+    <div class="section">
+        <h3>📜 操作日志</h3>
+        <button onclick="clearLog()">🗑️ 清除日志</button>
+        <div id="debugLog" class="log">游戏调试控制台已启动...<br></div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
+    <script>
+        // 合约配置
+        const GAME_CONTRACT_ADDRESS = '0xB677DBcA76061E6301272c83179c8243A4eeB6A5';
+        const MAO_CONTRACT_ADDRESS = '0x22f49bcb3dad370a9268ba3fca33cb037ca3d022';
+        const PI_CONTRACT_ADDRESS = '0xfd4680e25e05b3435c7f698668d1ce80d2a9f444';
+        const MARKETING_WALLET = '0x861A48051eFaA1876D4B38904516C9F7bbCca36d';
+
+        // RPC节点
+        const RPC_URLS = [
+            'https://elves-core1.alvey.io/',
+            'https://elves-core2.alvey.io/',
+            'https://elves-core3.alvey.io/'
+        ];
+
+        // 游戏合约ABI
+        const GAME_ABI = [
+            "function playMAOGame() external",
+            "function playPIGame() external",
+            "function prizePool() external view returns (uint256)",
+            "function marketingWallet() external view returns (address)",
+            "event GamePlayed(address indexed player, bool useMAO, uint256 amount, uint256 multiplier, uint256 reward)"
+        ];
+
+        // ERC20代币ABI
+        const TOKEN_ABI = [
+            "function balanceOf(address account) external view returns (uint256)",
+            "function allowance(address owner, address spender) external view returns (uint256)",
+            "function approve(address spender, uint256 amount) external returns (bool)",
+            "function decimals() external view returns (uint8)",
+            "function symbol() external view returns (string)"
+        ];
+
+        // 全局变量
+        let provider;
+        let signer;
+        let gameContract;
+        let maoContract;
+        let piContract;
+        let userAddress;
+
+        // 日志函数
+        function log(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const logElement = document.getElementById('debugLog');
+            const colors = {
+                'info': '#00ff00',
+                'error': '#ff6666',
+                'warning': '#ffff66',
+                'success': '#66ff66'
+            };
+            logElement.innerHTML += `<span style="color: ${colors[type] || '#00ff00'}">[${timestamp}] ${message}</span><br>`;
+            logElement.scrollTop = logElement.scrollHeight;
+        }
+
+        function clearLog() {
+            document.getElementById('debugLog').innerHTML = '游戏调试控制台已启动...<br>';
+        }
+
+        // 检查网络和合约
+        async function checkNetworkAndContracts() {
+            log('🔍 开始检查网络和合约状态...', 'info');
+            
+            try {
+                // 测试RPC连接
+                for (let i = 0; i < RPC_URLS.length; i++) {
+                    try {
+                        const testProvider = new ethers.providers.JsonRpcProvider(RPC_URLS[i]);
+                        const network = await testProvider.getNetwork();
+                        log(`✅ RPC节点 ${i + 1} 连接成功: ${RPC_URLS[i]}`, 'success');
+                        log(`   网络ID: ${network.chainId}, 名称: ${network.name}`, 'info');
+                        
+                        // 测试合约连接
+                        const testGameContract = new ethers.Contract(GAME_CONTRACT_ADDRESS, GAME_ABI, testProvider);
+                        const marketingWallet = await testGameContract.marketingWallet();
+                        log(`✅ 游戏合约连接成功`, 'success');
+                        log(`   营销钱包: ${marketingWallet}`, 'info');
+                        log(`   配置正确: ${marketingWallet.toLowerCase() === MARKETING_WALLET.toLowerCase() ? '是' : '否'}`, marketingWallet.toLowerCase() === MARKETING_WALLET.toLowerCase() ? 'success' : 'error');
+                        
+                        document.getElementById('networkStatus').textContent = `✅ 网络连接正常 (节点${i + 1})`;
+                        document.getElementById('contractStatus').textContent = `✅ 合约配置正确`;
+                        document.getElementById('networkStatus').className = 'status success';
+                        document.getElementById('contractStatus').className = 'status success';
+                        break;
+                        
+                    } catch (error) {
+                        log(`❌ RPC节点 ${i + 1} 连接失败: ${error.message}`, 'error');
+                    }
+                }
+            } catch (error) {
+                log(`❌ 网络检查失败: ${error.message}`, 'error');
+                document.getElementById('networkStatus').textContent = '❌ 网络连接失败';
+                document.getElementById('networkStatus').className = 'status error';
+            }
+        }
+
+        // 连接钱包
+        async function connectWallet() {
+            try {
+                log('🔌 开始连接钱包...', 'info');
+                
+                if (!window.ethereum) {
+                    throw new Error('请安装MetaMask钱包');
+                }
+
+                const accounts = await window.ethereum.request({
+                    method: 'eth_requestAccounts'
+                });
+
+                userAddress = accounts[0];
+                log(`✅ 钱包连接成功: ${userAddress}`, 'success');
+
+                // 检查网络
+                const chainId = await window.ethereum.request({ method: 'eth_chainId' });
+                log(`📡 当前网络ID: ${chainId}`, 'info');
+
+                if (chainId !== '0xED5') {
+                    log('⚠️ 网络不正确，尝试切换...', 'warning');
+                    await switchToAlveyNetwork();
+                }
+
+                // 初始化provider和合约
+                provider = new ethers.providers.Web3Provider(window.ethereum);
+                signer = provider.getSigner();
+                
+                gameContract = new ethers.Contract(GAME_CONTRACT_ADDRESS, GAME_ABI, signer);
+                maoContract = new ethers.Contract(MAO_CONTRACT_ADDRESS, TOKEN_ABI, signer);
+                piContract = new ethers.Contract(PI_CONTRACT_ADDRESS, TOKEN_ABI, signer);
+
+                document.getElementById('walletStatus').textContent = `✅ 已连接: ${userAddress.slice(0,8)}...`;
+                document.getElementById('walletStatus').className = 'status success';
+                document.getElementById('connectBtn').disabled = true;
+                document.getElementById('playMAOBtn').disabled = false;
+                document.getElementById('playPIBtn').disabled = false;
+
+                await updateBalances();
+
+            } catch (error) {
+                log(`❌ 钱包连接失败: ${error.message}`, 'error');
+                document.getElementById('walletStatus').textContent = '❌ 连接失败';
+                document.getElementById('walletStatus').className = 'status error';
+            }
+        }
+
+        // 切换到Alvey网络
+        async function switchToAlveyNetwork() {
+            try {
+                await window.ethereum.request({
+                    method: 'wallet_switchEthereumChain',
+                    params: [{ chainId: '0xED5' }]
+                });
+                log('✅ 网络切换成功', 'success');
+            } catch (error) {
+                if (error.code === 4902) {
+                    log('➕ 添加Alvey网络...', 'info');
+                    await window.ethereum.request({
+                        method: 'wallet_addEthereumChain',
+                        params: [{
+                            chainId: '0xED5',
+                            chainName: 'AlveyChain',
+                            nativeCurrency: {
+                                name: 'ALV',
+                                symbol: 'ALV',
+                                decimals: 18
+                            },
+                            rpcUrls: RPC_URLS,
+                            blockExplorerUrls: ['https://alveyscan.com/']
+                        }]
+                    });
+                    log('✅ Alvey网络添加成功', 'success');
+                } else {
+                    throw error;
+                }
+            }
+        }
+
+        // 更新余额
+        async function updateBalances() {
+            if (!userAddress || !maoContract || !piContract) return;
+
+            try {
+                log('📊 更新余额信息...', 'info');
+
+                // MAO余额和授权
+                const maoBalance = await maoContract.balanceOf(userAddress);
+                const maoAllowance = await maoContract.allowance(userAddress, GAME_CONTRACT_ADDRESS);
+                document.getElementById('maoBalance').textContent = ethers.utils.formatEther(maoBalance);
+                document.getElementById('maoAllowance').textContent = ethers.utils.formatEther(maoAllowance);
+
+                // PI余额和授权
+                const piBalance = await piContract.balanceOf(userAddress);
+                const piAllowance = await piContract.allowance(userAddress, GAME_CONTRACT_ADDRESS);
+                document.getElementById('piBalance').textContent = ethers.utils.formatEther(piBalance);
+                document.getElementById('piAllowance').textContent = ethers.utils.formatEther(piAllowance);
+
+                log(`💰 余额更新完成 - MAO: ${ethers.utils.formatEther(maoBalance)}, PI: ${ethers.utils.formatEther(piBalance)}`, 'success');
+
+                // 检查游戏准备状态
+                const maoReady = parseFloat(ethers.utils.formatEther(maoBalance)) >= 100 && parseFloat(ethers.utils.formatEther(maoAllowance)) >= 100;
+                const piReady = parseFloat(ethers.utils.formatEther(piBalance)) >= 1000 && parseFloat(ethers.utils.formatEther(piAllowance)) >= 1000;
+
+                document.getElementById('gameStatus').textContent = `MAO游戏: ${maoReady ? '✅' : '❌'} | PI游戏: ${piReady ? '✅' : '❌'}`;
+                document.getElementById('gameStatus').className = `status ${maoReady || piReady ? 'success' : 'warning'}`;
+
+            } catch (error) {
+                log(`❌ 余额更新失败: ${error.message}`, 'error');
+            }
+        }
+
+        // 授权代币
+        async function approveMAO() {
+            try {
+                log('✅ 开始授权MAO代币...', 'info');
+                const tx = await maoContract.approve(GAME_CONTRACT_ADDRESS, ethers.utils.parseEther('1000'));
+                log(`📝 交易已提交: ${tx.hash}`, 'info');
+                await tx.wait();
+                log('✅ MAO授权成功', 'success');
+                await updateBalances();
+            } catch (error) {
+                log(`❌ MAO授权失败: ${error.message}`, 'error');
+            }
+        }
+
+        async function approvePI() {
+            try {
+                log('✅ 开始授权PI代币...', 'info');
+                const tx = await piContract.approve(GAME_CONTRACT_ADDRESS, ethers.utils.parseEther('10000'));
+                log(`📝 交易已提交: ${tx.hash}`, 'info');
+                await tx.wait();
+                log('✅ PI授权成功', 'success');
+                await updateBalances();
+            } catch (error) {
+                log(`❌ PI授权失败: ${error.message}`, 'error');
+            }
+        }
+
+        // 测试游戏
+        async function testPlayMAO() {
+            try {
+                log('🎮 开始MAO游戏测试...', 'info');
+                log('💳 支付100 MAO游戏费用...', 'info');
+                
+                const balanceBefore = await maoContract.balanceOf(userAddress);
+                log(`📊 游戏前MAO余额: ${ethers.utils.formatEther(balanceBefore)}`, 'info');
+                
+                const tx = await gameContract.playMAOGame();
+                log(`📝 游戏交易已提交: ${tx.hash}`, 'info');
+                log('⏳ 等待交易确认...', 'warning');
+                
+                const receipt = await tx.wait();
+                log('✅ 交易确认成功！', 'success');
+                
+                const balanceAfter = await maoContract.balanceOf(userAddress);
+                log(`📊 游戏后MAO余额: ${ethers.utils.formatEther(balanceAfter)}`, 'info');
+                log(`💸 实际扣除: ${ethers.utils.formatEther(balanceBefore.sub(balanceAfter))} MAO`, 'info');
+                
+                // 解析游戏事件
+                const gameEvent = receipt.events?.find(e => e.event === 'GamePlayed');
+                if (gameEvent) {
+                    const { multiplier, reward } = gameEvent.args;
+                    log(`🎯 游戏结果: ${ethers.utils.formatEther(multiplier)}倍`, multiplier.gt(0) ? 'success' : 'warning');
+                    log(`🏆 获得奖励: ${ethers.utils.formatEther(reward)} MAO`, 'success');
+                }
+                
+                await updateBalances();
+                await checkMarketingWallet();
+                
+            } catch (error) {
+                log(`❌ MAO游戏失败: ${error.message}`, 'error');
+            }
+        }
+
+        async function testPlayPI() {
+            try {
+                log('🎮 开始PI游戏测试...', 'info');
+                log('💳 支付1000 PI游戏费用...', 'info');
+                
+                const balanceBefore = await piContract.balanceOf(userAddress);
+                log(`📊 游戏前PI余额: ${ethers.utils.formatEther(balanceBefore)}`, 'info');
+                
+                const tx = await gameContract.playPIGame();
+                log(`📝 游戏交易已提交: ${tx.hash}`, 'info');
+                log('⏳ 等待交易确认...', 'warning');
+                
+                const receipt = await tx.wait();
+                log('✅ 交易确认成功！', 'success');
+                
+                const balanceAfter = await piContract.balanceOf(userAddress);
+                log(`📊 游戏后PI余额: ${ethers.utils.formatEther(balanceAfter)}`, 'info');
+                log(`💸 实际扣除: ${ethers.utils.formatEther(balanceBefore.sub(balanceAfter))} PI`, 'info');
+                
+                // 解析游戏事件
+                const gameEvent = receipt.events?.find(e => e.event === 'GamePlayed');
+                if (gameEvent) {
+                    const { multiplier, reward } = gameEvent.args;
+                    log(`🎯 游戏结果: ${ethers.utils.formatEther(multiplier)}倍`, multiplier.gt(0) ? 'success' : 'warning');
+                    log(`🏆 获得奖励: ${ethers.utils.formatEther(reward)} PI`, 'success');
+                }
+                
+                await updateBalances();
+                await checkMarketingWallet();
+                
+            } catch (error) {
+                log(`❌ PI游戏失败: ${error.message}`, 'error');
+            }
+        }
+
+        // 检查营销钱包
+        async function checkMarketingWallet() {
+            try {
+                log('🏦 检查营销钱包状态...', 'info');
+                
+                const maoBalance = await maoContract.balanceOf(MARKETING_WALLET);
+                const piBalance = await piContract.balanceOf(MARKETING_WALLET);
+                
+                log(`💰 营销钱包余额:`, 'info');
+                log(`   MAO: ${ethers.utils.formatEther(maoBalance)}`, 'info');
+                log(`   PI: ${ethers.utils.formatEther(piBalance)}`, 'info');
+                
+                document.getElementById('marketingStatus').textContent = `MAO: ${ethers.utils.formatEther(maoBalance)} | PI: ${ethers.utils.formatEther(piBalance)}`;
+                document.getElementById('marketingStatus').className = 'status success';
+                
+            } catch (error) {
+                log(`❌ 营销钱包检查失败: ${error.message}`, 'error');
+            }
+        }
+
+        // 估算销毁代币
+        async function estimateBurnedTokens() {
+            log('🔥 估算销毁代币数量...', 'info');
+            log('⚠️ 注意：销毁机制需要验证是否为15%', 'warning');
+            log('💡 建议：检查合约是否有销毁地址或销毁事件', 'info');
+        }
+
+        // 检查游戏结果
+        async function checkGameResults() {
+            try {
+                log('📊 查询最近游戏结果...', 'info');
+                
+                const currentBlock = await provider.getBlockNumber();
+                const fromBlock = Math.max(0, currentBlock - 100);
+                
+                const events = await gameContract.queryFilter(
+                    gameContract.filters.GamePlayed(),
+                    fromBlock,
+                    currentBlock
+                );
+                
+                log(`📈 最近${currentBlock - fromBlock}个块中找到${events.length}次游戏`, 'info');
+                
+                events.slice(-5).forEach((event, index) => {
+                    const { player, useMAO, amount, multiplier, reward } = event.args;
+                    log(`${index + 1}. ${useMAO ? 'MAO' : 'PI'}游戏 - 倍数:${ethers.utils.formatEther(multiplier)} 奖励:${ethers.utils.formatEther(reward)}`, 'info');
+                });
+                
+            } catch (error) {
+                log(`❌ 游戏结果查询失败: ${error.message}`, 'error');
+            }
+        }
+
+        function disconnectWallet() {
+            userAddress = null;
+            provider = null;
+            signer = null;
+            gameContract = null;
+            maoContract = null;
+            piContract = null;
+            
+            document.getElementById('walletStatus').textContent = '未连接';
+            document.getElementById('walletStatus').className = 'status';
+            document.getElementById('connectBtn').disabled = false;
+            document.getElementById('playMAOBtn').disabled = true;
+            document.getElementById('playPIBtn').disabled = true;
+            
+            log('📵 钱包已断开连接', 'warning');
+        }
+
+        // 页面加载完成后自动检查
+        window.addEventListener('load', function() {
+            checkNetworkAndContracts();
+        });
+    </script>
+</body>
+</html> 
