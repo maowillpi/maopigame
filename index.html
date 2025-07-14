@@ -357,9 +357,9 @@
         
         // RPC节点
         const RPC_URLS = [
+            'https://elves-core1.alvey.io/',
             'https://elves-core2.alvey.io/',
-            'https://elves-core.alvey.io/',
-            'https://rpc.alvey.io/'
+            'https://elves-core3.alvey.io/'
         ];
 
         // 游戏合约ABI
@@ -381,11 +381,8 @@
             "function symbol() external view returns (string)"
         ];
 
-        // 游戏费用
-        const GAME_COSTS = {
-            MAO: ethers.utils.parseEther('100'), // 100 MAO
-            PI: ethers.utils.parseEther('1000')  // 1000 PI
-        };
+        // 游戏费用 - 将在ethers.js加载后初始化
+        let GAME_COSTS = {};
 
         // 页面加载完成后的初始化
         document.addEventListener('DOMContentLoaded', function() {
@@ -396,6 +393,17 @@
                 connectWallet();
             }
         });
+
+        // 初始化游戏费用
+        function initializeGameCosts() {
+            if (typeof ethers !== 'undefined') {
+                GAME_COSTS = {
+                    MAO: ethers.utils.parseEther('100'), // 100 MAO
+                    PI: ethers.utils.parseEther('1000')  // 1000 PI
+                };
+                console.log('✅ 游戏费用初始化完成');
+            }
+        }
 
         // 显示状态消息
         function showStatusMessage(message, type = 'info') {
@@ -434,8 +442,8 @@
                 userAddress = accounts[0];
                 console.log('✅ 钱包连接成功:', userAddress);
 
-                // 检查是否在正确的网络
-                await checkNetwork();
+                // 自动配置正确的网络
+                await autoConfigureNetwork();
 
                 // 初始化provider和合约
                 if (typeof ethers !== 'undefined') {
@@ -470,37 +478,51 @@
             }
         }
 
-        // 检查网络
-        async function checkNetwork() {
-            const chainId = await window.ethereum.request({ method: 'eth_chainId' });
-            const alveyChainId = '0x3FC7'; // Alvey链ID (16327)
-            
-            if (chainId !== alveyChainId) {
-                // 尝试切换到Alvey网络
-                try {
-                    await window.ethereum.request({
-                        method: 'wallet_switchEthereumChain',
-                        params: [{ chainId: alveyChainId }],
-                    });
-                } catch (switchError) {
-                    // 如果网络不存在，添加网络
-                    if (switchError.code === 4902) {
+        // 自动配置网络
+        async function autoConfigureNetwork() {
+            try {
+                const chainId = await window.ethereum.request({ method: 'eth_chainId' });
+                const alveyChainId = '0xED5'; // 3797 in hex
+                
+                if (chainId !== alveyChainId) {
+                    console.log('🔄 切换到Alvey网络...');
+                    
+                    try {
+                        // 尝试切换到Alvey网络
                         await window.ethereum.request({
-                            method: 'wallet_addEthereumChain',
-                            params: [{
-                                chainId: alveyChainId,
-                                chainName: 'Alvey Chain',
-                                nativeCurrency: {
-                                    name: 'ALV',
-                                    symbol: 'ALV',
-                                    decimals: 18
-                                },
-                                rpcUrls: RPC_URLS,
-                                blockExplorerUrls: ['https://alveyscan.com/']
-                            }]
+                            method: 'wallet_switchEthereumChain',
+                            params: [{ chainId: alveyChainId }],
                         });
+                        console.log('✅ 网络切换成功');
+                    } catch (switchError) {
+                        // 如果网络不存在，自动添加网络
+                        if (switchError.code === 4902) {
+                            console.log('➕ 添加Alvey网络...');
+                            await window.ethereum.request({
+                                method: 'wallet_addEthereumChain',
+                                params: [{
+                                    chainId: alveyChainId,
+                                    chainName: 'AlveyChain',
+                                    nativeCurrency: {
+                                        name: 'ALV',
+                                        symbol: 'ALV',
+                                        decimals: 18
+                                    },
+                                    rpcUrls: RPC_URLS,
+                                    blockExplorerUrls: ['https://alveyscan.com/']
+                                }]
+                            });
+                            console.log('✅ Alvey网络添加成功');
+                        } else {
+                            throw switchError;
+                        }
                     }
+                } else {
+                    console.log('✅ 已在正确的Alvey网络');
                 }
+            } catch (error) {
+                console.error('❌ 网络配置失败:', error);
+                throw new Error('网络配置失败，请手动切换到Alvey网络');
             }
         }
 
@@ -746,12 +768,7 @@
             console.log('✅ ethers.js 加载成功');
             
             // 初始化游戏费用常量
-            if (typeof ethers !== 'undefined') {
-                window.GAME_COSTS = {
-                    MAO: ethers.utils.parseEther('100'),
-                    PI: ethers.utils.parseEther('1000')
-                };
-            }
+            initializeGameCosts();
         };
         script.onerror = function() {
             console.warn('⚠️ ethers.js 加载失败');
