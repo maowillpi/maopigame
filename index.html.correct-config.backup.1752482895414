@@ -348,19 +348,6 @@
             <div class="balance-display" id="balanceDisplay" style="display: none;">
                 <div class="balance-item">
                     <div class="balance-label" data-i18n="mao-balance">MAO余额</div>
-                    <div class="burned-total-display" style="background: linear-gradient(45deg, #ff4444, #cc0000); padding: 10px; border-radius: 10px; margin: 10px 0; text-align: center;">
-                        <h3 style="margin: 0; color: white;">🔥 总销毁数量</h3>
-                        <div style="display: flex; justify-content: space-around; margin-top: 5px;">
-                            <div>
-                                <span style="color: #ffeb3b;">MAO:</span>
-                                <span id="totalBurnedMAO" style="color: white; font-weight: bold;">加载中...</span>
-                            </div>
-                            <div>
-                                <span style="color: #ffeb3b;">PI:</span>
-                                <span id="totalBurnedPI" style="color: white; font-weight: bold;">加载中...</span>
-                            </div>
-                        </div>
-                    </div>
                     <div class="balance-value" id="maoBalance">0</div>
                 </div>
                 <div class="balance-item">
@@ -386,52 +373,7 @@
     <div class="result-popup" id="resultPopup" style="display:none;">
         <div class="result-content" id="resultContent"></div>
     </div>
-    <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js">
-        // 🔥 查询并更新销毁总数
-        async function updateBurnedTotals() {
-            try {
-                const burnAddress = '0x000000000000000000000000000000000000dEaD';
-                
-                // 查询销毁地址的代币余额
-                const maoContract = new ethers.Contract('0x22f49bcb3dad370a9268ba3fca33cb037ca3d022', [
-                    "function balanceOf(address owner) view returns (uint256)"
-                ], provider);
-                
-                const piContract = new ethers.Contract('0xfd4680e25e05b3435c7f698668d1ce80d2a9f444', [
-                    "function balanceOf(address owner) view returns (uint256)"
-                ], provider);
-                
-                const maoBalance = await maoContract.balanceOf(burnAddress);
-                const piBalance = await piContract.balanceOf(burnAddress);
-                
-                // 更新显示
-                const maoElement = document.getElementById('totalBurnedMAO');
-                const piElement = document.getElementById('totalBurnedPI');
-                
-                if (maoElement) {
-                    maoElement.textContent = parseFloat(ethers.formatEther(maoBalance)).toLocaleString();
-                }
-                if (piElement) {
-                    piElement.textContent = parseFloat(ethers.formatEther(piBalance)).toLocaleString();
-                }
-                
-                console.log('🔥 销毁总数更新完成:', {
-                    MAO: ethers.formatEther(maoBalance),
-                    PI: ethers.formatEther(piBalance)
-                });
-                
-            } catch (error) {
-                console.error('❌ 查询销毁总数失败:', error);
-                const maoElement = document.getElementById('totalBurnedMAO');
-                const piElement = document.getElementById('totalBurnedPI');
-                if (maoElement) maoElement.textContent = '查询失败';
-                if (piElement) piElement.textContent = '查询失败';
-            }
-        }
-        
-        // 定期更新销毁总数 (每30秒)
-        setInterval(updateBurnedTotals, 30000);
-    </script>
+    <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
     <script>
         // 多语言配置
         const TRANSLATIONS = {
@@ -508,7 +450,7 @@
                 blockExplorerUrls: ['https://alveyscan.com']
             },
             CONTRACTS: {
-                WHEEL_GAME: '0xB677DBcA76061E6301272c83179c8243A4eeB6A5',
+                WHEEL_GAME: '0xA9E4FD96B29e4f512a0a75E402C156B04D6E6c35',
                 MAO_TOKEN: '0x22f49bcb3dad370a9268ba3fca33cb037ca3d022',
                 PI_TOKEN: '0xfd4680e25e05b3435c7f698668d1ce80d2a9f444'
             },
