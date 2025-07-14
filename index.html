@@ -338,10 +338,140 @@
     <div class="result-modal" id="resultModal">
         <h2 id="resultTitle">🎉</h2>
         <p id="resultText">恭喜获得奖励！</p>
-        <button onclick="closeModal()" style="background: #4ECDC4; color: white; border: none; padding: 10px 20px; border-radius: 10px; margin-top: 15px; cursor: pointer;">确定</button>
+        <button id="closeModalBtn" onclick="closeModal()" style="background: #4ECDC4; color: white; border: none; padding: 10px 20px; border-radius: 10px; margin-top: 15px; cursor: pointer;">确定</button>
     </div>
 
     <script>
+        // 翻译数据
+        const TRANSLATIONS = {
+            'zh': {
+                'title': '🎰 MAO转盘游戏',
+                'subtitle': '50%中奖率，最高可中10倍大奖！',
+                'connect-wallet': '🔗 连接钱包',
+                'wallet-connected': '✅ 钱包已连接',
+                'connecting': '🔌 连接中...',
+                'mao-balance': 'MAO余额',
+                'pi-balance': 'PI余额',
+                'loading': '加载中...',
+                'failed': '获取失败',
+                'start-game': '🎮 开始游戏',
+                'gaming': '🎮 游戏中...',
+                'connect-wallet-first': '请先连接钱包！',
+                'insufficient-balance': '余额不足！需要',
+                'wallet-connected-success': '钱包连接成功！',
+                'wallet-connect-failed': '钱包连接失败',
+                'authorizing': '正在授权代币...',
+                'processing': '正在处理游戏交易...',
+                'waiting-confirmation': '等待交易确认...',
+                'game-complete': '游戏完成！',
+                'congratulations': '🎉 恭喜中奖！',
+                'sorry': '😔 很遗憾',
+                'won-prize': '恭喜！获得',
+                'no-prize': '很遗憾，这次没有中奖！',
+                'close': '确定',
+                'burned-stats': '已销毁统计'
+            },
+            'en': {
+                'title': '🎰 MAO Wheel Game',
+                'subtitle': '50% win rate, up to 10x prizes!',
+                'connect-wallet': '🔗 Connect Wallet',
+                'wallet-connected': '✅ Wallet Connected',
+                'connecting': '🔌 Connecting...',
+                'mao-balance': 'MAO Balance',
+                'pi-balance': 'PI Balance',
+                'loading': 'Loading...',
+                'failed': 'Failed',
+                'start-game': '🎮 Start Game',
+                'gaming': '🎮 Playing...',
+                'connect-wallet-first': 'Please connect wallet first!',
+                'insufficient-balance': 'Insufficient balance! Need',
+                'wallet-connected-success': 'Wallet connected successfully!',
+                'wallet-connect-failed': 'Failed to connect wallet',
+                'authorizing': 'Authorizing tokens...',
+                'processing': 'Processing game transaction...',
+                'waiting-confirmation': 'Waiting for confirmation...',
+                'game-complete': 'Game complete!',
+                'congratulations': '🎉 Congratulations!',
+                'sorry': '😔 Sorry',
+                'won-prize': 'Congratulations! Won',
+                'no-prize': 'Sorry, no prize this time!',
+                'close': 'OK',
+                'burned-stats': 'Burned Stats'
+            }
+        };
+
+        // 当前语言
+        let currentLang = 'zh';
+
+        // 获取翻译文本
+        function t(key) {
+            const keys = key.split('.');
+            let value = TRANSLATIONS[currentLang];
+            for (const k of keys) {
+                value = value[k];
+                if (!value) break;
+            }
+            return value || key;
+        }
+
+        // 更新界面语言
+        function updateLanguage() {
+            // 更新标题和描述
+            document.querySelector('.title').textContent = t('title');
+            document.querySelector('.desc').textContent = t('subtitle');
+            
+            // 更新连接按钮文本
+            const connectBtn = document.getElementById('connectBtn');
+            if (connectBtn.textContent.includes('连接钱包') || connectBtn.textContent.includes('Connect Wallet')) {
+                connectBtn.textContent = t('connect-wallet');
+            } else if (connectBtn.textContent.includes('已连接') || connectBtn.textContent.includes('Connected')) {
+                connectBtn.textContent = t('wallet-connected');
+            } else if (connectBtn.textContent.includes('连接中') || connectBtn.textContent.includes('Connecting')) {
+                connectBtn.textContent = t('connecting');
+            }
+            
+            // 更新余额标签
+            const balanceItems = document.querySelectorAll('.balance-display .balance-item');
+            if (balanceItems.length >= 2) {
+                balanceItems[0].querySelector('.balance-label').textContent = t('mao-balance');
+                balanceItems[1].querySelector('.balance-label').textContent = t('pi-balance');
+            }
+            
+            // 更新游戏按钮
+            const playBtn = document.getElementById('playBtn');
+            if (playBtn && (playBtn.textContent.includes('开始游戏') || playBtn.textContent.includes('Start Game'))) {
+                playBtn.textContent = t('start-game');
+            } else if (playBtn && (playBtn.textContent.includes('游戏中') || playBtn.textContent.includes('Playing'))) {
+                playBtn.textContent = t('gaming');
+            }
+            
+            // 更新关闭按钮
+            const closeBtn = document.getElementById('closeModalBtn');
+            if (closeBtn) {
+                closeBtn.textContent = t('close');
+            }
+            
+            // 更新页面标题和语言属性
+            document.title = t('title');
+            document.documentElement.lang = currentLang === 'zh' ? 'zh-CN' : 'en';
+        }
+
+        // 语言切换
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('.lang-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const isZh = btn.textContent.includes('中文');
+                    document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    currentLang = isZh ? 'zh' : 'en';
+                    updateLanguage();
+                });
+            });
+            
+            // 初始化语言
+            updateLanguage();
+        });
+
         // 全局变量
         let provider;
         let signer;
@@ -425,7 +555,7 @@
             try {
                 const connectBtn = document.getElementById('connectBtn');
                 connectBtn.disabled = true;
-                connectBtn.textContent = '🔌 连接中...';
+                connectBtn.textContent = t('connecting');
 
                 if (typeof window.ethereum === 'undefined') {
                     throw new Error('请安装MetaMask钱包！');
@@ -462,22 +592,22 @@
                 isConnected = true;
                 
                 // 更新UI
-                connectBtn.textContent = '✅ 钱包已连接';
+                connectBtn.textContent = t('wallet-connected');
                 document.getElementById('balanceDisplay').style.display = 'flex';
                 document.getElementById('gameSection').style.display = 'block';
 
                 // 获取真实余额
                 await updateBalances();
 
-                showStatusMessage('钱包连接成功！', 'transaction-success');
+                showStatusMessage(t('wallet-connected-success'), 'transaction-success');
 
             } catch (error) {
                 console.error('❌ 钱包连接失败:', error);
-                showStatusMessage('钱包连接失败: ' + error.message, 'insufficient-balance');
+                showStatusMessage(t('wallet-connect-failed') + ': ' + error.message, 'insufficient-balance');
                 
                 const connectBtn = document.getElementById('connectBtn');
                 connectBtn.disabled = false;
-                connectBtn.textContent = '🔗 连接钱包';
+                connectBtn.textContent = t('connect-wallet');
             }
         }
 
@@ -554,8 +684,8 @@
                 
             } catch (error) {
                 console.error('❌ 余额更新失败:', error);
-                document.getElementById('maoBalance').textContent = '获取失败';
-                document.getElementById('piBalance').textContent = '获取失败';
+                document.getElementById('maoBalance').textContent = t('failed');
+                document.getElementById('piBalance').textContent = t('failed');
             }
         }
 
@@ -586,12 +716,12 @@
             try {
                 const contract = selectedToken === 'MAO' ? maoContract : piContract;
                 const cost = GAME_COSTS[selectedToken];
-                
-                showStatusMessage('正在授权代币...', 'info');
+
+                showStatusMessage(t('authorizing'), 'info');
                 
                 const tx = await contract.approve(GAME_CONTRACT_ADDRESS, cost);
                 await tx.wait();
-                
+
                 console.log('✅ 代币授权成功');
                 return true;
             } catch (error) {
@@ -606,22 +736,22 @@
             
             try {
                 if (!isConnected) {
-                    showStatusMessage('请先连接钱包！', 'insufficient-balance');
+                    showStatusMessage(t('connect-wallet-first'), 'insufficient-balance');
                     return;
                 }
-
+                
                 // 检查余额
                 const hasSufficientBalance = await checkSufficientBalance();
                 if (!hasSufficientBalance) {
                     const cost = selectedToken === 'MAO' ? '100' : '1000';
-                    showStatusMessage(`余额不足！需要 ${cost} ${selectedToken}`, 'insufficient-balance');
+                    showStatusMessage(`${t('insufficient-balance')} ${cost} ${selectedToken}`, 'insufficient-balance');
                     return;
                 }
 
                 isPlaying = true;
                 const playBtn = document.getElementById('playBtn');
                 playBtn.disabled = true;
-                playBtn.textContent = '🎮 游戏中...';
+                playBtn.textContent = t('gaming');
 
                 console.log('🎮 开始游戏，使用代币:', selectedToken);
 
@@ -641,12 +771,12 @@
                 await spinWheel();
 
                 // 调用智能合约
-                showStatusMessage('正在处理游戏交易...', 'info');
+                showStatusMessage(t('processing'), 'info');
                 
                 const useMAO = selectedToken === 'MAO';
                 const tx = await gameContract.playGame(useMAO);
                 
-                showStatusMessage('等待交易确认...', 'info');
+                showStatusMessage(t('waiting-confirmation'), 'info');
                 const receipt = await tx.wait();
                 
                 // 解析游戏结果
@@ -658,25 +788,25 @@
                     
                     let resultText;
                     if (multiplierValue === 0) {
-                        resultText = '很遗憾，这次没有中奖！';
+                        resultText = t('no-prize');
                     } else {
-                        resultText = `恭喜！获得 ${multiplierValue}倍 奖励！\n奖励: ${rewardValue.toLocaleString()} ${selectedToken}`;
+                        resultText = `${t('won-prize')} ${multiplierValue}倍 奖励！\n奖励: ${rewardValue.toLocaleString()} ${selectedToken}`;
                     }
                     
                     showResult(resultText, multiplierValue);
                 } else {
-                    showResult('游戏完成！', 0);
+                    showResult(t('game-complete'), 0);
                 }
 
                 // 更新余额
                 await updateBalances();
                 
-                showStatusMessage('游戏完成！', 'transaction-success');
+                showStatusMessage(t('game-complete'), 'transaction-success');
 
             } catch (error) {
                 console.error('❌ 游戏失败:', error);
                 
-                let errorMessage = '游戏失败，请重试';
+                let errorMessage = t('game-failed');
                 if (error.message.includes('insufficient funds')) {
                     errorMessage = '余额不足，无法支付gas费用';
                 } else if (error.message.includes('user rejected')) {
@@ -690,7 +820,7 @@
                 isPlaying = false;
                 const playBtn = document.getElementById('playBtn');
                 playBtn.disabled = false;
-                playBtn.textContent = '🎮 开始游戏';
+                playBtn.textContent = t('start-game');
             }
         }
 
@@ -713,10 +843,10 @@
             const resultText = document.getElementById('resultText');
             
             if (multiplier > 0) {
-                title.textContent = '🎉 恭喜中奖！';
+                title.textContent = t('congratulations');
                 title.style.color = '#4ECDC4';
             } else {
-                title.textContent = '😔 很遗憾';
+                title.textContent = t('sorry');
                 title.style.color = '#FF6B6B';
             }
             
@@ -735,7 +865,7 @@
                 if (accounts.length === 0) {
                     // 用户断开连接
                     isConnected = false;
-                    document.getElementById('connectBtn').textContent = '🔗 连接钱包';
+                    document.getElementById('connectBtn').textContent = t('connect-wallet');
                     document.getElementById('balanceDisplay').style.display = 'none';
                     document.getElementById('gameSection').style.display = 'none';
                 } else if (accounts[0] !== userAddress) {
