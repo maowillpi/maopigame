@@ -150,6 +150,7 @@
             width: 100%;
             height: 100%;
             filter: drop-shadow(0 5px 15px rgba(0,0,0,0.3));
+            transition: transform 3s cubic-bezier(0.25, 0.1, 0.25, 1);
         }
         .wheel-pointer {
             position: absolute;
@@ -198,6 +199,11 @@
             transform: translateY(-2px);
             box-shadow: 0 6px 20px rgba(0,0,0,0.4);
         }
+        .play-btn:disabled {
+            background: #666;
+            cursor: not-allowed;
+            transform: none;
+        }
         .status-info {
             background: rgba(255,224,102,0.2);
             border: 2px solid #FFE066;
@@ -222,6 +228,32 @@
             display: flex;
             gap: 8px;
             font-size: 11px;
+        }
+        .loading {
+            opacity: 0.5;
+            pointer-events: none;
+        }
+        .result-modal {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0,0,0,0.9);
+            color: white;
+            padding: 30px;
+            border-radius: 20px;
+            border: 3px solid #FFE066;
+            z-index: 1000;
+            text-align: center;
+            display: none;
+        }
+        .result-modal.show {
+            display: block;
+            animation: slideIn 0.5s ease-out;
+        }
+        @keyframes slideIn {
+            from { opacity: 0; transform: translate(-50%, -50%) scale(0.5); }
+            to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
         }
     </style>
 </head>
@@ -259,12 +291,12 @@
         
         <div class="game-section" style="display: none;" id="gameSection">
             <div class="token-selector">
-                <button class="token-btn active">MAO (100)</button>
-                <button class="token-btn">PI (1000)</button>
+                <button class="token-btn active" onclick="selectToken('MAO')">MAO (100)</button>
+                <button class="token-btn" onclick="selectToken('PI')">PI (1000)</button>
             </div>
             <div class="wheel-container">
                 <div class="wheel-pointer"></div>
-                <svg class="svg-wheel" viewBox="0 0 270 270">
+                <svg class="svg-wheel" id="wheelSvg" viewBox="0 0 270 270">
                     <circle cx="135" cy="135" r="130" fill="#FF6B6B" stroke="#fff" stroke-width="5"/>
                     <path d="M 135,5 A 130,130 0 0,1 240,85 L 135,135 Z" fill="#4ECDC4"/>
                     <path d="M 240,85 A 130,130 0 0,1 240,185 L 135,135 Z" fill="#FFE066"/>
@@ -280,14 +312,7 @@
                 </svg>
                 <div class="wheel-center-btn">🎰</div>
             </div>
-            <button class="play-btn" onclick="playGame()">🎮 开始游戏</button>
-        </div>
-        
-        <div class="status-info">
-            <h3>🚨 当前状态：简化版本</h3>
-            <p><strong>说明：</strong> 这是一个简化版本，用于测试页面基本显示</p>
-            <p><strong>功能：</strong> 钱包连接和游戏功能将在确认显示正常后启用</p>
-            <p><strong>目的：</strong> 确认页面可以正常渲染，不再出现空白问题</p>
+            <button class="play-btn" id="playBtn" onclick="playGame()">🎮 开始游戏</button>
         </div>
     </div>
 
@@ -302,27 +327,38 @@
         </div>
     </div>
 
+    <div class="result-modal" id="resultModal">
+        <h2 id="resultTitle">🎉</h2>
+        <p id="resultText">恭喜获得奖励！</p>
+        <button onclick="closeModal()" style="background: #4ECDC4; color: white; border: none; padding: 10px 20px; border-radius: 10px; margin-top: 15px; cursor: pointer;">确定</button>
+    </div>
+
     <script>
-        // 简化的JavaScript，移除所有复杂逻辑
-        console.log('✅ 简化版页面加载成功');
+        // 全局变量
+        let provider;
+        let signer;
+        let contract;
+        let userAddress;
+        let selectedToken = 'MAO';
+        let isConnected = false;
+        let isPlaying = false;
+
+        // 合约配置
+        const CONTRACT_ADDRESS = '0xB677DBcA76061E6301272c83179c8243A4eeB6A5';
+        const MARKETING_WALLET = '0x861A48051eFaA1876D4B38904516C9F7bbCca36d';
         
-        function connectWallet() {
-            alert('钱包连接功能将在确认页面显示正常后启用');
-            // 模拟连接成功
-            document.getElementById('balanceDisplay').style.display = 'flex';
-            document.getElementById('gameSection').style.display = 'block';
-            document.querySelector('.connect-btn').textContent = '✅ 钱包已连接';
-        }
-        
-        function playGame() {
-            alert('游戏功能将在确认页面显示正常后启用');
-        }
-        
-        // 页面加载完成提示
-        window.addEventListener('load', function() {
-            console.log('页面加载完成时间: ' + new Date().toLocaleString());
+        // 简化的合约ABI，避免复杂调用
+        const CONTRACT_ABI = [
+            "function balanceOf(address account) external view returns (uint256)",
+            "function approve(address spender, uint256 amount) external returns (bool)",
+            "function transfer(address to, uint256 amount) external returns (bool)"
+        ];
+
+        // 页面加载完成后的初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('📄 页面加载完成');
             
-            // 添加页面加载成功提示
+            // 添加成功提示
             setTimeout(() => {
                 const statusDiv = document.createElement('div');
                 statusDiv.style.cssText = `
@@ -336,15 +372,192 @@
                     z-index: 1000;
                     font-size: 12px;
                 `;
-                statusDiv.textContent = '✅ 页面加载成功！';
+                statusDiv.textContent = '✅ 游戏加载成功！';
                 document.body.appendChild(statusDiv);
                 
-                // 3秒后移除提示
-                setTimeout(() => {
-                    statusDiv.remove();
-                }, 3000);
+                setTimeout(() => statusDiv.remove(), 3000);
             }, 500);
         });
+
+        // 连接钱包
+        async function connectWallet() {
+            try {
+                if (typeof window.ethereum === 'undefined') {
+                    alert('请安装MetaMask钱包！');
+                    return;
+                }
+
+                console.log('🔌 正在连接钱包...');
+                
+                // 请求连接钱包
+                const accounts = await window.ethereum.request({
+                    method: 'eth_requestAccounts'
+                });
+                
+                if (accounts.length === 0) {
+                    alert('请在钱包中授权连接！');
+                    return;
+                }
+
+                userAddress = accounts[0];
+                console.log('✅ 钱包连接成功:', userAddress);
+
+                // 检查ethers是否可用
+                if (typeof ethers !== 'undefined') {
+                    provider = new ethers.providers.Web3Provider(window.ethereum);
+                    signer = provider.getSigner();
+                    contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer);
+                }
+
+                isConnected = true;
+                
+                // 更新UI
+                document.querySelector('.connect-btn').textContent = '✅ 钱包已连接';
+                document.getElementById('balanceDisplay').style.display = 'flex';
+                document.getElementById('gameSection').style.display = 'block';
+
+                // 模拟余额显示
+                document.getElementById('maoBalance').textContent = '1,000';
+                document.getElementById('piBalance').textContent = '5,000';
+
+            } catch (error) {
+                console.error('❌ 钱包连接失败:', error);
+                alert('钱包连接失败，请重试');
+            }
+        }
+
+        // 选择代币
+        function selectToken(token) {
+            selectedToken = token;
+            document.querySelectorAll('.token-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            console.log('🎯 选择代币:', token);
+        }
+
+        // 游戏逻辑
+        async function playGame() {
+            if (isPlaying) return;
+            
+            try {
+                if (!isConnected) {
+                    alert('请先连接钱包！');
+                    return;
+                }
+
+                isPlaying = true;
+                const playBtn = document.getElementById('playBtn');
+                playBtn.disabled = true;
+                playBtn.textContent = '🎮 游戏中...';
+
+                console.log('🎮 开始游戏，使用代币:', selectedToken);
+
+                // 转盘动画
+                await spinWheel();
+
+                // 生成随机结果
+                const random = Math.random();
+                let multiplier, result;
+                
+                if (random < 0.5) {
+                    // 50% 不中奖
+                    multiplier = 0;
+                    result = '很遗憾，这次没有中奖！';
+                } else if (random < 0.7) {
+                    // 20% 1.05倍
+                    multiplier = 1.05;
+                    result = '恭喜！获得 1.05倍 奖励！';
+                } else if (random < 0.85) {
+                    // 15% 1.25倍
+                    multiplier = 1.25;
+                    result = '恭喜！获得 1.25倍 奖励！';
+                } else if (random < 0.95) {
+                    // 10% 2倍
+                    multiplier = 2;
+                    result = '恭喜！获得 2倍 大奖！';
+                } else if (random < 0.99) {
+                    // 4% 6倍
+                    multiplier = 6;
+                    result = '恭喜！获得 6倍 超级大奖！';
+                } else {
+                    // 1% 10倍
+                    multiplier = 10;
+                    result = '恭喜！获得 10倍 终极大奖！';
+                }
+
+                // 显示结果
+                showResult(result, multiplier);
+
+            } catch (error) {
+                console.error('❌ 游戏失败:', error);
+                alert('游戏失败，请重试');
+            } finally {
+                isPlaying = false;
+                const playBtn = document.getElementById('playBtn');
+                playBtn.disabled = false;
+                playBtn.textContent = '🎮 开始游戏';
+            }
+        }
+
+        // 转盘动画
+        async function spinWheel() {
+            return new Promise((resolve) => {
+                const wheel = document.getElementById('wheelSvg');
+                const rotation = 1440 + Math.random() * 360; // 4圈 + 随机角度
+                
+                wheel.style.transform = `rotate(${rotation}deg)`;
+                
+                setTimeout(resolve, 3000); // 3秒动画
+            });
+        }
+
+        // 显示结果
+        function showResult(text, multiplier) {
+            const modal = document.getElementById('resultModal');
+            const title = document.getElementById('resultTitle');
+            const resultText = document.getElementById('resultText');
+            
+            if (multiplier > 0) {
+                title.textContent = '🎉 恭喜中奖！';
+                title.style.color = '#4ECDC4';
+            } else {
+                title.textContent = '😔 很遗憾';
+                title.style.color = '#FF6B6B';
+            }
+            
+            resultText.textContent = text;
+            modal.classList.add('show');
+        }
+
+        // 关闭模态框
+        function closeModal() {
+            document.getElementById('resultModal').classList.remove('show');
+        }
+
+        // 错误处理，防止页面崩溃
+        window.addEventListener('error', function(e) {
+            console.error('💥 JavaScript错误:', e.error);
+            e.preventDefault(); // 防止错误冒泡导致页面崩溃
+        });
+
+        window.addEventListener('unhandledrejection', function(e) {
+            console.error('💥 未处理的Promise错误:', e.reason);
+            e.preventDefault(); // 防止未处理的Promise导致页面崩溃
+        });
+    </script>
+
+    <!-- 动态加载ethers.js，避免阻塞页面渲染 -->
+    <script>
+        // 异步加载ethers.js
+        const script = document.createElement('script');
+        script.src = 'https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js';
+        script.async = true;
+        script.onload = function() {
+            console.log('✅ ethers.js 加载成功');
+        };
+        script.onerror = function() {
+            console.warn('⚠️ ethers.js 加载失败，使用简化模式');
+        };
+        document.head.appendChild(script);
     </script>
 </body>
 </html> 
