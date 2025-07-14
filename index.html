@@ -373,7 +373,8 @@
     <div class="result-popup" id="resultPopup" style="display:none;">
         <div class="result-content" id="resultContent"></div>
     </div>
-    <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js">
+    <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
+    <script>
         // 🔍 ethers.js加载检查
         window.addEventListener('load', function() {
             if (typeof ethers === 'undefined') {
@@ -414,8 +415,8 @@
                 console.log('✅ ethers.js加载成功');
             }
         });
-    </script>
-    <script>// 🔥 正确的销毁总数更新函数
+        
+        // 🔥 正确的销毁总数更新函数
         async function updateBurnedTotals() {
             try {
                 if (!gameState.provider) {
