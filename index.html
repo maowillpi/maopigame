@@ -105,21 +105,78 @@
         }
         .balance-display {
             display: flex;
-            justify-content: space-around;
+            flex-direction: column;
+            gap: 15px;
             margin: 20px 0;
         }
         .balance-item {
+            background: rgba(255,255,255,0.1);
+            padding: 15px;
+            border-radius: 15px;
             text-align: center;
+            border: 1px solid rgba(255,255,255,0.2);
         }
         .balance-label {
             font-size: 0.9em;
             opacity: 0.8;
-            margin-bottom: 5px;
+            margin-bottom: 8px;
         }
         .balance-value {
-            font-size: 1.5em;
+            font-size: 1.6em;
             font-weight: bold;
             color: #FFE066;
+        }
+        .game-history {
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 25px;
+            margin: 20px 0;
+            border: 2px solid rgba(255,255,255,0.3);
+        }
+        .game-history h3 {
+            margin: 0 0 20px 0;
+            text-align: center;
+            color: #FFE066;
+        }
+        .history-stats {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 20px;
+        }
+        .stat-item {
+            text-align: center;
+        }
+        .stat-label {
+            display: block;
+            font-size: 0.9em;
+            opacity: 0.8;
+            margin-bottom: 5px;
+        }
+        .stat-value {
+            font-size: 1.3em;
+            font-weight: bold;
+            color: #4ECDC4;
+        }
+        .history-list {
+            max-height: 200px;
+            overflow-y: auto;
+            background: rgba(0,0,0,0.3);
+            border-radius: 10px;
+            padding: 10px;
+        }
+        .history-item {
+            background: rgba(255,255,255,0.1);
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 8px;
+            font-size: 0.9em;
+        }
+        .history-item.win {
+            border-left: 4px solid #10B981;
+        }
+        .history-item.loss {
+            border-left: 4px solid #EF4444;
         }
         .game-section {
             background: rgba(255,255,255,0.1);
@@ -212,19 +269,6 @@
             cursor: not-allowed;
             transform: none;
         }
-        .burned-stats {
-            position: fixed;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(0,0,0,0.6);
-            backdrop-filter: blur(10px);
-            border-radius: 15px;
-            padding: 8px 15px;
-            display: flex;
-            gap: 8px;
-            font-size: 11px;
-        }
         .loading {
             opacity: 0.5;
             pointer-events: none;
@@ -294,7 +338,7 @@
                 </div>
             </div>
         </div>
-        
+
         <div class="game-section" style="display: none;" id="gameSection">
             <div class="token-selector">
                 <button class="token-btn active" onclick="selectToken('MAO')">MAO (100)</button>
@@ -320,16 +364,27 @@
             </div>
             <button class="play-btn" id="playBtn" onclick="playGame()">🎮 开始游戏</button>
         </div>
-    </div>
 
-    <div class="burned-stats">
-        <div>
-            <span style="color: #ffeb3b;">🔥销毁:</span>
-            <span style="color: white; font-weight: bold;" id="burnedStats">MAO: 0 | PI: 0</span>
-        </div>
-        <div>
-            <span style="color: #ffeb3b;">📊分配:</span>
-            <span style="color: white; font-weight: bold;">15%销毁 | 15%营销 | 70%奖金池</span>
+        <!-- 游戏记录部分 -->
+        <div class="game-history" style="display: none;" id="gameHistory">
+            <h3>🏆 我的游戏记录</h3>
+            <div class="history-stats">
+                <div class="stat-item">
+                    <span class="stat-label">总游戏次数</span>
+                    <span class="stat-value" id="totalGames">0</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">获奖次数</span>
+                    <span class="stat-value" id="winCount">0</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">中奖率</span>
+                    <span class="stat-value" id="winRate">0%</span>
+                </div>
+            </div>
+            <div class="history-list" id="historyList">
+                <div class="history-item">暂无游戏记录</div>
+            </div>
         </div>
     </div>
 
@@ -482,11 +537,12 @@
         let selectedToken = 'MAO';
         let isConnected = false;
         let isPlaying = false;
+        let gameHistory = []; // 存储用户游戏记录
 
         // 合约配置
         const GAME_CONTRACT_ADDRESS = '0xB677DBcA76061E6301272c83179c8243A4eeB6A5';
-        const MAO_CONTRACT_ADDRESS = '0x22f49bcb3dad370a9268ba3fca33cb037ca3d022'; // 正确的MAO代币合约地址
-        const PI_CONTRACT_ADDRESS = '0xfd4680e25e05b3435c7f698668d1ce80d2a9f444'; // 正确的PI代币合约地址
+        const MAO_CONTRACT_ADDRESS = '0x22f49bcb3dad370a9268ba3fca33cb037ca3d022';
+        const PI_CONTRACT_ADDRESS = '0xfd4680e25e05b3435c7f698668d1ce80d2a9f444';
         
         // RPC节点
         const RPC_URLS = [
@@ -495,14 +551,13 @@
             'https://elves-core3.alvey.io/'
         ];
 
-        // 游戏合约ABI
+        // 游戏合约ABI - 简化版，专注核心功能
         const GAME_ABI = [
             "function playMAOGame() external",
             "function playPIGame() external",
             "function prizePool() external view returns (uint256)",
             "function marketingWallet() external view returns (address)",
-            "event GamePlayed(address indexed player, bool useMAO, uint256 amount, uint256 multiplier, uint256 reward)",
-            "event Transfer(address indexed from, address indexed to, uint256 value)"
+            "event GamePlayed(address indexed player, bool useMAO, uint256 amount, uint256 multiplier, uint256 reward)"
         ];
 
         // ERC20代币ABI
@@ -510,7 +565,6 @@
             "function balanceOf(address account) external view returns (uint256)",
             "function allowance(address owner, address spender) external view returns (uint256)",
             "function approve(address spender, uint256 amount) external returns (bool)",
-            "function transfer(address to, uint256 amount) external returns (bool)",
             "function decimals() external view returns (uint8)",
             "function symbol() external view returns (string)"
         ];
@@ -526,6 +580,9 @@
             if (window.ethereum && window.ethereum.selectedAddress) {
                 connectWallet();
             }
+            
+            // 加载用户游戏历史
+            loadGameHistory();
         });
 
         // 初始化游戏费用
@@ -612,10 +669,14 @@
 
                 isConnected = true;
                 
-                // 更新UI
-                connectBtn.textContent = t('wallet-connected');
-                document.getElementById('balanceDisplay').style.display = 'flex';
+                // 更新UI - 简化显示
+                connectBtn.textContent = '✅ 已连接';
+                connectBtn.style.background = 'linear-gradient(45deg, #10B981, #059669)';
+                connectBtn.disabled = true;
+                
+                document.getElementById('balanceDisplay').style.display = 'block';
                 document.getElementById('gameSection').style.display = 'block';
+                document.getElementById('gameHistory').style.display = 'block';
 
                 // 获取真实余额
                 await updateBalances();
@@ -703,9 +764,6 @@
 
                 console.log('✅ 余额更新完成 - MAO:', maoFormatted, 'PI:', piFormatted);
                 
-                // 同时更新销毁统计
-                await updateBurnedStats();
-                
             } catch (error) {
                 console.error('❌ 余额更新失败:', error);
                 document.getElementById('maoBalance').textContent = t('failed');
@@ -739,17 +797,25 @@
         async function approveToken() {
             try {
                 const contract = selectedToken === 'MAO' ? maoContract : piContract;
-                const cost = GAME_COSTS[selectedToken];
+                // 使用更大的授权额度，减少频繁授权
+                const largeAmount = selectedToken === 'MAO' ? 
+                    ethers.utils.parseEther('10000') : // 授权10000 MAO
+                    ethers.utils.parseEther('100000'); // 授权100000 PI
 
                 showStatusMessage(t('authorizing'), 'info');
                 
-                const tx = await contract.approve(GAME_CONTRACT_ADDRESS, cost);
+                const tx = await contract.approve(GAME_CONTRACT_ADDRESS, largeAmount);
                 await tx.wait();
 
                 console.log('✅ 代币授权成功');
                 return true;
             } catch (error) {
                 console.error('❌ 代币授权失败:', error);
+                if (error.message.includes('user rejected')) {
+                    showStatusMessage('用户取消了授权', 'insufficient-balance');
+                } else {
+                    showStatusMessage('授权失败: ' + error.message, 'insufficient-balance');
+                }
                 return false;
             }
         }
@@ -779,24 +845,39 @@
 
                 console.log('🎮 开始游戏，使用代币:', selectedToken);
 
-                // 步骤1：检查授权
+                // 步骤1：检查并处理授权（使用更大的授权额度避免频繁授权）
                 const contract = selectedToken === 'MAO' ? maoContract : piContract;
                 const cost = GAME_COSTS[selectedToken];
                 const allowance = await contract.allowance(userAddress, GAME_CONTRACT_ADDRESS);
                 
                 if (allowance.lt(cost)) {
+                    showStatusMessage('正在授权代币...', 'info');
                     const approved = await approveToken();
                     if (!approved) {
-                        throw new Error('代币授权失败');
+                        throw new Error('代币授权失败，游戏无法继续');
                     }
                 }
 
-                // 步骤2：先执行区块链交易（支付代币）
+                // 步骤2：执行区块链交易（支付代币）
                 showStatusMessage(t('processing'), 'info');
                 
-                const tx = selectedToken === 'MAO' ? 
-                    await gameContract.playMAOGame() : 
-                    await gameContract.playPIGame();
+                let tx;
+                try {
+                    tx = selectedToken === 'MAO' ? 
+                        await gameContract.playMAOGame() : 
+                        await gameContract.playPIGame();
+                } catch (contractError) {
+                    // 详细的合约错误处理
+                    if (contractError.message.includes('insufficient funds')) {
+                        throw new Error('ALV余额不足，无法支付gas费用');
+                    } else if (contractError.message.includes('user rejected')) {
+                        throw new Error('用户取消了交易');
+                    } else if (contractError.message.includes('execution reverted')) {
+                        throw new Error('合约执行失败，可能是奖金池余额不足或授权有问题');
+                    } else {
+                        throw new Error(`游戏合约调用失败: ${contractError.reason || contractError.message}`);
+                    }
+                }
                 
                 showStatusMessage(t('waiting-confirmation'), 'info');
                 const receipt = await tx.wait();
@@ -804,24 +885,33 @@
                 // 步骤3：支付成功后才开始转盘动画
                 await spinWheel();
 
-                // 步骤4：解析游戏结果
+                // 步骤4：解析游戏结果并保存记录
                 const gameEvent = receipt.events?.find(e => e.event === 'GamePlayed');
+                let gameResult = {
+                    multiplier: 0,
+                    reward: 0,
+                    txHash: tx.hash
+                };
+                
                 if (gameEvent) {
                     const { multiplier, reward } = gameEvent.args;
-                    const multiplierValue = parseFloat(ethers.utils.formatEther(multiplier));
-                    const rewardValue = parseFloat(ethers.utils.formatEther(reward));
+                    gameResult.multiplier = parseFloat(ethers.utils.formatEther(multiplier));
+                    gameResult.reward = parseFloat(ethers.utils.formatEther(reward));
                     
                     let resultText;
-                    if (multiplierValue === 0) {
+                    if (gameResult.multiplier === 0) {
                         resultText = t('no-prize');
                     } else {
-                        resultText = `${t('won-prize')} ${multiplierValue}倍 奖励！\n奖励: ${rewardValue.toLocaleString()} ${selectedToken}`;
+                        resultText = `${t('won-prize')} ${gameResult.multiplier}倍 奖励！\n奖励: ${gameResult.reward.toLocaleString()} ${selectedToken}`;
                     }
                     
-                    showResult(resultText, multiplierValue);
+                    showResult(resultText, gameResult.multiplier);
                 } else {
                     showResult(t('game-complete'), 0);
                 }
+
+                // 保存游戏记录
+                saveGameRecord(gameResult);
 
                 // 更新余额
                 await updateBalances();
@@ -831,15 +921,11 @@
             } catch (error) {
                 console.error('❌ 游戏失败:', error);
                 
-                let errorMessage = '游戏失败';
-                if (error.message.includes('insufficient funds')) {
-                    errorMessage = '余额不足，无法支付gas费用';
-                } else if (error.message.includes('user rejected')) {
-                    errorMessage = '用户取消了交易';
-                } else if (error.message.includes('execution reverted')) {
-                    errorMessage = '合约执行失败，可能余额不足或奖金池余额不足';
-                } else if (error.message.includes('insufficient allowance')) {
-                    errorMessage = '代币授权不足，请重新授权';
+                let errorMessage = error.message || '游戏失败';
+                
+                // 如果错误消息太长，简化显示
+                if (errorMessage.length > 50) {
+                    errorMessage = errorMessage.substring(0, 50) + '...';
                 }
                 
                 showStatusMessage(errorMessage, 'insufficient-balance');
@@ -884,6 +970,84 @@
         // 关闭模态框
         function closeModal() {
             document.getElementById('resultModal').classList.remove('show');
+        }
+
+        // 加载游戏历史记录
+        function loadGameHistory() {
+            try {
+                const savedHistory = localStorage.getItem('mao_game_history');
+                if (savedHistory) {
+                    gameHistory = JSON.parse(savedHistory);
+                    updateHistoryDisplay();
+                }
+            } catch (error) {
+                console.error('加载游戏历史失败:', error);
+                gameHistory = [];
+            }
+        }
+
+        // 保存游戏记录
+        function saveGameRecord(result) {
+            const record = {
+                id: Date.now(),
+                timestamp: new Date().toLocaleString('zh-CN'),
+                token: selectedToken,
+                cost: selectedToken === 'MAO' ? 100 : 1000,
+                multiplier: result.multiplier,
+                reward: result.reward,
+                isWin: result.multiplier > 0,
+                txHash: result.txHash
+            };
+            
+            gameHistory.unshift(record); // 添加到开头
+            
+            // 只保留最近50条记录
+            if (gameHistory.length > 50) {
+                gameHistory = gameHistory.slice(0, 50);
+            }
+            
+            // 保存到本地存储
+            try {
+                localStorage.setItem('mao_game_history', JSON.stringify(gameHistory));
+                updateHistoryDisplay();
+            } catch (error) {
+                console.error('保存游戏历史失败:', error);
+            }
+        }
+
+        // 更新历史记录显示
+        function updateHistoryDisplay() {
+            const totalGames = gameHistory.length;
+            const winCount = gameHistory.filter(record => record.isWin).length;
+            const winRate = totalGames > 0 ? Math.round((winCount / totalGames) * 100) : 0;
+            
+            // 更新统计数据
+            document.getElementById('totalGames').textContent = totalGames;
+            document.getElementById('winCount').textContent = winCount;
+            document.getElementById('winRate').textContent = winRate + '%';
+            
+            // 更新记录列表
+            const historyList = document.getElementById('historyList');
+            if (gameHistory.length === 0) {
+                historyList.innerHTML = '<div class="history-item">暂无游戏记录</div>';
+            } else {
+                historyList.innerHTML = gameHistory.map(record => {
+                    const className = record.isWin ? 'win' : 'loss';
+                    const resultText = record.isWin ? 
+                        `🎉 中奖${record.multiplier}倍，获得${record.reward} ${record.token}` : 
+                        '😔 未中奖';
+                    
+                    return `
+                        <div class="history-item ${className}">
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <span>${record.timestamp}</span>
+                                <span style="color: #FFE066;">${record.token} (${record.cost})</span>
+                            </div>
+                            <div style="margin-top: 5px; font-size: 0.85em;">${resultText}</div>
+                        </div>
+                    `;
+                }).join('');
+            }
         }
 
         // 监听账户变化
