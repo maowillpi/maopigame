@@ -324,12 +324,12 @@
 
     <div class="burned-stats">
         <div>
-            <span style="color: #ffeb3b;">MAO:</span>
-            <span style="color: white; font-weight: bold;">201,001,230</span>
+            <span style="color: #ffeb3b;">🔥销毁:</span>
+            <span style="color: white; font-weight: bold;" id="burnedStats">MAO: 0 | PI: 0</span>
         </div>
         <div>
-            <span style="color: #ffeb3b;">PI:</span>
-            <span style="color: white; font-weight: bold;">83,000</span>
+            <span style="color: #ffeb3b;">📊分配:</span>
+            <span style="color: white; font-weight: bold;">15%销毁 | 15%营销 | 70%奖金池</span>
         </div>
     </div>
 
@@ -539,6 +539,26 @@
             }
         }
 
+        // 更新销毁统计
+        async function updateBurnedStats() {
+            try {
+                // 这里可以查询销毁地址或事件来获取真实的销毁数量
+                // 暂时使用静态数据，后续可以连接到销毁合约或事件
+                const burnedStatsElement = document.getElementById('burnedStats');
+                
+                // 估算销毁量（基于游戏次数 × 15%）
+                // 这个数据应该从区块链事件或销毁合约中获取
+                const estimatedMAOBurned = 201001230; // 临时数据
+                const estimatedPIBurned = 83000; // 临时数据
+                
+                burnedStatsElement.textContent = `MAO: ${estimatedMAOBurned.toLocaleString()} | PI: ${estimatedPIBurned.toLocaleString()}`;
+                
+            } catch (error) {
+                console.error('更新销毁统计失败:', error);
+                document.getElementById('burnedStats').textContent = 'MAO: 获取失败 | PI: 获取失败';
+            }
+        }
+
         // 显示状态消息
         function showStatusMessage(message, type = 'info') {
             const statusDiv = document.getElementById('statusMessage');
@@ -683,6 +703,9 @@
 
                 console.log('✅ 余额更新完成 - MAO:', maoFormatted, 'PI:', piFormatted);
                 
+                // 同时更新销毁统计
+                await updateBurnedStats();
+                
             } catch (error) {
                 console.error('❌ 余额更新失败:', error);
                 document.getElementById('maoBalance').textContent = t('failed');
@@ -756,7 +779,7 @@
 
                 console.log('🎮 开始游戏，使用代币:', selectedToken);
 
-                // 检查授权
+                // 步骤1：检查授权
                 const contract = selectedToken === 'MAO' ? maoContract : piContract;
                 const cost = GAME_COSTS[selectedToken];
                 const allowance = await contract.allowance(userAddress, GAME_CONTRACT_ADDRESS);
@@ -768,10 +791,7 @@
                     }
                 }
 
-                // 转盘动画
-                await spinWheel();
-
-                // 调用智能合约
+                // 步骤2：先执行区块链交易（支付代币）
                 showStatusMessage(t('processing'), 'info');
                 
                 const tx = selectedToken === 'MAO' ? 
@@ -780,8 +800,11 @@
                 
                 showStatusMessage(t('waiting-confirmation'), 'info');
                 const receipt = await tx.wait();
-                
-                // 解析游戏结果
+
+                // 步骤3：支付成功后才开始转盘动画
+                await spinWheel();
+
+                // 步骤4：解析游戏结果
                 const gameEvent = receipt.events?.find(e => e.event === 'GamePlayed');
                 if (gameEvent) {
                     const { multiplier, reward } = gameEvent.args;
@@ -808,13 +831,15 @@
             } catch (error) {
                 console.error('❌ 游戏失败:', error);
                 
-                let errorMessage = t('game-failed');
+                let errorMessage = '游戏失败';
                 if (error.message.includes('insufficient funds')) {
                     errorMessage = '余额不足，无法支付gas费用';
                 } else if (error.message.includes('user rejected')) {
                     errorMessage = '用户取消了交易';
                 } else if (error.message.includes('execution reverted')) {
-                    errorMessage = '合约执行失败，可能余额不足';
+                    errorMessage = '合约执行失败，可能余额不足或奖金池余额不足';
+                } else if (error.message.includes('insufficient allowance')) {
+                    errorMessage = '代币授权不足，请重新授权';
                 }
                 
                 showStatusMessage(errorMessage, 'insufficient-balance');
