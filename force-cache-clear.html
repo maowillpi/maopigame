@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>🔄 正在更新游戏...</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(45deg, #4f8cff, #a259ff);
+            color: white;
+            text-align: center;
+            padding: 50px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        .loading {
+            font-size: 2em;
+            margin: 20px 0;
+            animation: pulse 1.5s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        .message {
+            font-size: 1.2em;
+            margin: 20px 0;
+        }
+        .countdown {
+            font-size: 1.5em;
+            color: #FFE066;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="loading">🔄 正在清理缓存并更新游戏...</div>
+    <div class="message">正在加载最新版本的MAO转盘游戏</div>
+    <div class="countdown" id="countdown">3</div>
+    <div class="message">请稍候，将自动跳转到游戏页面</div>
+    
+    <script>
+        // 强制清理所有可能的缓存
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.getRegistrations().then(function(registrations) {
+                for(let registration of registrations) {
+                    registration.unregister();
+                }
+            });
+        }
+        
+        // 清理localStorage和sessionStorage
+        localStorage.clear();
+        sessionStorage.clear();
+        
+        // 倒计时并跳转
+        let count = 3;
+        const countdownEl = document.getElementById('countdown');
+        
+        const timer = setInterval(() => {
+            count--;
+            countdownEl.textContent = count;
+            
+            if (count === 0) {
+                clearInterval(timer);
+                
+                // 使用强制刷新参数跳转到主页面
+                const timestamp = new Date().getTime();
+                window.location.href = `./index.html?nocache=${timestamp}&v=${timestamp}`;
+            }
+        }, 1000);
+        
+        // 禁用所有缓存
+        if (window.applicationCache) {
+            window.applicationCache.update();
+        }
+    </script>
+</body>
+</html> 
