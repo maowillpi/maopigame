@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🧪 测试页面</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #4f8cff 0%, #a259ff 100%);
+            color: white;
+            padding: 20px;
+            margin: 0;
+            min-height: 100vh;
+            text-align: center;
+        }
+        .test-box {
+            background: rgba(255,255,255,0.1);
+            border-radius: 20px;
+            padding: 40px;
+            margin: 20px auto;
+            max-width: 500px;
+            border: 2px solid white;
+        }
+        .btn {
+            background: #FF6B6B;
+            border: none;
+            color: white;
+            padding: 15px 30px;
+            border-radius: 25px;
+            font-size: 1.1em;
+            cursor: pointer;
+            margin: 10px;
+            text-decoration: none;
+            display: inline-block;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-box">
+        <h1>🧪 测试页面</h1>
+        <p>如果您能看到这个页面，说明基本渲染正常</p>
+        <p>当前时间：<span id="time"></span></p>
+        <br>
+        <a href="https://maopi.me" class="btn">🎰 访问游戏主页</a>
+        <a href="https://maopi.me/clear-cache.html" class="btn">🔄 清除缓存页面</a>
+        <br><br>
+        <div style="background: rgba(255,224,102,0.2); padding: 15px; border-radius: 10px; margin: 20px 0;">
+            <h3>📱 如果主页空白，请尝试：</h3>
+            <p>1️⃣ <strong>下拉刷新页面</strong></p>
+            <p>2️⃣ <strong>完全关闭浏览器再打开</strong></p>
+            <p>3️⃣ <strong>使用无痕模式访问</strong></p>
+            <p>4️⃣ <strong>清除浏览器所有数据</strong></p>
+        </div>
+    </div>
+
+    <script>
+        // 更新时间
+        function updateTime() {
+            const now = new Date();
+            document.getElementById('time').textContent = now.toLocaleString('zh-CN');
+        }
+        updateTime();
+        setInterval(updateTime, 1000);
+
+        // 页面加载完成提示
+        window.addEventListener('load', function() {
+            console.log('✅ 测试页面加载完成！时间：' + new Date().toLocaleString());
+        });
+    </script>
+</body>
+</html> 
