@@ -441,63 +441,6 @@
                 }
             }, 2000);
         });
-    
-        // 👁️ 页面可见性变化处理
-        document.addEventListener('visibilitychange', function() {
-            if (!document.hidden && gameState.account) {
-                console.log('📱 页面重新可见，刷新余额...');
-                setTimeout(() => {
-                    updateBalance().catch(console.error);
-                }, 500);
-            }
-        });
-        
-        // 🔄 定期健康检查
-        let healthCheckInterval = setInterval(function() {
-            try {
-                // 检查MAO余额是否还在显示"加载中"
-                const elements = document.querySelectorAll('*');
-                let hasLoadingText = false;
-                
-                elements.forEach(element => {
-                    if (element.textContent && element.textContent.includes('加载中')) {
-                        hasLoadingText = true;
-                    }
-                });
-                
-                if (hasLoadingText && gameState.account && gameState.provider) {
-                    console.log('🚨 检测到持续加载状态，尝试修复...');
-                    updateBalance().catch(console.error);
-                }
-            } catch (error) {
-                console.error('❌ 健康检查失败:', error);
-            }
-        }, 10000); // 每10秒检查一次
-    
-        // 🚨 全局错误处理
-        window.addEventListener('error', function(event) {
-            console.error('💥 全局错误:', event.error);
-            
-            // 如果是网络相关错误，尝试重新连接
-            if (event.error && event.error.message && 
-                (event.error.message.includes('network') || 
-                 event.error.message.includes('provider') ||
-                 event.error.message.includes('connection'))) {
-                
-                console.log('🔄 检测到网络错误，尝试重新初始化...');
-                setTimeout(() => {
-                    if (gameState.account) {
-                        updateBalance().catch(console.error);
-                    }
-                }, 2000);
-            }
-        });
-        
-        // 🔄 Promise错误处理
-        window.addEventListener('unhandledrejection', function(event) {
-            console.error('💥 未处理的Promise错误:', event.reason);
-            event.preventDefault(); // 防止错误导致页面崩溃
-        });
     </script>
     <script>
         // 多语言配置
