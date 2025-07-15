@@ -1,0 +1,1104 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <title>🎰 MAO转盘游戏</title>
+    <style>
+        * { 
+            margin: 0; 
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            user-select: none;
+        }
+        html, body {
+            height: 100%;
+            overflow-x: hidden;
+            overflow-y: auto;
+        }
+        body {
+            font-family: 'Arial Rounded MT Bold', 'Arial', sans-serif;
+            background: linear-gradient(135deg, #4f8cff 0%, #a259ff 100%);
+            min-height: 100vh;
+            color: #fff;
+            padding: 10px;
+            padding-bottom: 60px;
+        }
+        .language-selector {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            display: flex;
+            gap: 10px;
+        }
+        .lang-btn {
+            background: rgba(255,255,255,0.2);
+            border: 2px solid rgba(255,255,255,0.3);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 14px;
+            font-weight: bold;
+        }
+        .lang-btn.active {
+            background: rgba(255,224,102,0.3);
+            border-color: #FFE066;
+        }
+        .game-container {
+            max-width: 500px;
+            margin: 0 auto;
+            padding: 20px;
+            text-align: center;
+        }
+        .title {
+            font-size: 2.5em;
+            margin: 20px 0;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.3);
+            animation: glow 2s ease-in-out infinite alternate;
+        }
+        @keyframes glow {
+            from { text-shadow: 0 0 20px #fff, 0 0 30px #fff, 0 0 40px #FFE066; }
+            to { text-shadow: 0 0 30px #fff, 0 0 40px #fff, 0 0 50px #FFE066; }
+        }
+        .desc {
+            font-size: 1.2em;
+            margin: 10px 0 30px 0;
+            opacity: 0.9;
+        }
+        .wallet-section {
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            margin: 20px 0;
+            border: 2px solid rgba(255,255,255,0.3);
+        }
+        .connect-btn {
+            background: linear-gradient(45deg, #FF6B6B, #4ECDC4);
+            border: none;
+            color: white;
+            padding: 15px 30px;
+            border-radius: 25px;
+            font-size: 1.2em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        }
+        .connect-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.4);
+        }
+        .connect-btn:disabled {
+            background: #666;
+            cursor: not-allowed;
+            transform: none;
+        }
+        .balance-display {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin: 20px 0;
+        }
+        .balance-item {
+            background: rgba(255,255,255,0.1);
+            padding: 15px;
+            border-radius: 15px;
+            text-align: center;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+        .balance-label {
+            font-size: 0.9em;
+            opacity: 0.8;
+            margin-bottom: 8px;
+        }
+        .balance-value {
+            font-size: 1.6em;
+            font-weight: bold;
+            color: #FFE066;
+        }
+        .game-history {
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 25px;
+            margin: 20px 0;
+            border: 2px solid rgba(255,255,255,0.3);
+        }
+        .game-history h3 {
+            margin: 0 0 20px 0;
+            text-align: center;
+            color: #FFE066;
+        }
+        .history-stats {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 20px;
+        }
+        .stat-item {
+            text-align: center;
+        }
+        .stat-label {
+            display: block;
+            font-size: 0.9em;
+            opacity: 0.8;
+            margin-bottom: 5px;
+        }
+        .stat-value {
+            font-size: 1.3em;
+            font-weight: bold;
+            color: #4ECDC4;
+        }
+        .history-list {
+            max-height: 200px;
+            overflow-y: auto;
+            background: rgba(0,0,0,0.3);
+            border-radius: 10px;
+            padding: 10px;
+        }
+        .history-item {
+            background: rgba(255,255,255,0.1);
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 8px;
+            font-size: 0.9em;
+        }
+        .history-item.win {
+            border-left: 4px solid #10B981;
+        }
+        .history-item.loss {
+            border-left: 4px solid #EF4444;
+        }
+        .game-section {
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            margin: 20px 0;
+            border: 2px solid rgba(255,255,255,0.3);
+        }
+        .token-selector {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin: 20px 0;
+        }
+        .token-btn {
+            background: rgba(255,255,255,0.2);
+            border: 2px solid rgba(255,255,255,0.3);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .token-btn.active {
+            background: rgba(255,224,102,0.3);
+            border-color: #FFE066;
+        }
+        .wheel-container {
+            position: relative;
+            width: 250px;
+            height: 250px;
+            margin: 30px auto;
+        }
+        .svg-wheel {
+            width: 100%;
+            height: 100%;
+            filter: drop-shadow(0 5px 15px rgba(0,0,0,0.3));
+            transition: transform 3s cubic-bezier(0.25, 0.1, 0.25, 1);
+        }
+        .wheel-pointer {
+            position: absolute;
+            top: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 12px solid transparent;
+            border-right: 12px solid transparent;
+            border-top: 25px solid #FFE066;
+            z-index: 10;
+            filter: drop-shadow(0 2px 5px rgba(0,0,0,0.3));
+        }
+        .wheel-center-btn {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(45deg, #FFE066, #FFC107);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5em;
+            cursor: pointer;
+            z-index: 5;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.3);
+        }
+        .play-btn {
+            background: linear-gradient(45deg, #4ECDC4, #44A08D);
+            border: none;
+            color: white;
+            padding: 15px 40px;
+            border-radius: 25px;
+            font-size: 1.3em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            margin: 20px 0;
+        }
+        .play-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.4);
+        }
+        .play-btn:disabled {
+            background: #666;
+            cursor: not-allowed;
+            transform: none;
+        }
+        .loading {
+            opacity: 0.5;
+            pointer-events: none;
+        }
+        .result-modal {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0,0,0,0.9);
+            color: white;
+            padding: 30px;
+            border-radius: 20px;
+            border: 3px solid #FFE066;
+            z-index: 1000;
+            text-align: center;
+            display: none;
+        }
+        .result-modal.show {
+            display: block;
+            animation: slideIn 0.5s ease-out;
+        }
+        @keyframes slideIn {
+            from { opacity: 0; transform: translate(-50%, -50%) scale(0.5); }
+            to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+        }
+        .status-message {
+            position: fixed;
+            top: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0,0,0,0.8);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 10px;
+            z-index: 1000;
+            display: none;
+        }
+        .insufficient-balance {
+            background: rgba(231, 76, 60, 0.9) !important;
+        }
+        .transaction-success {
+            background: rgba(39, 174, 96, 0.9) !important;
+        }
+    </style>
+</head>
+<body>
+    <div class="language-selector">
+        <button class="lang-btn active">中文</button>
+        <button class="lang-btn">English</button>
+    </div>
+
+    <div class="game-container">
+        <div class="title">🎰 MAO转盘游戏</div>
+        <div class="desc">50%中奖率，最高可中10倍大奖！</div>
+        
+        <div class="wallet-section">
+            <button class="connect-btn" id="connectBtn" onclick="connectWallet()">🔗 连接钱包</button>
+            <div class="balance-display" style="display: none;" id="balanceDisplay">
+                <div class="balance-item">
+                    <div class="balance-label">MAO余额</div>
+                    <div class="balance-value" id="maoBalance">加载中...</div>
+                </div>
+                <div class="balance-item">
+                    <div class="balance-label">PI余额</div>
+                    <div class="balance-value" id="piBalance">加载中...</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="game-section" style="display: none;" id="gameSection">
+            <div class="token-selector">
+                <button class="token-btn active" onclick="selectToken('MAO')">MAO (100)</button>
+                <button class="token-btn" onclick="selectToken('PI')">PI (1000)</button>
+            </div>
+            <div class="wheel-container">
+                <div class="wheel-pointer"></div>
+                <svg class="svg-wheel" id="wheelSvg" viewBox="0 0 270 270">
+                    <circle cx="135" cy="135" r="130" fill="#FF6B6B" stroke="#fff" stroke-width="5"/>
+                    <path d="M 135,5 A 130,130 0 0,1 240,85 L 135,135 Z" fill="#4ECDC4"/>
+                    <path d="M 240,85 A 130,130 0 0,1 240,185 L 135,135 Z" fill="#FFE066"/>
+                    <path d="M 240,185 A 130,130 0 0,1 135,265 L 135,135 Z" fill="#8B5CF6"/>
+                    <path d="M 135,265 A 130,130 0 0,1 30,185 L 135,135 Z" fill="#10B981"/>
+                    <path d="M 30,185 A 130,130 0 0,1 30,85 L 135,135 Z" fill="#F97316"/>
+                    <text x="135" y="50" text-anchor="middle" fill="white" font-size="20">0x</text>
+                    <text x="200" y="100" text-anchor="middle" fill="white" font-size="16">1.05x</text>
+                    <text x="200" y="170" text-anchor="middle" fill="white" font-size="16">1.25x</text>
+                    <text x="135" y="230" text-anchor="middle" fill="white" font-size="20">2x</text>
+                    <text x="70" y="170" text-anchor="middle" fill="white" font-size="20">6x</text>
+                    <text x="70" y="100" text-anchor="middle" fill="white" font-size="16">10x</text>
+                </svg>
+                <div class="wheel-center-btn">🎰</div>
+            </div>
+            <button class="play-btn" id="playBtn" onclick="playGame()">🎮 开始游戏</button>
+        </div>
+
+        <!-- 游戏记录部分 -->
+        <div class="game-history" style="display: none;" id="gameHistory">
+            <h3>🏆 我的游戏记录</h3>
+            <div class="history-stats">
+                <div class="stat-item">
+                    <span class="stat-label">总游戏次数</span>
+                    <span class="stat-value" id="totalGames">0</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">获奖次数</span>
+                    <span class="stat-value" id="winCount">0</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">中奖率</span>
+                    <span class="stat-value" id="winRate">0%</span>
+                </div>
+            </div>
+            <div class="history-list" id="historyList">
+                <div class="history-item">暂无游戏记录</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="status-message" id="statusMessage"></div>
+
+    <div class="result-modal" id="resultModal">
+        <h2 id="resultTitle">🎉</h2>
+        <p id="resultText">恭喜获得奖励！</p>
+        <button id="closeModalBtn" onclick="closeModal()" style="background: #4ECDC4; color: white; border: none; padding: 10px 20px; border-radius: 10px; margin-top: 15px; cursor: pointer;">确定</button>
+    </div>
+
+    <script>
+        // 翻译数据
+        const TRANSLATIONS = {
+            'zh': {
+                'title': '🎰 MAO转盘游戏',
+                'subtitle': '50%中奖率，最高可中10倍大奖！',
+                'connect-wallet': '🔗 连接钱包',
+                'wallet-connected': '✅ 钱包已连接',
+                'connecting': '🔌 连接中...',
+                'mao-balance': 'MAO余额',
+                'pi-balance': 'PI余额',
+                'loading': '加载中...',
+                'failed': '获取失败',
+                'start-game': '🎮 开始游戏',
+                'gaming': '🎮 游戏中...',
+                'connect-wallet-first': '请先连接钱包！',
+                'insufficient-balance': '余额不足！需要',
+                'wallet-connected-success': '钱包连接成功！',
+                'wallet-connect-failed': '钱包连接失败',
+                'authorizing': '正在授权代币...',
+                'processing': '正在处理游戏交易...',
+                'waiting-confirmation': '等待交易确认...',
+                'game-complete': '游戏完成！',
+                'congratulations': '🎉 恭喜中奖！',
+                'sorry': '😔 很遗憾',
+                'won-prize': '恭喜！获得',
+                'no-prize': '很遗憾，这次没有中奖！',
+                'close': '确定',
+                'burned-stats': '已销毁统计'
+            },
+            'en': {
+                'title': '🎰 MAO Wheel Game',
+                'subtitle': '50% win rate, up to 10x prizes!',
+                'connect-wallet': '🔗 Connect Wallet',
+                'wallet-connected': '✅ Wallet Connected',
+                'connecting': '🔌 Connecting...',
+                'mao-balance': 'MAO Balance',
+                'pi-balance': 'PI Balance',
+                'loading': 'Loading...',
+                'failed': 'Failed',
+                'start-game': '🎮 Start Game',
+                'gaming': '🎮 Playing...',
+                'connect-wallet-first': 'Please connect wallet first!',
+                'insufficient-balance': 'Insufficient balance! Need',
+                'wallet-connected-success': 'Wallet connected successfully!',
+                'wallet-connect-failed': 'Failed to connect wallet',
+                'authorizing': 'Authorizing tokens...',
+                'processing': 'Processing game transaction...',
+                'waiting-confirmation': 'Waiting for confirmation...',
+                'game-complete': 'Game complete!',
+                'congratulations': '🎉 Congratulations!',
+                'sorry': '😔 Sorry',
+                'won-prize': 'Congratulations! Won',
+                'no-prize': 'Sorry, no prize this time!',
+                'close': 'OK',
+                'burned-stats': 'Burned Stats'
+            }
+        };
+
+        // 当前语言
+        let currentLang = 'zh';
+
+        // 获取翻译文本
+        function t(key) {
+            const keys = key.split('.');
+            let value = TRANSLATIONS[currentLang];
+            for (const k of keys) {
+                value = value[k];
+                if (!value) break;
+            }
+            return value || key;
+        }
+
+        // 更新界面语言
+        function updateLanguage() {
+            // 更新标题和描述
+            document.querySelector('.title').textContent = t('title');
+            document.querySelector('.desc').textContent = t('subtitle');
+            
+            // 更新连接按钮文本
+            const connectBtn = document.getElementById('connectBtn');
+            if (connectBtn.textContent.includes('连接钱包') || connectBtn.textContent.includes('Connect Wallet')) {
+                connectBtn.textContent = t('connect-wallet');
+            } else if (connectBtn.textContent.includes('已连接') || connectBtn.textContent.includes('Connected')) {
+                connectBtn.textContent = t('wallet-connected');
+            } else if (connectBtn.textContent.includes('连接中') || connectBtn.textContent.includes('Connecting')) {
+                connectBtn.textContent = t('connecting');
+            }
+            
+            // 更新余额标签
+            const balanceItems = document.querySelectorAll('.balance-display .balance-item');
+            if (balanceItems.length >= 2) {
+                balanceItems[0].querySelector('.balance-label').textContent = t('mao-balance');
+                balanceItems[1].querySelector('.balance-label').textContent = t('pi-balance');
+            }
+            
+            // 更新游戏按钮
+            const playBtn = document.getElementById('playBtn');
+            if (playBtn && (playBtn.textContent.includes('开始游戏') || playBtn.textContent.includes('Start Game'))) {
+                playBtn.textContent = t('start-game');
+            } else if (playBtn && (playBtn.textContent.includes('游戏中') || playBtn.textContent.includes('Playing'))) {
+                playBtn.textContent = t('gaming');
+            }
+            
+            // 更新关闭按钮
+            const closeBtn = document.getElementById('closeModalBtn');
+            if (closeBtn) {
+                closeBtn.textContent = t('close');
+            }
+            
+            // 更新页面标题和语言属性
+            document.title = t('title');
+            document.documentElement.lang = currentLang === 'zh' ? 'zh-CN' : 'en';
+        }
+
+        // 语言切换
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('.lang-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const isZh = btn.textContent.includes('中文');
+                    document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    currentLang = isZh ? 'zh' : 'en';
+                    updateLanguage();
+                });
+            });
+            
+            // 初始化语言
+            updateLanguage();
+        });
+
+        // 全局变量
+        let provider;
+        let signer;
+        let gameContract;
+        let maoContract;
+        let piContract;
+        let userAddress;
+        let selectedToken = 'MAO';
+        let isConnected = false;
+        let isPlaying = false;
+        let gameHistory = []; // 存储用户游戏记录
+
+        // 合约配置
+        const GAME_CONTRACT_ADDRESS = '0x621DF9e0DE6b4e7EDC5Dc22Cd7c0F883c3F56966';
+        const MAO_CONTRACT_ADDRESS = '0x22f49bcb3dad370a9268ba3fca33cb037ca3d022';
+        const PI_CONTRACT_ADDRESS = '0xfd4680e25e05b3435c7f698668d1ce80d2a9f444';
+        
+        // RPC节点
+        const RPC_URLS = [
+            'https://elves-core1.alvey.io/',
+            'https://elves-core2.alvey.io/',
+            'https://elves-core3.alvey.io/'
+        ];
+
+        // 游戏合约ABI - 简化版，专注核心功能
+        const GAME_ABI = [
+            "function playMAOGame() external",
+            "function playPIGame() external",
+            "function prizePool() external view returns (uint256)",
+            "function marketingWallet() external view returns (address)",
+            "event GamePlayed(address indexed player, bool useMAO, uint256 amount, uint256 multiplier, uint256 reward)"
+        ];
+
+        // ERC20代币ABI
+        const TOKEN_ABI = [
+            "function balanceOf(address account) external view returns (uint256)",
+            "function allowance(address owner, address spender) external view returns (uint256)",
+            "function approve(address spender, uint256 amount) external returns (bool)",
+            "function decimals() external view returns (uint8)",
+            "function symbol() external view returns (string)"
+        ];
+
+        // 游戏费用 - 将在ethers.js加载后初始化
+        let GAME_COSTS = {};
+
+        // 页面加载完成后的初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('📄 MAO转盘游戏加载完成');
+            
+            // 检查是否已连接钱包
+            if (window.ethereum && window.ethereum.selectedAddress) {
+                connectWallet();
+            }
+            
+            // 加载用户游戏历史
+            loadGameHistory();
+        });
+
+        // 初始化游戏费用
+        function initializeGameCosts() {
+            if (typeof ethers !== 'undefined') {
+                GAME_COSTS = {
+                    MAO: ethers.utils.parseEther('100'), // 100 MAO
+                    PI: ethers.utils.parseEther('1000')  // 1000 PI
+                };
+                console.log('✅ 游戏费用初始化完成');
+            }
+        }
+
+        // 更新销毁统计
+        async function updateBurnedStats() {
+            try {
+                // 这里可以查询销毁地址或事件来获取真实的销毁数量
+                // 暂时使用静态数据，后续可以连接到销毁合约或事件
+                const burnedStatsElement = document.getElementById('burnedStats');
+                
+                // 估算销毁量（基于游戏次数 × 15%）
+                // 这个数据应该从区块链事件或销毁合约中获取
+                const estimatedMAOBurned = 201001230; // 临时数据
+                const estimatedPIBurned = 83000; // 临时数据
+                
+                burnedStatsElement.textContent = `MAO: ${estimatedMAOBurned.toLocaleString()} | PI: ${estimatedPIBurned.toLocaleString()}`;
+                
+            } catch (error) {
+                console.error('更新销毁统计失败:', error);
+                document.getElementById('burnedStats').textContent = 'MAO: 获取失败 | PI: 获取失败';
+            }
+        }
+
+        // 显示状态消息
+        function showStatusMessage(message, type = 'info') {
+            const statusDiv = document.getElementById('statusMessage');
+            statusDiv.textContent = message;
+            statusDiv.className = `status-message ${type}`;
+            statusDiv.style.display = 'block';
+            
+            setTimeout(() => {
+                statusDiv.style.display = 'none';
+            }, 3000);
+        }
+
+        // 连接钱包
+        async function connectWallet() {
+            try {
+                const connectBtn = document.getElementById('connectBtn');
+                connectBtn.disabled = true;
+                connectBtn.textContent = t('connecting');
+
+                if (typeof window.ethereum === 'undefined') {
+                    throw new Error('请安装MetaMask钱包！');
+                }
+
+                console.log('🔌 正在连接钱包...');
+                
+                // 请求连接钱包
+                const accounts = await window.ethereum.request({
+                    method: 'eth_requestAccounts'
+                });
+                
+                if (accounts.length === 0) {
+                    throw new Error('请在钱包中授权连接！');
+                }
+
+                userAddress = accounts[0];
+                console.log('✅ 钱包连接成功:', userAddress);
+
+                // 自动配置正确的网络
+                await autoConfigureNetwork();
+
+                // 初始化provider和合约
+                if (typeof ethers !== 'undefined') {
+                    provider = new ethers.providers.Web3Provider(window.ethereum);
+                    signer = provider.getSigner();
+                    
+                    // 初始化合约
+                    gameContract = new ethers.Contract(GAME_CONTRACT_ADDRESS, GAME_ABI, signer);
+                    maoContract = new ethers.Contract(MAO_CONTRACT_ADDRESS, TOKEN_ABI, signer);
+                    piContract = new ethers.Contract(PI_CONTRACT_ADDRESS, TOKEN_ABI, signer);
+                }
+
+                isConnected = true;
+                
+                // 更新UI - 简化显示
+                connectBtn.textContent = '✅ 已连接';
+                connectBtn.style.background = 'linear-gradient(45deg, #10B981, #059669)';
+                connectBtn.disabled = true;
+                
+                document.getElementById('balanceDisplay').style.display = 'block';
+                document.getElementById('gameSection').style.display = 'block';
+                document.getElementById('gameHistory').style.display = 'block';
+
+                // 获取真实余额
+                await updateBalances();
+
+                showStatusMessage(t('wallet-connected-success'), 'transaction-success');
+
+            } catch (error) {
+                console.error('❌ 钱包连接失败:', error);
+                showStatusMessage(t('wallet-connect-failed') + ': ' + error.message, 'insufficient-balance');
+                
+                const connectBtn = document.getElementById('connectBtn');
+                connectBtn.disabled = false;
+                connectBtn.textContent = t('connect-wallet');
+            }
+        }
+
+        // 自动配置网络
+        async function autoConfigureNetwork() {
+            try {
+                const chainId = await window.ethereum.request({ method: 'eth_chainId' });
+                const alveyChainId = '0xED5'; // 3797 in hex
+                
+                if (chainId !== alveyChainId) {
+                    console.log('🔄 切换到Alvey网络...');
+                    
+                    try {
+                        // 尝试切换到Alvey网络
+                        await window.ethereum.request({
+                            method: 'wallet_switchEthereumChain',
+                            params: [{ chainId: alveyChainId }],
+                        });
+                        console.log('✅ 网络切换成功');
+                    } catch (switchError) {
+                        // 如果网络不存在，自动添加网络
+                        if (switchError.code === 4902) {
+                            console.log('➕ 添加Alvey网络...');
+                            await window.ethereum.request({
+                                method: 'wallet_addEthereumChain',
+                                params: [{
+                                    chainId: alveyChainId,
+                                    chainName: 'AlveyChain',
+                                    nativeCurrency: {
+                                        name: 'ALV',
+                                        symbol: 'ALV',
+                                        decimals: 18
+                                    },
+                                    rpcUrls: RPC_URLS,
+                                    blockExplorerUrls: ['https://alveyscan.com/']
+                                }]
+                            });
+                            console.log('✅ Alvey网络添加成功');
+                        } else {
+                            throw switchError;
+                        }
+                    }
+                } else {
+                    console.log('✅ 已在正确的Alvey网络');
+                }
+            } catch (error) {
+                console.error('❌ 网络配置失败:', error);
+                throw new Error('网络配置失败，请手动切换到Alvey网络');
+            }
+        }
+
+        // 更新余额
+        async function updateBalances() {
+            try {
+                if (!isConnected || !maoContract || !piContract) return;
+
+                console.log('📊 正在更新余额...');
+                
+                // 获取MAO余额
+                const maoBalance = await maoContract.balanceOf(userAddress);
+                const maoDecimals = await maoContract.decimals();
+                const maoFormatted = ethers.utils.formatUnits(maoBalance, maoDecimals);
+                
+                // 获取PI余额
+                const piBalance = await piContract.balanceOf(userAddress);
+                const piDecimals = await piContract.decimals();
+                const piFormatted = ethers.utils.formatUnits(piBalance, piDecimals);
+
+                // 更新显示
+                document.getElementById('maoBalance').textContent = parseFloat(maoFormatted).toLocaleString();
+                document.getElementById('piBalance').textContent = parseFloat(piFormatted).toLocaleString();
+
+                console.log('✅ 余额更新完成 - MAO:', maoFormatted, 'PI:', piFormatted);
+                
+            } catch (error) {
+                console.error('❌ 余额更新失败:', error);
+                document.getElementById('maoBalance').textContent = t('failed');
+                document.getElementById('piBalance').textContent = t('failed');
+            }
+        }
+
+        // 选择代币
+        function selectToken(token) {
+            selectedToken = token;
+            document.querySelectorAll('.token-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            console.log('🎯 选择代币:', token);
+        }
+
+        // 检查余额是否足够
+        async function checkSufficientBalance() {
+            try {
+                const cost = GAME_COSTS[selectedToken];
+                const contract = selectedToken === 'MAO' ? maoContract : piContract;
+                const balance = await contract.balanceOf(userAddress);
+                
+                return balance.gte(cost);
+            } catch (error) {
+                console.error('检查余额失败:', error);
+                return false;
+            }
+        }
+
+        // 授权代币
+        async function approveToken() {
+            try {
+                const contract = selectedToken === 'MAO' ? maoContract : piContract;
+                // 使用更大的授权额度，减少频繁授权
+                const largeAmount = selectedToken === 'MAO' ? 
+                    ethers.utils.parseEther('10000') : // 授权10000 MAO
+                    ethers.utils.parseEther('100000'); // 授权100000 PI
+
+                showStatusMessage(t('authorizing'), 'info');
+                
+                const tx = await contract.approve(GAME_CONTRACT_ADDRESS, largeAmount);
+                await tx.wait();
+
+                console.log('✅ 代币授权成功');
+                return true;
+            } catch (error) {
+                console.error('❌ 代币授权失败:', error);
+                if (error.message.includes('user rejected')) {
+                    showStatusMessage('用户取消了授权', 'insufficient-balance');
+                } else {
+                    showStatusMessage('授权失败: ' + error.message, 'insufficient-balance');
+                }
+                return false;
+            }
+        }
+
+        // 游戏逻辑
+        async function playGame() {
+            if (isPlaying) return;
+            
+            try {
+                if (!isConnected) {
+                    showStatusMessage(t('connect-wallet-first'), 'insufficient-balance');
+                    return;
+                }
+                
+                // 检查余额
+                const hasSufficientBalance = await checkSufficientBalance();
+                if (!hasSufficientBalance) {
+                    const cost = selectedToken === 'MAO' ? '100' : '1000';
+                    showStatusMessage(`${t('insufficient-balance')} ${cost} ${selectedToken}`, 'insufficient-balance');
+                    return;
+                }
+
+                isPlaying = true;
+                const playBtn = document.getElementById('playBtn');
+                playBtn.disabled = true;
+                playBtn.textContent = t('gaming');
+
+                console.log('🎮 开始游戏，使用代币:', selectedToken);
+
+                // 步骤1：检查并处理授权（使用更大的授权额度避免频繁授权）
+                const contract = selectedToken === 'MAO' ? maoContract : piContract;
+                const cost = GAME_COSTS[selectedToken];
+                const allowance = await contract.allowance(userAddress, GAME_CONTRACT_ADDRESS);
+                
+                if (allowance.lt(cost)) {
+                    showStatusMessage('正在授权代币...', 'info');
+                    const approved = await approveToken();
+                    if (!approved) {
+                        throw new Error('代币授权失败，游戏无法继续');
+                    }
+                }
+
+                // 步骤2：执行区块链交易（支付代币）
+                showStatusMessage(t('processing'), 'info');
+                
+                let tx;
+                try {
+                    tx = selectedToken === 'MAO' ? 
+                        await gameContract.playMAOGame() : 
+                        await gameContract.playPIGame();
+                } catch (contractError) {
+                    // 详细的合约错误处理
+                    if (contractError.message.includes('insufficient funds')) {
+                        throw new Error('ALV余额不足，无法支付gas费用');
+                    } else if (contractError.message.includes('user rejected')) {
+                        throw new Error('用户取消了交易');
+                    } else if (contractError.message.includes('execution reverted')) {
+                        throw new Error('合约执行失败，可能是奖金池余额不足或授权有问题');
+                    } else {
+                        throw new Error(`游戏合约调用失败: ${contractError.reason || contractError.message}`);
+                    }
+                }
+                
+                showStatusMessage(t('waiting-confirmation'), 'info');
+                const receipt = await tx.wait();
+
+                // 步骤3：支付成功后才开始转盘动画
+                await spinWheel();
+
+                // 步骤4：解析游戏结果并保存记录
+                const gameEvent = receipt.events?.find(e => e.event === 'GamePlayed');
+                let gameResult = {
+                    multiplier: 0,
+                    reward: 0,
+                    txHash: tx.hash
+                };
+                
+                if (gameEvent) {
+                    const { multiplier, reward } = gameEvent.args;
+                    gameResult.multiplier = parseFloat(ethers.utils.formatEther(multiplier));
+                    gameResult.reward = parseFloat(ethers.utils.formatEther(reward));
+                    
+                    let resultText;
+                    if (gameResult.multiplier === 0) {
+                        resultText = t('no-prize');
+                    } else {
+                        resultText = `${t('won-prize')} ${gameResult.multiplier}倍 奖励！\n奖励: ${gameResult.reward.toLocaleString()} ${selectedToken}`;
+                    }
+                    
+                    showResult(resultText, gameResult.multiplier);
+                } else {
+                    showResult(t('game-complete'), 0);
+                }
+
+                // 保存游戏记录
+                saveGameRecord(gameResult);
+
+                // 更新余额
+                await updateBalances();
+                
+                showStatusMessage(t('game-complete'), 'transaction-success');
+
+            } catch (error) {
+                console.error('❌ 游戏失败:', error);
+                
+                let errorMessage = error.message || '游戏失败';
+                
+                // 如果错误消息太长，简化显示
+                if (errorMessage.length > 50) {
+                    errorMessage = errorMessage.substring(0, 50) + '...';
+                }
+                
+                showStatusMessage(errorMessage, 'insufficient-balance');
+            } finally {
+                isPlaying = false;
+                const playBtn = document.getElementById('playBtn');
+                playBtn.disabled = false;
+                playBtn.textContent = t('start-game');
+            }
+        }
+
+        // 转盘动画
+        async function spinWheel() {
+            return new Promise((resolve) => {
+                const wheel = document.getElementById('wheelSvg');
+                const rotation = 1440 + Math.random() * 360; // 4圈 + 随机角度
+                
+                wheel.style.transform = `rotate(${rotation}deg)`;
+                
+                setTimeout(resolve, 3000); // 3秒动画
+            });
+        }
+
+        // 显示结果
+        function showResult(text, multiplier) {
+            const modal = document.getElementById('resultModal');
+            const title = document.getElementById('resultTitle');
+            const resultText = document.getElementById('resultText');
+            
+            if (multiplier > 0) {
+                title.textContent = t('congratulations');
+                title.style.color = '#4ECDC4';
+            } else {
+                title.textContent = t('sorry');
+                title.style.color = '#FF6B6B';
+            }
+            
+            resultText.textContent = text;
+            modal.classList.add('show');
+        }
+
+        // 关闭模态框
+        function closeModal() {
+            document.getElementById('resultModal').classList.remove('show');
+        }
+
+        // 加载游戏历史记录
+        function loadGameHistory() {
+            try {
+                const savedHistory = localStorage.getItem('mao_game_history');
+                if (savedHistory) {
+                    gameHistory = JSON.parse(savedHistory);
+                    updateHistoryDisplay();
+                }
+            } catch (error) {
+                console.error('加载游戏历史失败:', error);
+                gameHistory = [];
+            }
+        }
+
+        // 保存游戏记录
+        function saveGameRecord(result) {
+            const record = {
+                id: Date.now(),
+                timestamp: new Date().toLocaleString('zh-CN'),
+                token: selectedToken,
+                cost: selectedToken === 'MAO' ? 100 : 1000,
+                multiplier: result.multiplier,
+                reward: result.reward,
+                isWin: result.multiplier > 0,
+                txHash: result.txHash
+            };
+            
+            gameHistory.unshift(record); // 添加到开头
+            
+            // 只保留最近50条记录
+            if (gameHistory.length > 50) {
+                gameHistory = gameHistory.slice(0, 50);
+            }
+            
+            // 保存到本地存储
+            try {
+                localStorage.setItem('mao_game_history', JSON.stringify(gameHistory));
+                updateHistoryDisplay();
+            } catch (error) {
+                console.error('保存游戏历史失败:', error);
+            }
+        }
+
+        // 更新历史记录显示
+        function updateHistoryDisplay() {
+            const totalGames = gameHistory.length;
+            const winCount = gameHistory.filter(record => record.isWin).length;
+            const winRate = totalGames > 0 ? Math.round((winCount / totalGames) * 100) : 0;
+            
+            // 更新统计数据
+            document.getElementById('totalGames').textContent = totalGames;
+            document.getElementById('winCount').textContent = winCount;
+            document.getElementById('winRate').textContent = winRate + '%';
+            
+            // 更新记录列表
+            const historyList = document.getElementById('historyList');
+            if (gameHistory.length === 0) {
+                historyList.innerHTML = '<div class="history-item">暂无游戏记录</div>';
+            } else {
+                historyList.innerHTML = gameHistory.map(record => {
+                    const className = record.isWin ? 'win' : 'loss';
+                    const resultText = record.isWin ? 
+                        `🎉 中奖${record.multiplier}倍，获得${record.reward} ${record.token}` : 
+                        '😔 未中奖';
+                    
+                    return `
+                        <div class="history-item ${className}">
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <span>${record.timestamp}</span>
+                                <span style="color: #FFE066;">${record.token} (${record.cost})</span>
+                            </div>
+                            <div style="margin-top: 5px; font-size: 0.85em;">${resultText}</div>
+                        </div>
+                    `;
+                }).join('');
+            }
+        }
+
+        // 监听账户变化
+        if (window.ethereum) {
+            window.ethereum.on('accountsChanged', function (accounts) {
+                if (accounts.length === 0) {
+                    // 用户断开连接
+                    isConnected = false;
+                    document.getElementById('connectBtn').textContent = t('connect-wallet');
+                    document.getElementById('balanceDisplay').style.display = 'none';
+                    document.getElementById('gameSection').style.display = 'none';
+                } else if (accounts[0] !== userAddress) {
+                    // 用户切换账户
+                    location.reload();
+                }
+            });
+
+            window.ethereum.on('chainChanged', function (chainId) {
+                // 网络切换，重新加载页面
+                location.reload();
+            });
+        }
+
+        // 错误处理，防止页面崩溃
+        window.addEventListener('error', function(e) {
+            console.error('💥 JavaScript错误:', e.error);
+            e.preventDefault();
+        });
+
+        window.addEventListener('unhandledrejection', function(e) {
+            console.error('💥 未处理的Promise错误:', e.reason);
+            e.preventDefault();
+        });
+    </script>
+
+    <!-- 动态加载ethers.js -->
+    <script>
+        const script = document.createElement('script');
+        script.src = 'https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js';
+        script.async = true;
+        script.onload = function() {
+            console.log('✅ ethers.js 加载成功');
+            
+            // 初始化游戏费用常量
+            initializeGameCosts();
+        };
+        script.onerror = function() {
+            console.warn('⚠️ ethers.js 加载失败');
+            showStatusMessage('网络库加载失败，请刷新页面重试', 'insufficient-balance');
+        };
+        document.head.appendChild(script);
+    </script>
+</body>
+</html> 

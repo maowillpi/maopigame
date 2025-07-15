@@ -1,0 +1,23 @@
+{
+  "version": "v5.0-professional",
+  "deployTime": "2025-07-15T02:07:07Z",
+  "features": [
+    "钱包独立交易记录",
+    "现代化玻璃拟态设计",
+    "三栏专业布局",
+    "实时活动日志",
+    "智能通知系统",
+    "响应式移动端优化"
+  ],
+  "fixes": [
+    "修复交易记录钱包关联错误",
+    "修复界面不够专业问题",
+    "优化用户体验",
+    "增强功能完整性"
+  ],
+  "files": {
+    "main": "game.html",
+    "source": "game-professional.html",
+    "report": "PROFESSIONAL_UI_OPTIMIZATION_REPORT.md"
+  }
+}
