@@ -3,163 +3,147 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🔄 清除缓存 - MAO转盘游戏</title>
+    <title>🔄 缓存更新 - MAO转盘游戏</title>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
-            font-family: Arial, sans-serif;
-            background: linear-gradient(135deg, #4f8cff 0%, #a259ff 100%);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
-            color: white;
-            padding: 20px;
             display: flex;
-            flex-direction: column;
-            justify-content: center;
             align-items: center;
+            justify-content: center;
+            margin: 0;
+            color: white;
         }
         .container {
-            background: rgba(255,255,255,0.1);
-            backdrop-filter: blur(10px);
+            text-align: center;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
             border-radius: 20px;
             padding: 40px;
-            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.2);
             max-width: 500px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-        }
-        h1 { font-size: 2.5em; margin-bottom: 20px; }
-        .step {
-            background: rgba(255,255,255,0.1);
-            border-radius: 15px;
-            padding: 20px;
-            margin: 15px 0;
-            border-left: 5px solid #FFE066;
-        }
-        .step h3 { color: #FFE066; margin-bottom: 10px; font-size: 1.2em; }
-        .step p { line-height: 1.6; }
-        .btn {
-            background: linear-gradient(45deg, #FF6B6B, #4ECDC4);
-            border: none;
-            color: white;
-            padding: 15px 30px;
-            border-radius: 25px;
-            font-size: 1.1em;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.3s;
-            margin: 10px;
-            text-decoration: none;
-            display: inline-block;
-        }
-        .btn:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
-        .auto-refresh {
-            background: rgba(255,224,102,0.2);
-            border-radius: 10px;
-            padding: 15px;
-            margin: 20px 0;
-            border: 2px solid #FFE066;
         }
         .spinner {
-            border: 4px solid rgba(255,255,255,0.3);
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-top: 4px solid #FFE066;
             border-radius: 50%;
-            border-top: 4px solid #fff;
-            width: 40px;
-            height: 40px;
-            animation: spin 2s linear infinite;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
             margin: 20px auto;
         }
         @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
-        .hidden { display: none; }
+        .button {
+            background: linear-gradient(45deg, #FFE066, #FF6B9D);
+            border: none;
+            color: white;
+            padding: 15px 30px;
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            margin: 10px;
+            transition: transform 0.3s ease;
+        }
+        .button:hover {
+            transform: translateY(-2px);
+        }
+        .cache-info {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+            text-align: left;
+        }
+        .cache-info h3 {
+            margin-top: 0;
+            color: #FFE066;
+        }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>🔄 清除浏览器缓存</h1>
+        <h1>🔄 正在更新缓存...</h1>
+        <div class="spinner"></div>
+        <p>正在清除浏览器缓存，请稍等...</p>
         
-        <div class="step">
-            <h3>📱 手机用户（最有效）</h3>
-            <p><strong>1. 下拉刷新页面</strong><br>
-            在页面顶部用力向下拉，松手刷新</p>
-            <p><strong>2. 关闭并重新打开浏览器</strong><br>
-            完全退出浏览器应用，重新打开访问</p>
+        <div class="cache-info">
+            <h3>📋 如果您看到的是旧界面：</h3>
+            <ol>
+                <li><strong>强制刷新</strong>：按 Ctrl+F5 (Windows) 或 Cmd+Shift+R (Mac)</li>
+                <li><strong>清除缓存</strong>：按 F12 → Network → 勾选"Disable cache"</li>
+                <li><strong>无痕模式</strong>：打开无痕/隐私浏览窗口</li>
+                <li><strong>手动清除</strong>：浏览器设置 → 清除浏览数据</li>
+            </ol>
         </div>
 
-        <div class="step">
-            <h3>🖥️ 电脑用户</h3>
-            <p><strong>强制刷新：</strong><br>
-            • Windows: <code>Ctrl + F5</code> 或 <code>Ctrl + Shift + R</code><br>
-            • Mac: <code>Cmd + Shift + R</code></p>
+        <div id="status">
+            <p>🎯 <strong>最新版本</strong>：v5.1 修复版</p>
+            <p>🕐 <strong>更新时间</strong>：2025-07-15 10:40</p>
+            <p>✅ <strong>修复内容</strong>：游戏致命错误已完全修复</p>
         </div>
 
-        <div class="step">
-            <h3>🌐 浏览器设置清除</h3>
-            <p><strong>Chrome/Safari:</strong> 设置 → 隐私 → 清除浏览数据<br>
-            <strong>或者使用无痕模式访问</strong></p>
-        </div>
-
-        <div class="auto-refresh" id="autoRefresh">
-            <h3>⏰ 自动刷新中...</h3>
-            <div class="spinner"></div>
-            <p>正在尝试自动清除缓存并跳转到游戏页面</p>
-            <p id="countdown">10秒后自动跳转...</p>
-        </div>
-
-        <a href="https://maopi.me" class="btn" onclick="clearCacheAndRedirect()">
-            🎰 立即访问游戏
-        </a>
-        
-        <a href="https://maopi.me?v=<?php echo time(); ?>" class="btn">
-            🔄 带时间戳访问
-        </a>
+        <button class="button" onclick="forceRefresh()">🚀 立即访问最新版</button>
+        <button class="button" onclick="clearAllCache()">🧹 清除所有缓存</button>
     </div>
 
     <script>
-        // 自动清除缓存并跳转
-        let countdown = 10;
-        const countdownElement = document.getElementById('countdown');
-        
-        const timer = setInterval(() => {
-            countdown--;
-            countdownElement.textContent = `${countdown}秒后自动跳转...`;
-            
-            if (countdown <= 0) {
-                clearInterval(timer);
-                clearCacheAndRedirect();
-            }
-        }, 1000);
+        // 添加缓存清除参数
+        function forceRefresh() {
+            const timestamp = new Date().getTime();
+            window.location.href = `game.html?v=5.1&t=${timestamp}&cache=clear`;
+        }
 
-        function clearCacheAndRedirect() {
-            // 清除各种缓存
-            if ('serviceWorker' in navigator) {
-                navigator.serviceWorker.getRegistrations().then(function(registrations) {
-                    for(let registration of registrations) {
-                        registration.unregister();
-                    }
+        // 清除所有缓存
+        function clearAllCache() {
+            if ('caches' in window) {
+                caches.keys().then(names => {
+                    names.forEach(name => {
+                        caches.delete(name);
+                    });
                 });
             }
             
-            // 清除localStorage和sessionStorage
-            try {
-                localStorage.clear();
-                sessionStorage.clear();
-            } catch(e) {}
+            // 清除localStorage中的旧版本数据
+            localStorage.removeItem('mao_game_history');
             
-            // 添加随机参数强制刷新
-            const timestamp = new Date().getTime();
-            const randomParam = Math.random().toString(36).substring(7);
-            window.location.href = `https://maopi.me?v=${timestamp}&r=${randomParam}`;
+            // 3秒后自动跳转
+            setTimeout(() => {
+                forceRefresh();
+            }, 3000);
+            
+            document.getElementById('status').innerHTML = `
+                <p style="color: #4ECDC4;">✅ 缓存清除完成！</p>
+                <p>3秒后自动跳转到最新版本...</p>
+            `;
         }
 
-        // 页面加载完成后开始倒计时
-        window.addEventListener('load', function() {
-            // 预加载主页面
-            const link = document.createElement('link');
-            link.rel = 'prefetch';
-            link.href = 'https://maopi.me';
-            document.head.appendChild(link);
-        });
+        // 5秒后自动跳转
+        setTimeout(() => {
+            forceRefresh();
+        }, 5000);
+
+        // 检测是否为新版本
+        fetch('game.html', {cache: 'no-cache'})
+            .then(response => response.text())
+            .then(html => {
+                if (html.includes('修复版 v5.1')) {
+                    document.getElementById('status').innerHTML += `
+                        <p style="color: #4ECDC4;">✅ 服务器已部署最新版本</p>
+                    `;
+                } else {
+                    document.getElementById('status').innerHTML += `
+                        <p style="color: #FF6B6B;">⚠️ 服务器可能还在更新中...</p>
+                    `;
+                }
+            })
+            .catch(err => {
+                console.log('检查版本失败:', err);
+            });
     </script>
 </body>
 </html> 
