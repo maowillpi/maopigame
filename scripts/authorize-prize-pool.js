@@ -60,35 +60,38 @@ async function main() {
         console.log("MAO余额:", ethers.formatEther(maoBalance));
         console.log("PI余额:", ethers.formatEther(piBalance));
 
-        // 设置授权额度（1,000,000 代币）
-        const APPROVAL_AMOUNT = ethers.parseEther("1000000");
+        // 设置授权额度（无限授权）
+        const APPROVAL_AMOUNT = ethers.MaxUint256; // 使用最大值实现无限授权
         
-        console.log("\n🔓 执行授权操作...");
-        console.log("授权额度:", ethers.formatEther(APPROVAL_AMOUNT), "代币");
+        console.log("\n🔓 执行无限授权操作...");
+        console.log("授权额度: 无限 (MaxUint256)");
 
         // 授权 MAO 代币
-        console.log("\n📝 授权 MAO 代币...");
+        console.log("\n📝 无限授权 MAO 代币...");
         const maoApproveTx = await maoToken.approve(CONFIG.NEW_WHEEL_GAME, APPROVAL_AMOUNT);
         console.log("MAO授权交易哈希:", maoApproveTx.hash);
         console.log("⏳ 等待 MAO 授权确认...");
         await maoApproveTx.wait();
-        console.log("✅ MAO 授权成功!");
+        console.log("✅ MAO 无限授权成功!");
 
         // 授权 PI 代币
-        console.log("\n📝 授权 PI 代币...");
+        console.log("\n📝 无限授权 PI 代币...");
         const piApproveTx = await piToken.approve(CONFIG.NEW_WHEEL_GAME, APPROVAL_AMOUNT);
         console.log("PI授权交易哈希:", piApproveTx.hash);
         console.log("⏳ 等待 PI 授权确认...");
         await piApproveTx.wait();
-        console.log("✅ PI 授权成功!");
+        console.log("✅ PI 无限授权成功!");
 
         // 验证授权结果
         console.log("\n🔍 验证授权结果...");
         const newMaoAllowance = await maoToken.allowance(CONFIG.PRIZE_POOL, CONFIG.NEW_WHEEL_GAME);
         const newPiAllowance = await piToken.allowance(CONFIG.PRIZE_POOL, CONFIG.NEW_WHEEL_GAME);
         
-        console.log("✅ MAO新授权额度:", ethers.formatEther(newMaoAllowance));
-        console.log("✅ PI新授权额度:", ethers.formatEther(newPiAllowance));
+        // 检查是否为无限授权 - 修复ethers兼容性
+        const isMaxUint = (value) => value.toString() === ethers.MaxUint256.toString();
+        
+        console.log("✅ MAO新授权额度:", isMaxUint(newMaoAllowance) ? "无限 (MaxUint256)" : ethers.formatEther(newMaoAllowance));
+        console.log("✅ PI新授权额度:", isMaxUint(newPiAllowance) ? "无限 (MaxUint256)" : ethers.formatEther(newPiAllowance));
 
         // 保存授权记录
         const authorizationRecord = {
@@ -97,9 +100,9 @@ async function main() {
             newContract: CONFIG.NEW_WHEEL_GAME,
             maoApprovalTx: maoApproveTx.hash,
             piApprovalTx: piApproveTx.hash,
-            approvalAmount: ethers.formatEther(APPROVAL_AMOUNT),
-            maoAllowance: ethers.formatEther(newMaoAllowance),
-            piAllowance: ethers.formatEther(newPiAllowance),
+            approvalAmount: "无限 (MaxUint256)",
+            maoAllowance: isMaxUint(newMaoAllowance) ? "无限 (MaxUint256)" : ethers.formatEther(newMaoAllowance),
+            piAllowance: isMaxUint(newPiAllowance) ? "无限 (MaxUint256)" : ethers.formatEther(newPiAllowance),
             status: "SUCCESS"
         };
 
@@ -115,7 +118,7 @@ async function main() {
         console.log("📊 授权摘要:");
         console.log("- MAO代币授权: ✅ 成功");
         console.log("- PI代币授权: ✅ 成功");
-        console.log("- 授权额度: 1,000,000 代币");
+        console.log("- 授权额度: 无限 (MaxUint256)");
         console.log("- 新合约现在可以发放奖励了!");
         
         console.log("\n📋 下一步:");

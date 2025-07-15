@@ -1,0 +1,11 @@
+{
+  "timestamp": "2025-07-15T14:41:51.983Z",
+  "prizePool": "0xE15881Fc413c6cd47a512C24608F94Fa2896b374",
+  "newContract": "0x621DF9e0DE6b4e7EDC5Dc22Cd7c0F883c3F56966",
+  "maoApprovalTx": "0xf9fa276064ef537a0fd2d73f9a6ebeea620eef8d3045cb78380cac160a624c41",
+  "piApprovalTx": "0x769d5604c7b94d62f2023307c60a677287f6b3b822e7fa30f05c0aeca2b92a27",
+  "approvalAmount": "无限 (MaxUint256)",
+  "maoAllowance": "无限 (MaxUint256)",
+  "piAllowance": "无限 (MaxUint256)",
+  "status": "SUCCESS"
+}
