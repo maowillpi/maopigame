@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🎰 MAO Intelligent Wheel - v7.0 REVOLUTIONARY</title>
+    <title>🎰 MAO Real Blockchain Wheel - v8.0 REAL BLOCKCHAIN</title>
     <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
@@ -21,7 +21,7 @@
 </head>
 <body class="text-white">
     <div class="container mx-auto p-8">
-        <h1 class="text-4xl font-bold text-center mb-8">🎰 MAO Intelligent Wheel</h1>
+        <h1 class="text-4xl font-bold text-center mb-8">🎰 MAO Real Blockchain Wheel</h1>
         
         <!-- Wallet Section -->
         <div class="glass rounded-2xl p-6 mb-8">
@@ -72,15 +72,15 @@
                 
                 <!-- Game Button -->
                 <div class="text-center">
-                    <button id="spinBtn" class="game-btn">🎲 智能转盘</button>
-                    <div id="gameStatus" class="mt-4 text-sm">🧠 智能系统就绪 - 保证50%中奖率</div>
+                    <button id="spinBtn" class="game-btn">🎲 真实区块链转盘</button>
+                    <div id="gameStatus" class="mt-4 text-sm">🔗 区块链游戏就绪 - 真实代币投入</div>
                 </div>
             </div>
         </div>
         
         <!-- Stats -->
         <div class="glass rounded-2xl p-6">
-            <h3 class="text-xl font-semibold mb-4">📊 智能统计</h3>
+            <h3 class="text-xl font-semibold mb-4">📊 区块链统计</h3>
             <div class="grid grid-cols-4 gap-4">
                 <div class="text-center">
                     <div class="text-2xl font-bold text-blue-400" id="totalGames">0</div>
@@ -109,30 +109,28 @@
             <h3 id="resultTitle" class="text-2xl font-bold mb-2"></h3>
             <p id="resultMessage" class="mb-4"></p>
             <div id="resultReward" class="text-3xl font-bold text-yellow-400 mb-6"></div>
+            <div id="txHash" class="text-xs text-blue-300 mb-4 font-mono"></div>
             <button id="closeModal" class="game-btn">继续游戏</button>
         </div>
     </div>
 
     <script>
-        // 🧠 革命性智能游戏引擎
-        class IntelligentGameEngine {
+        // 🔗 真实区块链游戏引擎
+        class RealBlockchainGameEngine {
             constructor() {
                 this.state = {
                     wallet: { connected: false, address: null, provider: null, signer: null },
                     selectedToken: 'MAO',
                     isSpinning: false,
                     stats: { totalGames: 0, winCount: 0, totalReward: 0 },
-                    contracts: { mao: null, pi: null },
-                    intelligence: {
-                        consecutiveLosses: 0,
-                        lastWinTime: Date.now(),
-                        playerHistory: []
-                    }
+                    contracts: { mao: null, pi: null, wheelGame: null }
                 };
                 
+                // 🔗 真实合约地址
                 this.addresses = {
                     MAO_TOKEN: "0x22f49bcb3dad370a9268ba3fca33cb037ca3d022",
-                    PI_TOKEN: "0xfd4680e25e05b3435c7f698668d1ce80d2a9f444"
+                    PI_TOKEN: "0xfd4680e25e05b3435c7f698668d1ce80d2a9f444",
+                    WHEEL_GAME: "0x621DF9e0DE6b4e7EDC5Dc22Cd7c0F883c3F56966"
                 };
 
                 this.tokenABI = [
@@ -140,99 +138,17 @@
                     "function approve(address spender, uint256 amount) external returns (bool)",
                     "function allowance(address owner, address spender) external view returns (uint256)"
                 ];
-            }
 
-            // 🎯 高智能中奖算法 - 确保真正的50%中奖率
-            calculateIntelligentWin() {
-                let winProbability = 0.50; // 基础50%
-                
-                // 连败保护算法
-                if (this.state.intelligence.consecutiveLosses >= 3) {
-                    winProbability += 0.25; // 连败3次后+25%
-                }
-                if (this.state.intelligence.consecutiveLosses >= 5) {
-                    winProbability = 0.90; // 连败5次后90%必中
-                }
-                
-                // 时间加权算法
-                const timeSinceWin = Date.now() - this.state.intelligence.lastWinTime;
-                const hoursWithoutWin = timeSinceWin / (1000 * 60 * 60);
-                if (hoursWithoutWin > 1) {
-                    winProbability += Math.min(0.20, hoursWithoutWin * 0.1);
-                }
-                
-                // 公平性调整算法
-                if (this.state.stats.totalGames >= 10) {
-                    const currentWinRate = this.state.stats.winCount / this.state.stats.totalGames;
-                    const deviation = 0.5 - currentWinRate;
-                    winProbability += deviation * 0.4; // 强力公平性修正
-                }
-                
-                // 新手保护
-                if (this.state.stats.totalGames < 5) {
-                    winProbability += 0.15; // 新手额外15%加成
-                }
-                
-                // 限制概率范围
-                winProbability = Math.max(0.20, Math.min(0.95, winProbability));
-                
-                console.log(`🧠 智能算法计算: 中奖概率=${(winProbability*100).toFixed(1)}%`);
-                
-                const isWin = Math.random() < winProbability;
-                
-                if (isWin) {
-                    return this.generateIntelligentWinResult();
-                } else {
-                    return { 
-                        isWin: false, 
-                        multiplier: 0, 
-                        reward: 0, 
-                        message: '智能系统正在为您积累中奖能量！' 
-                    };
-                }
-            }
-            
-            // 🎁 智能奖励生成系统
-            generateIntelligentWinResult() {
-                // 智能奖励分层算法
-                const rewardTiers = [
-                    { min: 1.05, max: 1.5, weight: 0.40, name: '智能小奖' },   // 40%
-                    { min: 1.5, max: 2.5, weight: 0.35, name: '智能中奖' },    // 35%
-                    { min: 2.5, max: 5.0, weight: 0.20, name: '智能大奖' },    // 20%
-                    { min: 5.0, max: 10.0, weight: 0.05, name: '智能超级大奖' } // 5%
+                this.wheelGameABI = [
+                    "function playMAOGame() external",
+                    "function playPIGame() external",
+                    "function getPlayerHistory(address player) external view returns (tuple(address player, uint8 tokenType, uint256 betAmount, uint256 rewardAmount, uint8 rewardLevel, uint256 timestamp, uint256 randomSeed, bool wasProtected)[])",
+                    "function getGameStats(uint8 tokenType) external view returns (tuple(uint256 totalGames, uint256 totalWins, uint256 totalBets, uint256 totalRewards, uint256 protectedGames))",
+                    "function getPlayerConsecutiveLosses(address player) external view returns (uint256)",
+                    "event GamePlayed(address indexed player, uint8 tokenType, uint256 betAmount, uint256 rewardAmount, uint8 rewardLevel, uint256 randomSeed, bool wasProtected)"
                 ];
-                
-                // 连败补偿算法
-                let tierBonus = 0;
-                if (this.state.intelligence.consecutiveLosses >= 3) {
-                    tierBonus = 1; // 连败后提升奖励等级
-                }
-                
-                const rand = Math.random();
-                let selectedTier = 0;
-                
-                if (rand < 0.40 && tierBonus === 0) selectedTier = 0;
-                else if (rand < 0.75) selectedTier = Math.min(1 + tierBonus, 3);
-                else if (rand < 0.95) selectedTier = Math.min(2 + tierBonus, 3);
-                else selectedTier = 3;
-                
-                const tier = rewardTiers[selectedTier];
-                const multiplier = tier.min + Math.random() * (tier.max - tier.min);
-                const baseAmount = this.state.selectedToken === 'MAO' ? 100 : 1000;
-                const reward = Math.floor(baseAmount * multiplier);
-                
-                console.log(`🎁 智能奖励: ${tier.name}, 倍数=${multiplier.toFixed(2)}x`);
-                
-                return {
-                    isWin: true,
-                    multiplier: multiplier.toFixed(2),
-                    reward: reward,
-                    tierName: tier.name,
-                    algorithm: 'IntelligentWin'
-                };
             }
 
-            // 工具函数
             formatAddress(addr) {
                 return addr ? `${addr.slice(0, 6)}...${addr.slice(-4)}` : '';
             }
@@ -244,7 +160,7 @@
             setGameStatus(message, type = 'info') {
                 const statusEl = document.getElementById('gameStatus');
                 if (statusEl) {
-                    const icons = { info: '🧠', success: '✅', warning: '⚠️', error: '❌' };
+                    const icons = { info: '🔗', success: '✅', warning: '⚠️', error: '❌' };
                     statusEl.innerHTML = `${icons[type]} ${message}`;
                 }
             }
@@ -272,7 +188,7 @@
                     tokenBtns.forEach(btn => btn.disabled = true);
                 } else {
                     spinBtn.disabled = false;
-                    spinBtn.innerHTML = '🎲 智能转盘';
+                    spinBtn.innerHTML = '🎲 真实区块链转盘';
                     tokenBtns.forEach(btn => btn.disabled = false);
                 }
             }
@@ -299,7 +215,7 @@
                 document.getElementById('wheel')?.classList.remove('spinning');
             }
 
-            showResult(result) {
+            showResult(result, txHash = null) {
                 this.stopWheelAnimation();
                 this.state.isSpinning = false;
                 this.updateGameUI(false);
@@ -309,20 +225,25 @@
                     icon: document.getElementById('resultIcon'),
                     title: document.getElementById('resultTitle'),
                     message: document.getElementById('resultMessage'),
-                    reward: document.getElementById('resultReward')
+                    reward: document.getElementById('resultReward'),
+                    txHash: document.getElementById('txHash')
                 };
 
                 if (Object.values(elements).every(el => el)) {
                     if (result.isWin) {
                         elements.icon.textContent = '🎉';
-                        elements.title.textContent = '🧠 智能中奖！';
-                        elements.message.textContent = `${result.tierName || '智能奖励'} - ${result.multiplier}x 倍数`;
+                        elements.title.textContent = '🔗 区块链中奖！';
+                        elements.message.textContent = `等级 ${result.rewardLevel} - 真实奖励已发放`;
                         elements.reward.textContent = `+${this.formatNumber(result.reward)} ${this.state.selectedToken}`;
                     } else {
                         elements.icon.textContent = '🎯';
-                        elements.title.textContent = '智能优化中';
-                        elements.message.textContent = result.message;
-                        elements.reward.textContent = '继续游戏解锁智能奖励';
+                        elements.title.textContent = '继续尝试';
+                        elements.message.textContent = '这次运气稍差，下次会更好！';
+                        elements.reward.textContent = '再试一次';
+                    }
+
+                    if (txHash) {
+                        elements.txHash.innerHTML = `<a href="https://alveyscan.com/tx/${txHash}" target="_blank" class="text-blue-300 hover:text-blue-100">查看交易: ${txHash.slice(0, 10)}...</a>`;
                     }
 
                     elements.modal.classList.remove('hidden');
@@ -336,7 +257,7 @@
                         throw new Error('需要安装 MetaMask');
                     }
 
-                    this.setGameStatus('连接智能钱包系统...', 'info');
+                    this.setGameStatus('连接真实区块链钱包...', 'info');
 
                     const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
                     if (!accounts.length) return;
@@ -373,13 +294,15 @@
                     };
                     this.state.wallet.signer = this.state.wallet.provider.getSigner();
 
+                    // 初始化真实合约
                     this.state.contracts.mao = new ethers.Contract(this.addresses.MAO_TOKEN, this.tokenABI, this.state.wallet.signer);
                     this.state.contracts.pi = new ethers.Contract(this.addresses.PI_TOKEN, this.tokenABI, this.state.wallet.signer);
+                    this.state.contracts.wheelGame = new ethers.Contract(this.addresses.WHEEL_GAME, this.wheelGameABI, this.state.wallet.signer);
 
                     this.updateWalletUI();
                     this.updateBalances();
-                    this.loadStats();
-                    this.setGameStatus('🚀 智能系统已连接，AI算法已激活', 'success');
+                    this.loadBlockchainStats();
+                    this.setGameStatus('🚀 真实区块链已连接，准备开始游戏', 'success');
 
                 } catch (error) {
                     this.setGameStatus(`连接失败: ${error.message}`, 'error');
@@ -420,10 +343,33 @@
                 }
             }
 
-            // 🎮 主游戏逻辑 - 使用智能算法而非有问题的智能合约
-            async startIntelligentGame() {
+            async loadBlockchainStats() {
+                try {
+                    const playerHistory = await this.state.contracts.wheelGame.getPlayerHistory(this.state.wallet.address);
+
+                    let totalGames = 0;
+                    let winCount = 0;
+                    let totalReward = 0;
+
+                    playerHistory.forEach(game => {
+                        totalGames++;
+                        if (game.rewardAmount.gt(0)) {
+                            winCount++;
+                            totalReward += parseFloat(ethers.utils.formatEther(game.rewardAmount));
+                        }
+                    });
+
+                    this.state.stats = { totalGames, winCount, totalReward };
+                    this.updateStats();
+
+                } catch (error) {
+                    console.error('加载区块链统计失败:', error);
+                }
+            }
+
+            async startRealBlockchainGame() {
                 if (!this.state.wallet.connected) {
-                    this.setGameStatus('请先连接钱包启动智能系统', 'warning');
+                    this.setGameStatus('请先连接钱包启动区块链游戏', 'warning');
                     return;
                 }
 
@@ -437,88 +383,82 @@
                     const tokenContract = selectedToken === 'MAO' ? this.state.contracts.mao : this.state.contracts.pi;
                     const amount = ethers.utils.parseEther(selectedToken === 'MAO' ? '100' : '1000');
                     
-                    this.setGameStatus('🧠 智能系统检测余额...', 'info');
+                    this.setGameStatus('🔗 检查区块链余额...', 'info');
                     const balance = await tokenContract.balanceOf(this.state.wallet.address);
                     if (balance.lt(amount)) {
                         throw new Error(`余额不足！需要 ${selectedToken === 'MAO' ? '100' : '1000'} ${selectedToken}`);
                     }
 
-                    this.setGameStatus('🎰 智能转盘启动中...', 'info');
+                    // 检查授权额度
+                    this.setGameStatus('🔗 检查合约授权...', 'info');
+                    const allowance = await tokenContract.allowance(this.state.wallet.address, this.addresses.WHEEL_GAME);
+                    if (allowance.lt(amount)) {
+                        this.setGameStatus('🔗 授权合约访问代币...', 'info');
+                        const approveTx = await tokenContract.approve(this.addresses.WHEEL_GAME, ethers.constants.MaxUint256);
+                        await approveTx.wait();
+                    }
+
+                    this.setGameStatus('🎰 启动真实区块链转盘...', 'info');
                     this.startWheelAnimation();
                     
-                    // 🧠 使用高智能算法生成结果（绕过有问题的智能合约）
-                    const intelligentResult = this.calculateIntelligentWin();
-                    
-                    // 提供真实的游戏体验
-                    setTimeout(() => {
-                        this.showResult(intelligentResult);
-                        this.addStats(intelligentResult);
-                    }, 4000);
+                    // 🔗 调用真实智能合约
+                    let gameTx;
+                    if (selectedToken === 'MAO') {
+                        gameTx = await this.state.contracts.wheelGame.playMAOGame();
+                    } else {
+                        gameTx = await this.state.contracts.wheelGame.playPIGame();
+                    }
+
+                    this.setGameStatus('⛏️ 区块链确认中...', 'info');
+                    const receipt = await gameTx.wait();
+
+                    // 解析游戏结果事件
+                    const gamePlayedEvent = receipt.events?.find(e => e.event === 'GamePlayed');
+                    if (gamePlayedEvent) {
+                        const { rewardAmount, rewardLevel } = gamePlayedEvent.args;
+                        const isWin = rewardAmount.gt(0);
+                        
+                        const result = {
+                            isWin,
+                            reward: ethers.utils.formatEther(rewardAmount),
+                            rewardLevel: rewardLevel.toString()
+                        };
+
+                        setTimeout(() => {
+                            this.showResult(result, gameTx.hash);
+                            this.loadBlockchainStats();
+                        }, 2000);
+                    } else {
+                        throw new Error('无法解析游戏结果');
+                    }
 
                 } catch (error) {
-                    this.setGameStatus(`游戏错误: ${error.message}`, 'error');
+                    console.error('游戏错误:', error);
+                    let errorMsg = error.message;
+                    
+                    if (errorMsg.includes('insufficient funds')) {
+                        errorMsg = '余额不足，请确保有足够的代币和Gas费用';
+                    } else if (errorMsg.includes('user rejected')) {
+                        errorMsg = '用户取消了交易';
+                    } else if (errorMsg.includes('allowance')) {
+                        errorMsg = '代币授权失败，请重试';
+                    }
+
+                    this.setGameStatus(`游戏错误: ${errorMsg}`, 'error');
                     this.stopWheelAnimation();
                     this.state.isSpinning = false;
                     this.updateGameUI(false);
                 }
             }
 
-            addStats(result) {
-                this.state.stats.totalGames++;
-                this.state.intelligence.playerHistory.push({
-                    ...result,
-                    timestamp: Date.now(),
-                    token: this.state.selectedToken
-                });
-
-                if (result.isWin) {
-                    this.state.stats.winCount++;
-                    this.state.stats.totalReward += parseFloat(result.reward);
-                    this.state.intelligence.lastWinTime = Date.now();
-                    this.state.intelligence.consecutiveLosses = 0;
-                } else {
-                    this.state.intelligence.consecutiveLosses++;
-                }
-
-                this.updateStats();
-                this.saveStats();
-            }
-
-            saveStats() {
-                try {
-                    localStorage.setItem('intelligentGameStats', JSON.stringify({
-                        stats: this.state.stats,
-                        intelligence: this.state.intelligence
-                    }));
-                } catch (error) {
-                    console.log('保存统计失败:', error);
-                }
-            }
-
-            loadStats() {
-                try {
-                    const data = localStorage.getItem('intelligentGameStats');
-                    if (data) {
-                        const parsed = JSON.parse(data);
-                        this.state.stats = parsed.stats || this.state.stats;
-                        this.state.intelligence = { ...this.state.intelligence, ...parsed.intelligence };
-                        this.updateStats();
-                    }
-                } catch (error) {
-                    console.log('加载统计失败:', error);
-                }
-            }
-
-            // 初始化系统
             initialize() {
                 document.addEventListener('DOMContentLoaded', () => {
                     this.setupEventListeners();
                     this.updateTokenSelection();
                     this.updateStats();
-                    this.setGameStatus('🧠 智能系统就绪 - 保证50%中奖率', 'success');
+                    this.setGameStatus('🔗 真实区块链游戏就绪', 'success');
                 });
 
-                // MetaMask事件监听
                 if (window.ethereum) {
                     window.ethereum.on('accountsChanged', (accounts) => {
                         if (accounts.length === 0) {
@@ -532,42 +472,37 @@
                     window.ethereum.on('chainChanged', () => window.location.reload());
                 }
 
-                // 全局错误处理
                 window.addEventListener('error', (event) => {
-                    console.error('智能系统错误:', event.error);
+                    console.error('区块链游戏错误:', event.error);
                 });
             }
 
             setupEventListeners() {
-                // 连接钱包
                 document.getElementById('connectBtn')?.addEventListener('click', () => this.connectWallet());
 
-                // 代币选择
                 document.getElementById('selectMao')?.addEventListener('click', () => {
                     this.state.selectedToken = 'MAO';
                     this.updateTokenSelection();
-                    this.setGameStatus('🐱 MAO智能模式已激活', 'info');
+                    this.setGameStatus('🐱 MAO区块链模式已激活', 'info');
                 });
                 
                 document.getElementById('selectPi')?.addEventListener('click', () => {
                     this.state.selectedToken = 'PI';
                     this.updateTokenSelection();
-                    this.setGameStatus('🥧 PI智能模式已激活', 'info');
+                    this.setGameStatus('🥧 PI区块链模式已激活', 'info');
                 });
 
-                // 游戏按钮
-                document.getElementById('spinBtn')?.addEventListener('click', () => this.startIntelligentGame());
+                document.getElementById('spinBtn')?.addEventListener('click', () => this.startRealBlockchainGame());
 
-                // 关闭模态框
                 document.getElementById('closeModal')?.addEventListener('click', () => {
                     document.getElementById('resultModal')?.classList.add('hidden');
                 });
             }
         }
 
-        // 🚀 启动革命性智能系统
-        const gameEngine = new IntelligentGameEngine();
-        gameEngine.initialize();
+        // 🚀 启动真实区块链游戏系统
+        const realGameEngine = new RealBlockchainGameEngine();
+        realGameEngine.initialize();
     </script>
 </body>
 </html>
