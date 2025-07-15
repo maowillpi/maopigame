@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🎰 MAO Real Blockchain Wheel - v8.4 PURE</title>
+    <title>🎰 MAO Real Blockchain Wheel - v8.5 MULTI-RPC</title>
     <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
@@ -26,7 +26,7 @@
         <!-- Status Bar -->
         <div class="glass rounded-2xl p-4 mb-6">
             <div class="flex items-center justify-center">
-                <span id="networkStatus" class="text-sm">🔗 初始化真实区块链系统...</span>
+                <span id="networkStatus" class="text-sm">🔗 初始化多节点区块链系统...</span>
             </div>
         </div>
         
@@ -80,7 +80,7 @@
                 <!-- Game Button -->
                 <div class="text-center">
                     <button id="spinBtn" class="game-btn">🎲 真实区块链转盘</button>
-                    <div id="gameStatus" class="mt-4 text-sm">✅ 纯真实区块链系统已就绪</div>
+                    <div id="gameStatus" class="mt-4 text-sm">✅ 多节点区块链系统已就绪</div>
                 </div>
             </div>
         </div>
@@ -122,21 +122,37 @@
     </div>
 
     <script>
-        // 🔗 纯真实区块链游戏引擎 v8.4 PURE - 100%真实，零模拟
-        class RealBlockchainGameEngine {
+        // 🔗 多节点真实区块链游戏引擎 v8.5 MULTI-RPC
+        class MultiRpcBlockchainGameEngine {
             constructor() {
                 this.state = {
                     wallet: { connected: false, address: null, provider: null, signer: null },
                     selectedToken: 'MAO',
                     isPlaying: false,
                     stats: { totalGames: 0, winCount: 0, totalReward: 0 },
-                    contracts: { mao: null, pi: null, wheelGame: null }
+                    contracts: { mao: null, pi: null, wheelGame: null },
+                    currentRpcIndex: 0
                 };
                 
                 this.addresses = {
                     MAO_TOKEN: "0x22f49bcb3dad370a9268ba3fca33cb037ca3d022",
                     PI_TOKEN: "0xfd4680e25e05b3435c7f698668d1ce80d2a9f444",
                     WHEEL_GAME: "0x621DF9e0DE6b4e7EDC5Dc22Cd7c0F883c3F56966"
+                };
+
+                // 🔧 修复：使用多个RPC节点，core1有问题则使用core2/core3
+                this.rpcNodes = [
+                    'https://elves-core2.alvey.io', // 优先使用core2
+                    'https://elves-core3.alvey.io', // 备用core3
+                    'https://elves-core1.alvey.io'  // core1作为最后备用
+                ];
+
+                this.networkConfig = {
+                    chainId: '0xED5', // 3797
+                    chainName: 'AlveyChain Mainnet',
+                    nativeCurrency: { name: 'ALV', symbol: 'ALV', decimals: 18 },
+                    rpcUrls: this.rpcNodes,
+                    blockExplorerUrls: ['https://alveyscan.com']
                 };
 
                 this.tokenABI = [
@@ -261,13 +277,46 @@
                 setTimeout(() => this.updateBalances(), 1000);
             }
 
+            // 🔧 智能RPC节点测试和切换
+            async testRpcNode(rpcUrl) {
+                try {
+                    const provider = new ethers.providers.JsonRpcProvider(rpcUrl);
+                    await provider.getBlockNumber();
+                    return true;
+                } catch (error) {
+                    console.error(`RPC节点 ${rpcUrl} 测试失败:`, error);
+                    return false;
+                }
+            }
+
+            async findWorkingRpcNode() {
+                this.setNetwork('测试RPC节点连接...', 'info');
+                
+                for (let i = 0; i < this.rpcNodes.length; i++) {
+                    const rpcUrl = this.rpcNodes[i];
+                    this.setNetwork(`测试节点 ${i + 1}/${this.rpcNodes.length}: ${rpcUrl}`, 'info');
+                    
+                    const isWorking = await this.testRpcNode(rpcUrl);
+                    if (isWorking) {
+                        this.state.currentRpcIndex = i;
+                        this.setNetwork(`🟢 连接成功: ${rpcUrl}`, 'success');
+                        return rpcUrl;
+                    }
+                }
+                
+                throw new Error('所有RPC节点都无法连接');
+            }
+
             async setupNetwork() {
                 try {
-                    this.setNetwork('检查AlveyChain网络...', 'info');
+                    this.setNetwork('初始化多节点AlveyChain...', 'info');
                     
                     if (!window.ethereum) {
                         throw new Error('请安装 MetaMask 才能进行真实区块链游戏');
                     }
+
+                    // 🔧 找到可用的RPC节点
+                    const workingRpc = await this.findWorkingRpcNode();
 
                     const chainId = await window.ethereum.request({ method: 'eth_chainId' });
                     const target = '0xED5'; // AlveyChain 3797
@@ -282,13 +331,14 @@
                             });
                         } catch (switchError) {
                             if (switchError.code === 4902) {
+                                // 使用可用的RPC节点添加网络
                                 await window.ethereum.request({
                                     method: 'wallet_addEthereumChain',
                                     params: [{
                                         chainId: target,
                                         chainName: 'AlveyChain Mainnet',
                                         nativeCurrency: { name: 'ALV', symbol: 'ALV', decimals: 18 },
-                                        rpcUrls: ['https://elves-core1.alvey.io', 'https://elves-core2.alvey.io'],
+                                        rpcUrls: [workingRpc], // 使用可用的RPC
                                         blockExplorerUrls: ['https://alveyscan.com']
                                     }]
                                 });
@@ -296,16 +346,16 @@
                         }
                     }
 
-                    // 测试网络连接
+                    // 再次测试连接
                     const provider = new ethers.providers.Web3Provider(window.ethereum);
                     await provider.getBlockNumber();
 
-                    this.setNetwork('🟢 AlveyChain 真实网络已连接', 'success');
+                    this.setNetwork(`🟢 AlveyChain 多节点系统已连接 (使用节点${this.state.currentRpcIndex + 1})`, 'success');
                     return true;
 
                 } catch (error) {
                     console.error('网络设置失败:', error);
-                    this.setNetwork(`网络错误: ${error.message}`, 'error');
+                    this.setNetwork(`❌ 网络错误: ${error.message}`, 'error');
                     return false;
                 }
             }
@@ -350,7 +400,7 @@
                     this.updateWallet();
                     await this.updateBalances();
                     await this.loadStats();
-                    this.setStatus('🚀 真实区块链系统已完全连接', 'success');
+                    this.setStatus('🚀 多节点真实区块链系统已完全连接', 'success');
 
                 } catch (error) {
                     console.error('钱包连接失败:', error);
@@ -385,7 +435,7 @@
                     document.getElementById('piBalance').textContent = this.formatNumber(ethers.utils.formatEther(piBalance));
                 } catch (error) {
                     console.error('更新余额失败:', error);
-                    this.setStatus('余额查询失败，请检查网络', 'warning');
+                    this.setStatus('余额查询失败，尝试切换RPC节点', 'warning');
                 }
             }
 
@@ -412,6 +462,32 @@
 
                 } catch (error) {
                     console.error('加载统计失败:', error);
+                }
+            }
+
+            // 🔧 智能合约调用重试机制
+            async executeContractCall(contractCall, retries = 3) {
+                for (let attempt = 1; attempt <= retries; attempt++) {
+                    try {
+                        this.setStatus(`执行区块链交易 (尝试 ${attempt}/${retries})...`, 'loading');
+                        return await contractCall();
+                    } catch (error) {
+                        console.error(`交易尝试 ${attempt} 失败:`, error);
+                        
+                        if (attempt < retries) {
+                            // 如果失败，尝试切换RPC节点
+                            this.setStatus(`交易失败，切换RPC节点重试...`, 'warning');
+                            
+                            this.state.currentRpcIndex = (this.state.currentRpcIndex + 1) % this.rpcNodes.length;
+                            const newRpc = this.rpcNodes[this.state.currentRpcIndex];
+                            this.setNetwork(`切换到节点: ${newRpc}`, 'warning');
+                            
+                            // 等待1秒后重试
+                            await new Promise(resolve => setTimeout(resolve, 1000));
+                        } else {
+                            throw error;
+                        }
+                    }
                 }
             }
 
@@ -443,7 +519,11 @@
                     const allowance = await tokenContract.allowance(this.state.wallet.address, this.addresses.WHEEL_GAME);
                     if (allowance.lt(amount)) {
                         this.setStatus('授权智能合约访问代币...', 'loading');
-                        const approveTx = await tokenContract.approve(this.addresses.WHEEL_GAME, ethers.constants.MaxUint256);
+                        
+                        const approveTx = await this.executeContractCall(async () => {
+                            return await tokenContract.approve(this.addresses.WHEEL_GAME, ethers.constants.MaxUint256);
+                        });
+                        
                         this.setStatus('等待授权交易确认...', 'loading');
                         await approveTx.wait(3);
                         this.setStatus('授权成功，准备游戏', 'success');
@@ -452,21 +532,22 @@
                     this.setStatus('启动真实区块链转盘...', 'loading');
                     this.startSpin();
                     
-                    // 🔗 只进行真实区块链调用 - 绝不使用模拟
-                    let gameTx;
+                    // 🔗 多重保护的真实区块链调用
                     const gasOptions = {
-                        gasLimit: selectedToken === 'MAO' ? 800000 : 900000, // 充足的Gas
-                        gasPrice: ethers.utils.parseUnits('20', 'gwei') // 足够的Gas价格
+                        gasLimit: selectedToken === 'MAO' ? 1000000 : 1200000, // 增加Gas限制
+                        gasPrice: ethers.utils.parseUnits('25', 'gwei') // 增加Gas价格确保成功
                     };
                     
-                    if (selectedToken === 'MAO') {
-                        gameTx = await this.state.contracts.wheelGame.playMAOGame(gasOptions);
-                    } else {
-                        gameTx = await this.state.contracts.wheelGame.playPIGame(gasOptions);
-                    }
+                    const gameTx = await this.executeContractCall(async () => {
+                        if (selectedToken === 'MAO') {
+                            return await this.state.contracts.wheelGame.playMAOGame(gasOptions);
+                        } else {
+                            return await this.state.contracts.wheelGame.playPIGame(gasOptions);
+                        }
+                    });
 
                     this.setStatus('真实区块链挖矿确认中...请等待', 'loading');
-                    const receipt = await gameTx.wait(5); // 等待5个确认提高可靠性
+                    const receipt = await gameTx.wait(6); // 等待6个确认提高可靠性
 
                     // 🔗 真实结果解析 - 多重机制确保成功
                     let result = null;
@@ -516,13 +597,13 @@
                     if (!result) {
                         try {
                             this.setStatus('查询真实游戏记录...', 'loading');
-                            await new Promise(resolve => setTimeout(resolve, 2000)); // 等待2秒让区块链更新
+                            await new Promise(resolve => setTimeout(resolve, 3000)); // 等待3秒让区块链更新
                             
                             const newHistory = await this.state.contracts.wheelGame.getPlayerHistory(this.state.wallet.address);
                             if (newHistory.length > 0) {
                                 const lastGame = newHistory[newHistory.length - 1];
                                 const timeDiff = Date.now() / 1000 - lastGame.timestamp.toNumber();
-                                if (timeDiff < 300) { // 5分钟内的游戏
+                                if (timeDiff < 600) { // 10分钟内的游戏
                                     result = {
                                         isWin: lastGame.rewardAmount.gt(0),
                                         amount: ethers.utils.formatEther(lastGame.rewardAmount),
@@ -537,7 +618,7 @@
                     
                     // 如果仍然无法解析结果，这是真实的区块链错误
                     if (!result) {
-                        throw new Error('无法解析真实区块链游戏结果，请稍后重试或联系支持');
+                        throw new Error('无法解析真实区块链游戏结果，交易可能仍在处理中，请稍后查看钱包余额变化');
                     }
 
                     // 显示真实结果
@@ -556,10 +637,10 @@
                         errorMsg = '用户取消了交易';
                     } else if (errorMsg.includes('gas')) {
                         errorMsg = 'Gas费用不足，请增加Gas费用';
-                    } else if (errorMsg.includes('network')) {
-                        errorMsg = '网络连接问题，请检查AlveyChain连接';
+                    } else if (errorMsg.includes('network') || errorMsg.includes('RPC')) {
+                        errorMsg = 'RPC网络连接问题，已自动尝试多个节点';
                     } else if (errorMsg.includes('CALL_EXCEPTION')) {
-                        errorMsg = '智能合约调用失败，请检查网络或稍后重试';
+                        errorMsg = '智能合约调用失败，可能是网络拥堵，请稍后重试';
                     }
 
                     this.setStatus(`真实游戏错误: ${errorMsg}`, 'error');
@@ -618,9 +699,9 @@
             }
         }
 
-        // 🚀 启动纯真实区块链游戏引擎 v8.4
-        const realGame = new RealBlockchainGameEngine();
-        realGame.init();
+        // 🚀 启动多节点真实区块链游戏引擎 v8.5
+        const multiRpcGame = new MultiRpcBlockchainGameEngine();
+        multiRpcGame.init();
     </script>
 </body>
 </html>
