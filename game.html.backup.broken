@@ -6,7 +6,7 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <title>🎰 MAO转盘游戏 - 修复版 v5.1</title>
+    <title>🎰 MAO转盘游戏 - 专业版 v5.0</title>
     
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -724,7 +724,7 @@
                 addActivity('游戏开始', `使用 ${selectedToken === 'MAO' ? '100 MAO' : '1000 PI'}`);
 
                 // 发送游戏交易
-                const tx = selectedToken === 'MAO' ? await gameContract.playMAOGame() : await gameContract.playPIGame();
+                const tx = await gameContract.playMAOGame(); // Changed to playMAOGame
                 const receipt = await tx.wait();
 
                 // 解析游戏结果
