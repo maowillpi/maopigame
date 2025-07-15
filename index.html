@@ -4,20 +4,25 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-    <title>🎰 MAO Ultimate Wheel Game - v6.1</title>
+    <title>🎰 MAO Ultimate Wheel Game - v6.2</title>
     
     <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
         
         :root {
-            --primary: #667eea;
-            --secondary: #764ba2;
-            --accent: #FFE066;
-            --glass-bg: rgba(255, 255, 255, 0.05);
-            --glass-border: rgba(255, 255, 255, 0.1);
+            --primary: #6366f1;
+            --secondary: #8b5cf6;
+            --accent: #f59e0b;
+            --success: #10b981;
+            --error: #ef4444;
+            --warning: #f59e0b;
+            --glass-bg: rgba(255, 255, 255, 0.08);
+            --glass-border: rgba(255, 255, 255, 0.12);
+            --dark-bg: #0f172a;
+            --card-bg: rgba(30, 41, 59, 0.8);
         }
         
         * {
@@ -25,51 +30,62 @@
         }
         
         body {
-            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 50%, #1e293b 100%);
             min-height: 100vh;
+            overflow-x: hidden;
         }
         
         .glass {
             background: var(--glass-bg);
             backdrop-filter: blur(20px);
             border: 1px solid var(--glass-border);
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+        }
+        
+        .card {
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.1);
         }
         
         .gradient-text {
-            background: linear-gradient(45deg, var(--accent), #FF6B9D);
+            background: linear-gradient(45deg, var(--accent), #fbbf24);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
         
         .wheel {
-            width: 300px;
-            height: 300px;
+            width: 280px;
+            height: 280px;
             border-radius: 50%;
             background: conic-gradient(
                 from 0deg,
-                #FF6B6B 0deg 180deg,
-                #4ECDC4 180deg 259.2deg,
-                #45B7D1 259.2deg 331.2deg,
-                #96CEB4 331.2deg 351.6deg,
-                #FFEAA7 351.6deg 357.36deg,
-                #DDA0DD 357.36deg 360deg
+                #ef4444 0deg 180deg,
+                var(--success) 180deg 259.2deg,
+                var(--primary) 259.2deg 331.2deg,
+                #06b6d4 331.2deg 351.6deg,
+                var(--accent) 351.6deg 357.36deg,
+                var(--secondary) 357.36deg 360deg
             );
             transition: transform 4s cubic-bezier(0.23, 1, 0.32, 1);
             position: relative;
+            box-shadow: 0 0 40px rgba(99, 102, 241, 0.3);
         }
         
         .wheel-pointer {
             position: absolute;
-            top: -15px;
+            top: -12px;
             left: 50%;
             transform: translateX(-50%);
             width: 0;
             height: 0;
-            border-left: 15px solid transparent;
-            border-right: 15px solid transparent;
-            border-bottom: 30px solid var(--accent);
+            border-left: 12px solid transparent;
+            border-right: 12px solid transparent;
+            border-bottom: 24px solid var(--accent);
             z-index: 10;
+            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
         }
         
         .spinning {
@@ -81,28 +97,122 @@
             to { transform: rotate(1800deg); }
         }
         
+        .token-selector {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            padding: 4px;
+            display: flex;
+            gap: 4px;
+        }
+        
         .token-btn {
-            @apply px-6 py-3 rounded-lg font-semibold transition-all;
+            flex: 1;
+            padding: 12px 20px;
+            border-radius: 12px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
         }
         
         .token-btn.active {
-            @apply bg-gradient-to-r from-yellow-500 to-orange-500 text-black;
+            background: linear-gradient(135deg, var(--accent), #fbbf24);
+            color: #000;
+            box-shadow: 0 4px 12px rgba(245, 158, 11, 0.4);
         }
         
         .token-btn:not(.active) {
-            @apply text-blue-200 hover:bg-white hover:bg-opacity-10;
+            background: transparent;
+            color: rgba(255, 255, 255, 0.7);
         }
         
-        .notification {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            z-index: 1000;
+        .token-btn:not(.active):hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: rgba(255, 255, 255, 0.9);
+        }
+        
+        .game-btn {
+            background: linear-gradient(135deg, var(--success), #059669);
+            color: white;
+            border: none;
+            padding: 16px 32px;
+            border-radius: 16px;
+            font-size: 18px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 16px rgba(16, 185, 129, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            min-width: 200px;
+        }
+        
+        .game-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
+        }
+        
+        .game-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .connect-btn {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 16px rgba(99, 102, 241, 0.3);
+        }
+        
+        .connect-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 20px rgba(99, 102, 241, 0.4);
+        }
+        
+        .balance-card {
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(139, 92, 246, 0.1));
+            border: 1px solid rgba(99, 102, 241, 0.2);
+            border-radius: 16px;
+            padding: 20px;
+            text-align: center;
+        }
+        
+        .balance-amount {
+            font-size: 24px;
+            font-weight: 800;
+            margin: 8px 0;
+        }
+        
+        .stat-card {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            padding: 16px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
         }
         
         .loading-spinner {
-            border: 3px solid rgba(255, 255, 255, 0.3);
-            border-top: 3px solid var(--accent);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-top: 2px solid var(--accent);
             border-radius: 50%;
             width: 20px;
             height: 20px;
@@ -113,207 +223,272 @@
             from { transform: rotate(0deg); }
             to { transform: rotate(360deg); }
         }
+        
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            max-width: 400px;
+        }
+        
+        .prize-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+        }
+        
+        .prize-item {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 8px;
+            padding: 12px;
+            text-align: center;
+            font-size: 12px;
+        }
+        
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 16px;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            font-size: 14px;
+        }
+        
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        @media (max-width: 768px) {
+            .wheel {
+                width: 240px;
+                height: 240px;
+            }
+            
+            .container {
+                padding: 16px;
+            }
+            
+            .game-btn {
+                min-width: 180px;
+                font-size: 16px;
+            }
+        }
     </style>
 </head>
 <body>
-    <!-- Navigation -->
-    <nav class="fixed top-0 left-0 right-0 z-50 glass">
-        <div class="container mx-auto px-4 py-3 flex justify-between items-center">
-            <div class="flex items-center space-x-3">
-                <div class="text-2xl">🎰</div>
-                <h1 class="text-xl font-bold gradient-text">MAO Ultimate Wheel</h1>
-                <span class="text-xs bg-yellow-400 text-black px-2 py-1 rounded-full font-semibold">v6.1</span>
-            </div>
-            <div id="networkStatus" class="text-sm flex items-center">
-                <span class="w-2 h-2 bg-green-400 rounded-full mr-2"></span>
-                AlveyChain
+    <!-- Header -->
+    <header class="fixed top-0 left-0 right-0 z-50 glass">
+        <div class="container mx-auto px-4 py-4">
+            <div class="flex justify-between items-center">
+                <div class="flex items-center gap-3">
+                    <div class="text-2xl">🎰</div>
+                    <div>
+                        <h1 class="text-xl font-bold gradient-text">MAO Ultimate Wheel</h1>
+                        <div class="text-xs text-gray-400">v6.2 Professional</div>
+                    </div>
+                </div>
+                <div class="flex items-center gap-4">
+                    <div class="status-indicator">
+                        <div class="w-2 h-2 bg-green-400 rounded-full"></div>
+                        <span class="text-sm text-gray-300">AlveyChain</span>
+                    </div>
+                </div>
             </div>
         </div>
-    </nav>
+    </header>
 
     <!-- Main Content -->
-    <main class="container mx-auto px-4 py-6 pt-20">
-        <div class="grid lg:grid-cols-4 gap-6">
+    <main class="container mx-auto px-4 py-8 pt-24">
+        <div class="max-w-6xl mx-auto">
             
-            <!-- Wallet Panel -->
-            <div class="space-y-6">
-                <div class="glass rounded-2xl p-6">
-                    <h2 class="text-xl font-semibold mb-4 text-white">💼 钱包</h2>
+            <!-- Game Section -->
+            <div class="text-center mb-8">
+                <div class="card rounded-3xl p-8 mb-6">
                     
-                    <div id="walletDisconnected" class="text-center">
-                        <button id="connectBtn" class="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:opacity-90 text-white font-semibold py-3 px-6 rounded-xl transition-all">
-                            连接 MetaMask
-                        </button>
-                    </div>
-
-                    <div id="walletConnected" class="hidden">
-                        <div class="flex items-center justify-between mb-4">
-                            <span class="text-sm text-green-300">已连接</span>
-                            <button id="disconnectBtn" class="text-xs text-red-300 hover:text-red-200">断开</button>
-                        </div>
-                        <div class="bg-black bg-opacity-20 rounded-lg p-3">
-                            <div id="walletAddress" class="text-sm font-mono text-white break-all"></div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Balances -->
-                <div class="glass rounded-2xl p-6">
-                    <h2 class="text-xl font-semibold mb-4 text-white">💰 余额</h2>
-                    
-                    <div class="space-y-4">
-                        <div class="glass rounded-xl p-4">
-                            <div class="flex justify-between items-center">
-                                <div>
-                                    <div class="text-sm text-blue-200">MAO</div>
-                                    <div id="maoBalance" class="text-2xl font-bold text-yellow-400">0</div>
-                                </div>
-                                <div class="text-3xl">🐱</div>
+                    <!-- Wallet Connection -->
+                    <div class="mb-8">
+                        <div id="walletDisconnected" class="text-center">
+                            <div class="mb-4">
+                                <div class="text-4xl mb-2">💼</div>
+                                <h3 class="text-xl font-semibold text-white mb-2">连接钱包开始游戏</h3>
+                                <p class="text-gray-400 text-sm">请连接您的MetaMask钱包来开始游戏</p>
                             </div>
+                            <button id="connectBtn" class="connect-btn">
+                                🔗 连接 MetaMask
+                            </button>
                         </div>
 
-                        <div class="glass rounded-xl p-4">
-                            <div class="flex justify-between items-center">
-                                <div>
-                                    <div class="text-sm text-blue-200">PI</div>
-                                    <div id="piBalance" class="text-2xl font-bold text-green-400">0</div>
+                        <div id="walletConnected" class="hidden">
+                            <div class="flex items-center justify-center gap-4 mb-6">
+                                <div class="status-indicator">
+                                    <div class="w-2 h-2 bg-green-400 rounded-full"></div>
+                                    <span class="text-sm text-green-300">已连接</span>
                                 </div>
-                                <div class="text-3xl">🥧</div>
+                                <div class="text-sm font-mono text-gray-400" id="walletAddress"></div>
+                                <button id="disconnectBtn" class="text-xs text-red-400 hover:text-red-300">断开</button>
                             </div>
-                        </div>
-                    </div>
-                    
-                    <button id="refreshBtn" class="w-full mt-4 glass hover:bg-white hover:bg-opacity-10 text-white py-2 px-4 rounded-lg text-sm transition-all">
-                        🔄 刷新
-                    </button>
-                </div>
-
-                <!-- Stats -->
-                <div class="glass rounded-2xl p-6">
-                    <h2 class="text-xl font-semibold mb-4 text-white">📊 统计</h2>
-                    
-                    <div class="grid grid-cols-2 gap-3">
-                        <div class="glass rounded-lg p-3 text-center">
-                            <div class="text-xl font-bold text-blue-400" id="totalGames">0</div>
-                            <div class="text-xs text-blue-200">总局数</div>
-                        </div>
-                        <div class="glass rounded-lg p-3 text-center">
-                            <div class="text-xl font-bold text-green-400" id="winCount">0</div>
-                            <div class="text-xs text-blue-200">中奖数</div>
-                        </div>
-                        <div class="glass rounded-lg p-3 text-center">
-                            <div class="text-xl font-bold text-yellow-400" id="winRate">0%</div>
-                            <div class="text-xs text-blue-200">中奖率</div>
-                        </div>
-                        <div class="glass rounded-lg p-3 text-center">
-                            <div class="text-xl font-bold text-purple-400" id="totalReward">0</div>
-                            <div class="text-xs text-blue-200">总奖励</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Game Area -->
-            <div class="lg:col-span-2 space-y-6">
-                <div class="glass rounded-2xl p-6">
-                    <h2 class="text-2xl font-bold mb-6 text-white text-center gradient-text">🎰 终极转盘</h2>
-                    
-                    <!-- Token Selection -->
-                    <div class="flex justify-center mb-8">
-                        <div class="glass rounded-xl p-1 flex">
-                            <button id="selectMao" class="token-btn active">🐱 MAO (100)</button>
-                            <button id="selectPi" class="token-btn">🥧 PI (1000)</button>
-                        </div>
-                    </div>
-                    
-                    <!-- Wheel -->
-                    <div class="relative mx-auto mb-8" style="width: 300px; height: 300px;">
-                        <div class="wheel-pointer"></div>
-                        <div id="wheel" class="wheel">
-                            <div class="absolute inset-0 flex items-center justify-center">
-                                <div class="w-16 h-16 bg-white rounded-full flex items-center justify-center">
-                                    <div class="text-2xl">🎯</div>
+                            
+                            <!-- Balance Display -->
+                            <div class="grid grid-cols-2 gap-4 mb-8">
+                                <div class="balance-card">
+                                    <div class="text-3xl mb-2">🐱</div>
+                                    <div class="text-sm text-gray-400">MAO 余额</div>
+                                    <div id="maoBalance" class="balance-amount text-yellow-400">0</div>
+                                </div>
+                                <div class="balance-card">
+                                    <div class="text-3xl mb-2">🥧</div>
+                                    <div class="text-sm text-gray-400">PI 余额</div>
+                                    <div id="piBalance" class="balance-amount text-green-400">0</div>
                                 </div>
                             </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Game Button -->
-                    <div class="text-center">
-                        <button id="spinBtn" class="bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-600 hover:to-orange-600 disabled:from-gray-500 disabled:to-gray-600 text-black font-bold py-4 px-8 rounded-xl text-xl transition-all">
-                            🎲 开始游戏
-                        </button>
-                        
-                        <div id="gameStatus" class="mt-4 text-sm text-blue-200">
-                            选择代币类型，点击开始游戏
+                            
+                            <!-- Token Selection -->
+                            <div class="mb-8">
+                                <h3 class="text-lg font-semibold text-white mb-4">选择游戏模式</h3>
+                                <div class="token-selector max-w-md mx-auto">
+                                    <button id="selectMao" class="token-btn active">
+                                        <span class="text-xl">🐱</span>
+                                        <div>
+                                            <div class="font-semibold">MAO</div>
+                                            <div class="text-xs opacity-75">消耗 100</div>
+                                        </div>
+                                    </button>
+                                    <button id="selectPi" class="token-btn">
+                                        <span class="text-xl">🥧</span>
+                                        <div>
+                                            <div class="font-semibold">PI</div>
+                                            <div class="text-xs opacity-75">消耗 1000</div>
+                                        </div>
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <!-- Game Wheel -->
+                            <div class="mb-8">
+                                <div class="relative mx-auto mb-6" style="width: 280px; height: 280px;">
+                                    <div class="wheel-pointer"></div>
+                                    <div id="wheel" class="wheel">
+                                        <div class="absolute inset-0 flex items-center justify-center">
+                                            <div class="w-20 h-20 bg-white rounded-full flex items-center justify-center shadow-lg">
+                                                <div class="text-3xl">🎯</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Game Button -->
+                                <button id="spinBtn" class="game-btn mx-auto">
+                                    <span class="text-xl">🎲</span>
+                                    <span>开始游戏</span>
+                                </button>
+                                
+                                <!-- Game Status -->
+                                <div id="gameStatus" class="mt-4 text-sm text-gray-400">
+                                    选择代币模式，点击开始游戏
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
                 
-                <!-- Prize Table -->
-                <div class="glass rounded-2xl p-6">
-                    <h2 class="text-xl font-semibold mb-4 text-white">🏆 奖励表</h2>
+                <!-- Game Info Grid -->
+                <div class="grid lg:grid-cols-3 gap-6">
                     
-                    <div class="grid grid-cols-3 gap-3 text-sm">
-                        <div class="glass rounded-lg p-3 text-center bg-red-500 bg-opacity-20">
-                            <div class="text-red-300 font-semibold">未中奖</div>
-                            <div class="text-white">50%</div>
-                        </div>
-                        <div class="glass rounded-lg p-3 text-center bg-teal-500 bg-opacity-20">
-                            <div class="text-teal-300 font-semibold">小奖</div>
-                            <div class="text-white">22%</div>
-                        </div>
-                        <div class="glass rounded-lg p-3 text-center bg-blue-500 bg-opacity-20">
-                            <div class="text-blue-300 font-semibold">中奖</div>
-                            <div class="text-white">20%</div>
-                        </div>
-                        <div class="glass rounded-lg p-3 text-center bg-green-500 bg-opacity-20">
-                            <div class="text-green-300 font-semibold">大奖</div>
-                            <div class="text-white">7%</div>
-                        </div>
-                        <div class="glass rounded-lg p-3 text-center bg-yellow-500 bg-opacity-20">
-                            <div class="text-yellow-300 font-semibold">超级</div>
-                            <div class="text-white">0.8%</div>
-                        </div>
-                        <div class="glass rounded-lg p-3 text-center bg-purple-500 bg-opacity-20">
-                            <div class="text-purple-300 font-semibold">终极</div>
-                            <div class="text-white">0.2%</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Activity Panel -->
-            <div class="space-y-6">
-                <!-- History -->
-                <div class="glass rounded-2xl p-6">
-                    <div class="flex justify-between items-center mb-4">
-                        <h2 class="text-xl font-semibold text-white">📋 记录</h2>
-                        <button id="clearHistory" class="text-xs text-red-300 hover:text-red-200">清空</button>
-                    </div>
-
-                    <div id="historyList" class="space-y-2 max-h-96 overflow-y-auto">
-                        <div class="text-center py-8 text-blue-200">
-                            <div class="text-4xl mb-2">🎮</div>
-                            <div class="text-sm">暂无记录</div>
+                    <!-- Statistics -->
+                    <div class="card rounded-2xl p-6">
+                        <h3 class="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+                            <span>📊</span>
+                            <span>游戏统计</span>
+                        </h3>
+                        <div class="grid grid-cols-2 gap-3">
+                            <div class="stat-card">
+                                <div class="text-2xl font-bold text-blue-400" id="totalGames">0</div>
+                                <div class="text-xs text-gray-400">总局数</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="text-2xl font-bold text-green-400" id="winCount">0</div>
+                                <div class="text-xs text-gray-400">胜利数</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="text-2xl font-bold text-yellow-400" id="winRate">0%</div>
+                                <div class="text-xs text-gray-400">胜率</div>
+                            </div>
+                            <div class="stat-card">
+                                <div class="text-2xl font-bold text-purple-400" id="totalReward">0</div>
+                                <div class="text-xs text-gray-400">总奖励</div>
+                            </div>
                         </div>
                     </div>
-                </div>
-
-                <!-- Help -->
-                <div class="glass rounded-2xl p-6">
-                    <h2 class="text-xl font-semibold mb-4 text-white">❓ 说明</h2>
                     
-                    <div class="space-y-3 text-sm text-blue-200">
-                        <div>1. 连接 MetaMask 钱包</div>
-                        <div>2. 选择代币 (MAO/PI)</div>
-                        <div>3. 点击"开始游戏"</div>
-                        <div>4. 等待转盘结果</div>
+                    <!-- Prize Table -->
+                    <div class="card rounded-2xl p-6">
+                        <h3 class="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+                            <span>🏆</span>
+                            <span>奖励表</span>
+                        </h3>
+                        <div class="prize-grid">
+                            <div class="prize-item bg-red-500 bg-opacity-20 border-red-500 border-opacity-30">
+                                <div class="text-red-300 font-semibold text-xs">未中奖</div>
+                                <div class="text-white text-sm">50%</div>
+                            </div>
+                            <div class="prize-item bg-green-500 bg-opacity-20 border-green-500 border-opacity-30">
+                                <div class="text-green-300 font-semibold text-xs">小奖</div>
+                                <div class="text-white text-sm">22%</div>
+                            </div>
+                            <div class="prize-item bg-blue-500 bg-opacity-20 border-blue-500 border-opacity-30">
+                                <div class="text-blue-300 font-semibold text-xs">中奖</div>
+                                <div class="text-white text-sm">20%</div>
+                            </div>
+                            <div class="prize-item bg-cyan-500 bg-opacity-20 border-cyan-500 border-opacity-30">
+                                <div class="text-cyan-300 font-semibold text-xs">大奖</div>
+                                <div class="text-white text-sm">7%</div>
+                            </div>
+                            <div class="prize-item bg-yellow-500 bg-opacity-20 border-yellow-500 border-opacity-30">
+                                <div class="text-yellow-300 font-semibold text-xs">超级</div>
+                                <div class="text-white text-sm">0.8%</div>
+                            </div>
+                            <div class="prize-item bg-purple-500 bg-opacity-20 border-purple-500 border-opacity-30">
+                                <div class="text-purple-300 font-semibold text-xs">终极</div>
+                                <div class="text-white text-sm">0.2%</div>
+                            </div>
+                        </div>
                     </div>
-
-                    <div class="mt-4 p-3 bg-yellow-500 bg-opacity-20 rounded-lg">
-                        <div class="text-yellow-300 text-xs font-semibold">💡 保护机制</div>
-                        <div class="text-yellow-200 text-xs">连续失败5次将触发保护</div>
+                    
+                    <!-- Quick Actions -->
+                    <div class="card rounded-2xl p-6">
+                        <h3 class="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+                            <span>⚡</span>
+                            <span>快速操作</span>
+                        </h3>
+                        <div class="space-y-3">
+                            <button id="refreshBtn" class="w-full glass hover:bg-white hover:bg-opacity-10 text-white py-3 px-4 rounded-lg text-sm transition-all flex items-center justify-center gap-2">
+                                <span>🔄</span>
+                                <span>刷新余额</span>
+                            </button>
+                            <button id="clearHistory" class="w-full glass hover:bg-white hover:bg-opacity-10 text-white py-3 px-4 rounded-lg text-sm transition-all flex items-center justify-center gap-2">
+                                <span>🗑️</span>
+                                <span>清空记录</span>
+                            </button>
+                        </div>
+                        
+                        <div class="mt-6 p-4 bg-blue-500 bg-opacity-20 rounded-lg">
+                            <div class="text-blue-300 text-xs font-semibold mb-1">💡 游戏说明</div>
+                            <div class="text-blue-200 text-xs space-y-1">
+                                <div>• 连接钱包并选择代币</div>
+                                <div>• 支付代币费用开始游戏</div>
+                                <div>• 转盘停止后查看结果</div>
+                                <div>• 中奖奖励自动发放</div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -322,12 +497,12 @@
 
     <!-- Notification -->
     <div id="notification" class="notification hidden">
-        <div class="glass rounded-lg p-4">
-            <div class="flex items-start">
-                <div id="notificationIcon" class="mr-3 text-xl"></div>
+        <div class="glass rounded-lg p-4 border-l-4 border-blue-500">
+            <div class="flex items-start gap-3">
+                <div id="notificationIcon" class="text-xl"></div>
                 <div>
-                    <div id="notificationTitle" class="font-semibold text-white"></div>
-                    <div id="notificationMessage" class="text-sm text-blue-200"></div>
+                    <div id="notificationTitle" class="font-semibold text-white text-sm"></div>
+                    <div id="notificationMessage" class="text-xs text-gray-300 mt-1"></div>
                 </div>
             </div>
         </div>
@@ -335,14 +510,14 @@
 
     <!-- Result Modal -->
     <div id="resultModal" class="fixed inset-0 z-50 hidden">
-        <div class="fixed inset-0 bg-black bg-opacity-50"></div>
+        <div class="fixed inset-0 bg-black bg-opacity-75 backdrop-blur-sm"></div>
         <div class="relative h-full flex items-center justify-center p-4">
-            <div class="glass rounded-2xl p-8 max-w-md w-full text-center">
+            <div class="card rounded-3xl p-8 max-w-md w-full text-center">
                 <div id="resultIcon" class="text-6xl mb-4"></div>
                 <h3 id="resultTitle" class="text-2xl font-bold text-white mb-2"></h3>
-                <p id="resultMessage" class="text-blue-200 mb-6"></p>
+                <p id="resultMessage" class="text-gray-300 mb-6"></p>
                 <div id="resultReward" class="text-3xl font-bold gradient-text mb-6"></div>
-                <button id="closeModal" class="bg-gradient-to-r from-blue-600 to-purple-600 hover:opacity-90 text-white font-semibold py-3 px-6 rounded-xl transition-all">
+                <button id="closeModal" class="connect-btn w-full">
                     继续游戏
                 </button>
             </div>
@@ -356,7 +531,6 @@
             game: { 
                 selectedToken: 'MAO', 
                 isSpinning: false, 
-                history: [], 
                 stats: { totalGames: 0, winCount: 0, totalReward: 0 }
             },
             contracts: {
@@ -371,6 +545,7 @@
 
         // Constants
         const MAX_UINT256 = "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff";
+        const GAME_COSTS = { MAO: '100', PI: '1000' };
 
         const WHEEL_GAME_ABI = [
             "function playMAOGame() external",
@@ -384,10 +559,11 @@
             "function allowance(address owner, address spender) external view returns (uint256)"
         ];
 
-        // Utils
+        // Utility Functions
         const Utils = {
             formatAddress: (addr) => `${addr.slice(0, 6)}...${addr.slice(-4)}`,
             formatNumber: (num) => Math.floor(num).toLocaleString(),
+            
             showNotification: (title, message, type = 'info') => {
                 const notification = document.getElementById('notification');
                 const icons = { success: '✅', error: '❌', warning: '⚠️', info: 'ℹ️' };
@@ -397,39 +573,37 @@
                 document.getElementById('notificationMessage').textContent = message;
                 
                 notification.classList.remove('hidden');
-                setTimeout(() => notification.classList.add('hidden'), 5000);
+                setTimeout(() => notification.classList.add('hidden'), 4000);
             },
             
             saveGameData: () => {
                 localStorage.setItem('maoGameStats', JSON.stringify(AppState.game.stats));
-                localStorage.setItem('maoGameHistory', JSON.stringify(AppState.game.history.slice(-20))); // 只保存最近20条
             },
             
             loadGameData: () => {
                 try {
                     const stats = localStorage.getItem('maoGameStats');
-                    const history = localStorage.getItem('maoGameHistory');
-                    
-                    if (stats) AppState.game.stats = JSON.parse(stats);
-                    if (history) AppState.game.history = JSON.parse(history);
-                    
-                    StatsManager.updateDisplay();
-                    HistoryManager.updateDisplay();
+                    if (stats) {
+                        AppState.game.stats = JSON.parse(stats);
+                        StatsManager.updateDisplay();
+                    }
                 } catch (error) {
                     console.log('加载游戏数据失败:', error);
                 }
             }
         };
 
-        // Wallet Manager
+        // Wallet Management
         const WalletManager = {
             async connect() {
                 try {
-                    if (!window.ethereum) throw new Error('请安装 MetaMask');
+                    if (!window.ethereum) {
+                        throw new Error('请安装 MetaMask 钱包');
+                    }
 
-                    // 检查网络
+                    // Check and switch to AlveyChain
                     const chainId = await window.ethereum.request({ method: 'eth_chainId' });
-                    if (chainId !== '0xED5') { // 3797 = 0xED5
+                    if (chainId !== '0xED5') {
                         try {
                             await window.ethereum.request({
                                 method: 'wallet_switchEthereumChain',
@@ -464,9 +638,9 @@
                     await BalanceManager.update();
                     Utils.loadGameData();
 
-                    Utils.showNotification('成功', '钱包连接成功！', 'success');
+                    Utils.showNotification('连接成功', '钱包已成功连接', 'success');
                 } catch (error) {
-                    Utils.showNotification('错误', error.message, 'error');
+                    Utils.showNotification('连接失败', error.message, 'error');
                 }
             },
 
@@ -486,7 +660,7 @@
                 if (AppState.wallet.connected) {
                     disconnected.classList.add('hidden');
                     connected.classList.remove('hidden');
-                    document.getElementById('walletAddress').textContent = AppState.wallet.address;
+                    document.getElementById('walletAddress').textContent = Utils.formatAddress(AppState.wallet.address);
                 } else {
                     disconnected.classList.remove('hidden');
                     connected.classList.add('hidden');
@@ -497,11 +671,11 @@
                 AppState.wallet = { connected: false, address: null, provider: null, signer: null };
                 this.updateUI();
                 BalanceManager.clear();
-                Utils.showNotification('提示', '钱包已断开', 'info');
+                Utils.showNotification('已断开', '钱包连接已断开', 'info');
             }
         };
 
-        // Balance Manager
+        // Balance Management
         const BalanceManager = {
             async update() {
                 if (!AppState.wallet.connected) return;
@@ -517,7 +691,6 @@
                     document.getElementById('piBalance').textContent = Utils.formatNumber(ethers.utils.formatEther(piBalance));
                 } catch (error) {
                     console.error('更新余额失败:', error);
-                    Utils.showNotification('错误', '更新余额失败', 'error');
                 }
             },
 
@@ -527,7 +700,7 @@
             }
         };
 
-        // Stats Manager
+        // Statistics Management
         const StatsManager = {
             updateDisplay() {
                 const { stats } = AppState.game;
@@ -551,124 +724,48 @@
             }
         };
 
-        // History Manager
-        const HistoryManager = {
-            updateDisplay() {
-                const historyList = document.getElementById('historyList');
-                
-                if (AppState.game.history.length === 0) {
-                    historyList.innerHTML = `
-                        <div class="text-center py-8 text-blue-200">
-                            <div class="text-4xl mb-2">🎮</div>
-                            <div class="text-sm">暂无记录</div>
-                        </div>
-                    `;
-                    return;
-                }
-                
-                historyList.innerHTML = AppState.game.history
-                    .slice(-10) // 只显示最近10条
-                    .reverse()
-                    .map(record => `
-                        <div class="glass rounded-lg p-3 text-sm">
-                            <div class="flex justify-between items-center">
-                                <div class="flex items-center space-x-2">
-                                    <span class="text-lg">${record.token === 'MAO' ? '🐱' : '🥧'}</span>
-                                    <span class="text-white">${record.token}</span>
-                                </div>
-                                <div class="text-xs text-blue-200">${record.time}</div>
-                            </div>
-                            <div class="mt-2 flex justify-between items-center">
-                                <span class="${record.isWin ? 'text-green-400' : 'text-red-400'}">
-                                    ${record.isWin ? '✅ 中奖' : '❌ 未中奖'}
-                                </span>
-                                ${record.isWin ? 
-                                    `<span class="text-yellow-400">+${Utils.formatNumber(record.reward)}</span>` : 
-                                    `<span class="text-gray-400">0</span>`
-                                }
-                            </div>
-                        </div>
-                    `).join('');
-            },
-            
-            addRecord(result) {
-                const record = {
-                    token: AppState.game.selectedToken,
-                    isWin: result.isWin,
-                    reward: parseFloat(result.reward),
-                    time: new Date().toLocaleTimeString(),
-                    txHash: result.txHash
-                };
-                
-                AppState.game.history.push(record);
-                this.updateDisplay();
-                Utils.saveGameData();
-            },
-            
-            clear() {
-                AppState.game.history = [];
-                this.updateDisplay();
-                Utils.saveGameData();
-            }
-        };
-
-        // Game Manager
+        // Game Management
         const GameManager = {
             selectToken(token) {
-                console.log('selectToken called with:', token);
                 if (AppState.game.isSpinning) {
-                    console.log('Game is spinning, cannot switch');
+                    Utils.showNotification('游戏进行中', '请等待当前游戏结束', 'warning');
                     return;
                 }
                 
                 AppState.game.selectedToken = token;
-                console.log('Token selected:', AppState.game.selectedToken);
                 this.updateTokenSelection();
                 this.updateGameStatus();
             },
 
             updateTokenSelection() {
-                console.log('updateTokenSelection called');
                 const maoBtn = document.getElementById('selectMao');
                 const piBtn = document.getElementById('selectPi');
 
-                if (!maoBtn || !piBtn) {
-                    console.error('Token buttons not found');
-                    return;
-                }
-
                 if (AppState.game.selectedToken === 'MAO') {
-                    maoBtn.className = 'token-btn active';
-                    piBtn.className = 'token-btn';
+                    maoBtn.classList.add('active');
+                    piBtn.classList.remove('active');
                 } else {
-                    maoBtn.className = 'token-btn';
-                    piBtn.className = 'token-btn active';
+                    maoBtn.classList.remove('active');
+                    piBtn.classList.add('active');
                 }
-                console.log('Token selection updated');
             },
 
             updateGameStatus() {
-                console.log('updateGameStatus called');
                 const token = AppState.game.selectedToken;
-                const cost = token === 'MAO' ? '100' : '1000';
-                this.setGameStatus(`选择了 ${token} 模式，每次消耗 ${cost} ${token}`, 'info');
+                const cost = GAME_COSTS[token];
+                this.setGameStatus(`${token} 模式 - 消耗 ${cost} ${token}`, 'info');
             },
 
             async startGame() {
-                console.log('startGame called');
-                
                 if (!AppState.wallet.connected) {
-                    console.log('Wallet not connected');
-                    Utils.showNotification('提示', '请先连接钱包', 'warning');
+                    Utils.showNotification('请先连接钱包', '需要连接钱包才能开始游戏', 'warning');
                     return;
                 }
 
                 if (AppState.game.isSpinning) {
-                    console.log('Game already spinning');
+                    Utils.showNotification('游戏进行中', '请等待当前游戏结束', 'warning');
                     return;
                 }
-
-                console.log('Starting game with token:', AppState.game.selectedToken);
 
                 try {
                     AppState.game.isSpinning = true;
@@ -676,55 +773,50 @@
 
                     const { selectedToken } = AppState.game;
                     const { game, mao, pi } = AppState.contracts.instances;
-                    
-                    if (!game || !mao || !pi) {
-                        throw new Error('合约实例未初始化');
-                    }
-                    
                     const tokenContract = selectedToken === 'MAO' ? mao : pi;
-                    const amount = selectedToken === 'MAO' ? 
-                        ethers.utils.parseEther('100') : 
-                        ethers.utils.parseEther('1000');
+                    const amount = ethers.utils.parseEther(GAME_COSTS[selectedToken]);
                     
-                    console.log('Checking balance...');
-                    // Check balance
+                    // 1. Check balance first
+                    this.setGameStatus('检查余额中...', 'loading');
                     const balance = await tokenContract.balanceOf(AppState.wallet.address);
                     if (balance.lt(amount)) {
-                        throw new Error(`${selectedToken}余额不足，需要${selectedToken === 'MAO' ? '100' : '1000'} ${selectedToken}`);
+                        throw new Error(`余额不足！需要 ${GAME_COSTS[selectedToken]} ${selectedToken}`);
                     }
 
-                    console.log('Checking allowance...');
-                    // Check allowance and approve if needed
+                    // 2. Check and handle allowance
+                    this.setGameStatus('检查授权中...', 'loading');
                     const allowance = await tokenContract.allowance(
                         AppState.wallet.address, 
                         AppState.contracts.addresses.WHEEL_GAME
                     );
                     
                     if (allowance.lt(amount)) {
-                        this.setGameStatus('正在授权代币...', 'loading');
-                        Utils.showNotification('授权', '正在进行无限授权，以后无需重复授权', 'info');
+                        this.setGameStatus('授权代币中...', 'loading');
+                        Utils.showNotification('授权确认', '请确认代币授权交易', 'info');
                         
                         const approveTx = await tokenContract.approve(
                             AppState.contracts.addresses.WHEEL_GAME, 
                             MAX_UINT256
                         );
-                        await approveTx.wait();
                         
-                        Utils.showNotification('成功', '无限授权完成！', 'success');
+                        this.setGameStatus('等待授权确认...', 'loading');
+                        await approveTx.wait();
+                        Utils.showNotification('授权成功', '代币授权已完成', 'success');
                     }
 
-                    console.log('Starting wheel animation...');
-                    // Start wheel animation
-                    this.startWheelAnimation();
-                    this.setGameStatus('转盘转动中...', 'loading');
+                    // 3. Start game transaction
+                    this.setGameStatus('支付代币中...', 'loading');
+                    Utils.showNotification('游戏开始', '请确认游戏交易', 'info');
                     
-                    console.log('Sending transaction...');
-                    // Send transaction
                     const tx = selectedToken === 'MAO' ? 
                         await game.playMAOGame() : 
                         await game.playPIGame();
                     
-                    this.setGameStatus('等待区块确认...', 'loading');
+                    // 4. Start wheel animation after payment
+                    this.startWheelAnimation();
+                    this.setGameStatus('转盘转动中...', 'loading');
+                    
+                    // 5. Wait for transaction confirmation
                     const receipt = await tx.wait();
                     const gameEvent = receipt.events.find(e => e.event === 'GamePlayed');
                     
@@ -739,15 +831,15 @@
                             txHash: tx.hash
                         };
                         
+                        // Show result after wheel animation
                         setTimeout(() => {
                             this.showResult(result);
                             StatsManager.addGame(result);
-                            HistoryManager.addRecord(result);
                         }, 4000);
                     }
 
                 } catch (error) {
-                    console.error('Game error:', error);
+                    console.error('游戏错误:', error);
                     Utils.showNotification('游戏失败', error.message, 'error');
                     this.gameCleanup();
                 }
@@ -757,18 +849,14 @@
                 this.stopWheelAnimation();
                 AppState.game.isSpinning = false;
                 this.updateGameUI(false);
-                this.setGameStatus(`${AppState.game.selectedToken} 模式准备就绪`, 'info');
+                this.updateGameStatus();
             },
 
             setGameStatus(message, type = 'info') {
                 const statusEl = document.getElementById('gameStatus');
-                if (!statusEl) {
-                    console.error('gameStatus element not found');
-                    return;
-                }
+                if (!statusEl) return;
                 
                 let iconHtml = '';
-                
                 switch (type) {
                     case 'loading':
                         iconHtml = '<div class="loading-spinner inline-block mr-2"></div>';
@@ -788,16 +876,12 @@
 
             startWheelAnimation() {
                 const wheel = document.getElementById('wheel');
-                if (wheel) {
-                    wheel.classList.add('spinning');
-                }
+                if (wheel) wheel.classList.add('spinning');
             },
 
             stopWheelAnimation() {
                 const wheel = document.getElementById('wheel');
-                if (wheel) {
-                    wheel.classList.remove('spinning');
-                }
+                if (wheel) wheel.classList.remove('spinning');
             },
 
             showResult(result) {
@@ -814,65 +898,43 @@
                 if (result.isWin) {
                     icon.textContent = '🎉';
                     title.textContent = '恭喜中奖！';
-                    message.textContent = `获得 ${result.multiplier}倍 奖励！`;
+                    message.textContent = `获得 ${result.multiplier}x 倍数奖励`;
                     reward.textContent = `+${Utils.formatNumber(result.reward)} ${AppState.game.selectedToken}`;
                     this.setGameStatus('恭喜中奖！', 'success');
                 } else {
                     icon.textContent = '😔';
-                    title.textContent = '游戏失败';
-                    message.textContent = '这次没有中奖，再试一次吧！';
-                    reward.textContent = '未中奖';
-                    this.setGameStatus('未中奖，继续加油！', 'error');
+                    title.textContent = '未中奖';
+                    message.textContent = '这次运气不佳，再试一次吧！';
+                    reward.textContent = '0 奖励';
+                    this.setGameStatus('未中奖，再接再厉！', 'error');
                 }
 
                 modal.classList.remove('hidden');
                 
-                // 更新余额
-                setTimeout(() => {
-                    BalanceManager.update();
-                }, 2000);
+                // Update balance after game
+                setTimeout(() => BalanceManager.update(), 2000);
             },
 
             updateGameUI(isPlaying) {
                 const spinBtn = document.getElementById('spinBtn');
                 const tokenBtns = document.querySelectorAll('.token-btn');
                 
-                if (!spinBtn) {
-                    console.error('spinBtn not found');
-                    return;
-                }
+                if (!spinBtn) return;
                 
                 if (isPlaying) {
                     spinBtn.disabled = true;
-                    spinBtn.innerHTML = '<div class="loading-spinner mx-auto"></div>';
-                    tokenBtns.forEach(btn => btn.style.pointerEvents = 'none');
+                    spinBtn.innerHTML = '<div class="loading-spinner"></div><span>游戏中...</span>';
+                    tokenBtns.forEach(btn => btn.disabled = true);
                 } else {
                     spinBtn.disabled = false;
-                    spinBtn.innerHTML = '🎲 开始游戏';
-                    tokenBtns.forEach(btn => btn.style.pointerEvents = 'auto');
+                    spinBtn.innerHTML = '<span class="text-xl">🎲</span><span>开始游戏</span>';
+                    tokenBtns.forEach(btn => btn.disabled = false);
                 }
             }
         };
 
         // Event Listeners
         document.addEventListener('DOMContentLoaded', () => {
-            console.log('DOM Content Loaded');
-            
-            // Check if all required elements exist
-            const requiredElements = [
-                'connectBtn', 'disconnectBtn', 'selectMao', 'selectPi', 
-                'spinBtn', 'refreshBtn', 'clearHistory', 'closeModal'
-            ];
-            
-            requiredElements.forEach(id => {
-                const element = document.getElementById(id);
-                if (!element) {
-                    console.error(`Element not found: ${id}`);
-                } else {
-                    console.log(`Element found: ${id}`);
-                }
-            });
-            
             // Wallet events
             const connectBtn = document.getElementById('connectBtn');
             const disconnectBtn = document.getElementById('disconnectBtn');
@@ -884,26 +946,9 @@
             const selectPi = document.getElementById('selectPi');
             const spinBtn = document.getElementById('spinBtn');
             
-            if (selectMao) {
-                selectMao.addEventListener('click', () => {
-                    console.log('MAO button clicked');
-                    GameManager.selectToken('MAO');
-                });
-            }
-            
-            if (selectPi) {
-                selectPi.addEventListener('click', () => {
-                    console.log('PI button clicked');
-                    GameManager.selectToken('PI');
-                });
-            }
-            
-            if (spinBtn) {
-                spinBtn.addEventListener('click', () => {
-                    console.log('Spin button clicked');
-                    GameManager.startGame();
-                });
-            }
+            if (selectMao) selectMao.addEventListener('click', () => GameManager.selectToken('MAO'));
+            if (selectPi) selectPi.addEventListener('click', () => GameManager.selectToken('PI'));
+            if (spinBtn) spinBtn.addEventListener('click', GameManager.startGame);
             
             // UI events
             const refreshBtn = document.getElementById('refreshBtn');
@@ -914,7 +959,10 @@
             if (clearHistory) {
                 clearHistory.addEventListener('click', () => {
                     if (confirm('确定要清空游戏记录吗？')) {
-                        HistoryManager.clear();
+                        AppState.game.stats = { totalGames: 0, winCount: 0, totalReward: 0 };
+                        StatsManager.updateDisplay();
+                        Utils.saveGameData();
+                        Utils.showNotification('记录已清空', '游戏统计已重置', 'info');
                     }
                 });
             }
@@ -925,18 +973,14 @@
             }
 
             // Initialize UI
-            console.log('Initializing UI...');
             GameManager.updateTokenSelection();
             GameManager.updateGameStatus();
             StatsManager.updateDisplay();
             
             // Auto-connect if available
             if (window.ethereum && window.ethereum.selectedAddress) {
-                console.log('Auto-connecting wallet...');
                 WalletManager.connect();
             }
-            
-            console.log('Initialization complete');
         });
     </script>
 </body>
