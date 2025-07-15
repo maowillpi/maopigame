@@ -353,7 +353,12 @@
         // App State
         const AppState = {
             wallet: { connected: false, address: null, provider: null, signer: null },
-            game: { selectedToken: 'MAO', isSpinning: false, history: {} },
+            game: { 
+                selectedToken: 'MAO', 
+                isSpinning: false, 
+                history: [], 
+                stats: { totalGames: 0, winCount: 0, totalReward: 0 }
+            },
             contracts: {
                 addresses: {
                     WHEEL_GAME: "0xB677DBcA76061E6301272c83179c8243A4eeB6A5",
@@ -393,6 +398,26 @@
                 
                 notification.classList.remove('hidden');
                 setTimeout(() => notification.classList.add('hidden'), 5000);
+            },
+            
+            saveGameData: () => {
+                localStorage.setItem('maoGameStats', JSON.stringify(AppState.game.stats));
+                localStorage.setItem('maoGameHistory', JSON.stringify(AppState.game.history.slice(-20))); // 只保存最近20条
+            },
+            
+            loadGameData: () => {
+                try {
+                    const stats = localStorage.getItem('maoGameStats');
+                    const history = localStorage.getItem('maoGameHistory');
+                    
+                    if (stats) AppState.game.stats = JSON.parse(stats);
+                    if (history) AppState.game.history = JSON.parse(history);
+                    
+                    StatsManager.updateDisplay();
+                    HistoryManager.updateDisplay();
+                } catch (error) {
+                    console.log('加载游戏数据失败:', error);
+                }
             }
         };
 
@@ -401,6 +426,30 @@
             async connect() {
                 try {
                     if (!window.ethereum) throw new Error('请安装 MetaMask');
+
+                    // 检查网络
+                    const chainId = await window.ethereum.request({ method: 'eth_chainId' });
+                    if (chainId !== '0xED5') { // 3797 = 0xED5
+                        try {
+                            await window.ethereum.request({
+                                method: 'wallet_switchEthereumChain',
+                                params: [{ chainId: '0xED5' }],
+                            });
+                        } catch (switchError) {
+                            if (switchError.code === 4902) {
+                                await window.ethereum.request({
+                                    method: 'wallet_addEthereumChain',
+                                    params: [{
+                                        chainId: '0xED5',
+                                        chainName: 'AlveyChain Mainnet',
+                                        nativeCurrency: { name: 'ALV', symbol: 'ALV', decimals: 18 },
+                                        rpcUrls: ['https://elves-core1.alvey.io'],
+                                        blockExplorerUrls: ['https://alveyscan.com/']
+                                    }]
+                                });
+                            }
+                        }
+                    }
 
                     const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
                     if (!accounts.length) return;
@@ -413,6 +462,7 @@
                     this.initContracts();
                     this.updateUI();
                     await BalanceManager.update();
+                    Utils.loadGameData();
 
                     Utils.showNotification('成功', '钱包连接成功！', 'success');
                 } catch (error) {
@@ -467,6 +517,7 @@
                     document.getElementById('piBalance').textContent = Utils.formatNumber(ethers.utils.formatEther(piBalance));
                 } catch (error) {
                     console.error('更新余额失败:', error);
+                    Utils.showNotification('错误', '更新余额失败', 'error');
                 }
             },
 
@@ -476,11 +527,99 @@
             }
         };
 
+        // Stats Manager
+        const StatsManager = {
+            updateDisplay() {
+                const { stats } = AppState.game;
+                document.getElementById('totalGames').textContent = stats.totalGames;
+                document.getElementById('winCount').textContent = stats.winCount;
+                document.getElementById('totalReward').textContent = Utils.formatNumber(stats.totalReward);
+                
+                const winRate = stats.totalGames > 0 ? 
+                    ((stats.winCount / stats.totalGames) * 100).toFixed(1) : 0;
+                document.getElementById('winRate').textContent = `${winRate}%`;
+            },
+            
+            addGame(result) {
+                AppState.game.stats.totalGames++;
+                if (result.isWin) {
+                    AppState.game.stats.winCount++;
+                    AppState.game.stats.totalReward += parseFloat(result.reward);
+                }
+                this.updateDisplay();
+                Utils.saveGameData();
+            }
+        };
+
+        // History Manager
+        const HistoryManager = {
+            updateDisplay() {
+                const historyList = document.getElementById('historyList');
+                
+                if (AppState.game.history.length === 0) {
+                    historyList.innerHTML = `
+                        <div class="text-center py-8 text-blue-200">
+                            <div class="text-4xl mb-2">🎮</div>
+                            <div class="text-sm">暂无记录</div>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                historyList.innerHTML = AppState.game.history
+                    .slice(-10) // 只显示最近10条
+                    .reverse()
+                    .map(record => `
+                        <div class="glass rounded-lg p-3 text-sm">
+                            <div class="flex justify-between items-center">
+                                <div class="flex items-center space-x-2">
+                                    <span class="text-lg">${record.token === 'MAO' ? '🐱' : '🥧'}</span>
+                                    <span class="text-white">${record.token}</span>
+                                </div>
+                                <div class="text-xs text-blue-200">${record.time}</div>
+                            </div>
+                            <div class="mt-2 flex justify-between items-center">
+                                <span class="${record.isWin ? 'text-green-400' : 'text-red-400'}">
+                                    ${record.isWin ? '✅ 中奖' : '❌ 未中奖'}
+                                </span>
+                                ${record.isWin ? 
+                                    `<span class="text-yellow-400">+${Utils.formatNumber(record.reward)}</span>` : 
+                                    `<span class="text-gray-400">0</span>`
+                                }
+                            </div>
+                        </div>
+                    `).join('');
+            },
+            
+            addRecord(result) {
+                const record = {
+                    token: AppState.game.selectedToken,
+                    isWin: result.isWin,
+                    reward: parseFloat(result.reward),
+                    time: new Date().toLocaleTimeString(),
+                    txHash: result.txHash
+                };
+                
+                AppState.game.history.push(record);
+                this.updateDisplay();
+                Utils.saveGameData();
+            },
+            
+            clear() {
+                AppState.game.history = [];
+                this.updateDisplay();
+                Utils.saveGameData();
+            }
+        };
+
         // Game Manager
         const GameManager = {
             selectToken(token) {
+                if (AppState.game.isSpinning) return; // 游戏进行中不允许切换
+                
                 AppState.game.selectedToken = token;
                 this.updateTokenSelection();
+                this.updateGameStatus();
             },
 
             updateTokenSelection() {
@@ -494,6 +633,12 @@
                     maoBtn.className = 'token-btn';
                     piBtn.className = 'token-btn active';
                 }
+            },
+
+            updateGameStatus() {
+                const token = AppState.game.selectedToken;
+                const cost = token === 'MAO' ? '100' : '1000';
+                this.setGameStatus(`选择了 ${token} 模式，每次消耗 ${cost} ${token}`, 'info');
             },
 
             async startGame() {
@@ -518,7 +663,7 @@
                     // Check balance
                     const balance = await tokenContract.balanceOf(AppState.wallet.address);
                     if (balance.lt(amount)) {
-                        throw new Error(`${selectedToken}余额不足`);
+                        throw new Error(`${selectedToken}余额不足，需要${selectedToken === 'MAO' ? '100' : '1000'} ${selectedToken}`);
                     }
 
                     // Check allowance and approve if needed
@@ -531,10 +676,9 @@
                         this.setGameStatus('正在授权代币...', 'loading');
                         Utils.showNotification('授权', '正在进行无限授权，以后无需重复授权', 'info');
                         
-                        // 使用最大值进行无限授权
                         const approveTx = await tokenContract.approve(
                             AppState.contracts.addresses.WHEEL_GAME, 
-                            MAX_UINT256  // 无限授权
+                            MAX_UINT256
                         );
                         await approveTx.wait();
                         
@@ -550,29 +694,40 @@
                         await game.playMAOGame() : 
                         await game.playPIGame();
                     
+                    this.setGameStatus('等待区块确认...', 'loading');
                     const receipt = await tx.wait();
                     const gameEvent = receipt.events.find(e => e.event === 'GamePlayed');
                     
                     if (gameEvent) {
                         const { randomNumber, multiplier, reward, isWin } = gameEvent.args;
                         
+                        const result = {
+                            randomNumber: randomNumber.toNumber(),
+                            multiplier: multiplier.toNumber(),
+                            reward: ethers.utils.formatEther(reward),
+                            isWin,
+                            txHash: tx.hash
+                        };
+                        
                         setTimeout(() => {
-                            this.showResult({
-                                randomNumber: randomNumber.toNumber(),
-                                multiplier: multiplier.toNumber(),
-                                reward: ethers.utils.formatEther(reward),
-                                isWin,
-                                txHash: tx.hash
-                            });
+                            this.showResult(result);
+                            StatsManager.addGame(result);
+                            HistoryManager.addRecord(result);
                         }, 4000);
                     }
 
                 } catch (error) {
+                    console.error('Game error:', error);
                     Utils.showNotification('游戏失败', error.message, 'error');
-                    this.stopWheelAnimation();
-                    AppState.game.isSpinning = false;
-                    this.updateGameUI(false);
+                    this.gameCleanup();
                 }
+            },
+
+            gameCleanup() {
+                this.stopWheelAnimation();
+                AppState.game.isSpinning = false;
+                this.updateGameUI(false);
+                this.setGameStatus(`${AppState.game.selectedToken} 模式准备就绪`, 'info');
             },
 
             setGameStatus(message, type = 'info') {
@@ -621,44 +776,68 @@
                     icon.textContent = '🎉';
                     title.textContent = '恭喜中奖！';
                     message.textContent = `获得 ${result.multiplier}倍 奖励！`;
-                    reward.textContent = `+${result.reward} ${AppState.game.selectedToken}`;
+                    reward.textContent = `+${Utils.formatNumber(result.reward)} ${AppState.game.selectedToken}`;
+                    this.setGameStatus('恭喜中奖！', 'success');
                 } else {
                     icon.textContent = '😔';
-                    title.textContent = '很遗憾';
-                    message.textContent = '这次没有中奖';
+                    title.textContent = '游戏失败';
+                    message.textContent = '这次没有中奖，再试一次吧！';
                     reward.textContent = '未中奖';
+                    this.setGameStatus('未中奖，继续加油！', 'error');
                 }
 
                 modal.classList.remove('hidden');
-                setTimeout(() => BalanceManager.update(), 1000);
+                
+                // 更新余额
+                setTimeout(() => {
+                    BalanceManager.update();
+                }, 2000);
             },
 
             updateGameUI(isPlaying) {
                 const spinBtn = document.getElementById('spinBtn');
+                const tokenBtns = document.querySelectorAll('.token-btn');
+                
                 if (isPlaying) {
                     spinBtn.disabled = true;
                     spinBtn.innerHTML = '<div class="loading-spinner mx-auto"></div>';
+                    tokenBtns.forEach(btn => btn.style.pointerEvents = 'none');
                 } else {
                     spinBtn.disabled = false;
                     spinBtn.innerHTML = '🎲 开始游戏';
+                    tokenBtns.forEach(btn => btn.style.pointerEvents = 'auto');
                 }
             }
         };
 
         // Event Listeners
         document.addEventListener('DOMContentLoaded', () => {
+            // Wallet events
             document.getElementById('connectBtn').addEventListener('click', WalletManager.connect);
             document.getElementById('disconnectBtn').addEventListener('click', WalletManager.disconnect);
+            
+            // Game events
             document.getElementById('selectMao').addEventListener('click', () => GameManager.selectToken('MAO'));
             document.getElementById('selectPi').addEventListener('click', () => GameManager.selectToken('PI'));
             document.getElementById('spinBtn').addEventListener('click', GameManager.startGame);
+            
+            // UI events
             document.getElementById('refreshBtn').addEventListener('click', BalanceManager.update);
+            document.getElementById('clearHistory').addEventListener('click', () => {
+                if (confirm('确定要清空游戏记录吗？')) {
+                    HistoryManager.clear();
+                }
+            });
             document.getElementById('closeModal').addEventListener('click', () => {
                 document.getElementById('resultModal').classList.add('hidden');
             });
 
+            // Initialize UI
             GameManager.updateTokenSelection();
-
+            GameManager.updateGameStatus();
+            StatsManager.updateDisplay();
+            
+            // Auto-connect if available
             if (window.ethereum && window.ethereum.selectedAddress) {
                 WalletManager.connect();
             }
