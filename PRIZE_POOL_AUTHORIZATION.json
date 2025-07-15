@@ -1,9 +1,9 @@
 {
-  "timestamp": "2025-07-14T19:41:36.399Z",
+  "timestamp": "2025-07-15T00:34:29.555Z",
   "prizePool": "0xE15881Fc413c6cd47a512C24608F94Fa2896b374",
   "newContract": "0x621DF9e0DE6b4e7EDC5Dc22Cd7c0F883c3F56966",
-  "maoApprovalTx": "0xc612557dc7d9310315185b538d1d128b4ba848363770998a2e2961b4566df8d0",
-  "piApprovalTx": "0xedaed61c5b541945d53b4736c9f0a0348026b18ed8dffaa5314076538808713b",
+  "maoApprovalTx": "0xd893460a5249e8faa9ac2beea6700cf47ae01d96f1400c8c0753f2f4d39b11cb",
+  "piApprovalTx": "0x9af6cfe708ef90aa4ee8466918644063391b78cd6fafb11d5de37861ad7a8824",
   "approvalAmount": "1000000.0",
   "maoAllowance": "1000000.0",
   "piAllowance": "1000000.0",
