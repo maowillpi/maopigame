@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🎰 MAO Perfect Blockchain Wheel - v8.3 FIXED</title>
+    <title>🎰 MAO Real Blockchain Wheel - v8.4 PURE</title>
     <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
@@ -21,12 +21,12 @@
 </head>
 <body class="text-white">
     <div class="container mx-auto p-8">
-        <h1 class="text-4xl font-bold text-center mb-8">🎰 MAO Perfect Blockchain Game</h1>
+        <h1 class="text-4xl font-bold text-center mb-8">🎰 MAO Real Blockchain Game</h1>
         
         <!-- Status Bar -->
         <div class="glass rounded-2xl p-4 mb-6">
             <div class="flex items-center justify-center">
-                <span id="networkStatus" class="text-sm">🔗 初始化完美区块链系统...</span>
+                <span id="networkStatus" class="text-sm">🔗 初始化真实区块链系统...</span>
             </div>
         </div>
         
@@ -79,15 +79,15 @@
                 
                 <!-- Game Button -->
                 <div class="text-center">
-                    <button id="spinBtn" class="game-btn">🎲 开始完美游戏</button>
-                    <div id="gameStatus" class="mt-4 text-sm">✅ 完美区块链系统已就绪</div>
+                    <button id="spinBtn" class="game-btn">🎲 真实区块链转盘</button>
+                    <div id="gameStatus" class="mt-4 text-sm">✅ 纯真实区块链系统已就绪</div>
                 </div>
             </div>
         </div>
         
         <!-- Stats -->
         <div class="glass rounded-2xl p-6">
-            <h3 class="text-xl font-semibold mb-4">📊 游戏统计</h3>
+            <h3 class="text-xl font-semibold mb-4">📊 真实区块链统计</h3>
             <div class="grid grid-cols-4 gap-4">
                 <div class="text-center">
                     <div class="text-2xl font-bold text-blue-400" id="totalGames">0</div>
@@ -122,8 +122,8 @@
     </div>
 
     <script>
-        // 🔗 完美区块链游戏引擎 v8.3 FIXED
-        class PerfectGameEngine {
+        // 🔗 纯真实区块链游戏引擎 v8.4 PURE - 100%真实，零模拟
+        class RealBlockchainGameEngine {
             constructor() {
                 this.state = {
                     wallet: { connected: false, address: null, provider: null, signer: null },
@@ -142,13 +142,16 @@
                 this.tokenABI = [
                     "function balanceOf(address owner) external view returns (uint256)",
                     "function approve(address spender, uint256 amount) external returns (bool)",
-                    "function allowance(address owner, address spender) external view returns (uint256)"
+                    "function allowance(address owner, address spender) external view returns (uint256)",
+                    "function symbol() external view returns (string)"
                 ];
 
                 this.gameABI = [
                     "function playMAOGame() external",
                     "function playPIGame() external",
-                    "function getPlayerHistory(address player) external view returns (tuple(address player, uint8 tokenType, uint256 betAmount, uint256 rewardAmount, uint8 rewardLevel, uint256 timestamp, uint256 randomSeed, bool wasProtected)[])"
+                    "function getPlayerHistory(address player) external view returns (tuple(address player, uint8 tokenType, uint256 betAmount, uint256 rewardAmount, uint8 rewardLevel, uint256 timestamp, uint256 randomSeed, bool wasProtected)[])",
+                    "function getGameStats(uint8 tokenType) external view returns (tuple(uint256 totalGames, uint256 totalWins, uint256 totalBets, uint256 totalRewards, uint256 protectedGames))",
+                    "event GamePlayed(address indexed player, uint8 tokenType, uint256 betAmount, uint256 rewardAmount, uint8 rewardLevel, uint256 randomSeed, bool wasProtected)"
                 ];
             }
 
@@ -163,7 +166,7 @@
             setStatus(message, type = 'info') {
                 const el = document.getElementById('gameStatus');
                 if (el) {
-                    const icons = { info: '🔗', success: '✅', warning: '⚠️', error: '❌' };
+                    const icons = { info: '🔗', success: '✅', warning: '⚠️', error: '❌', loading: '⏳' };
                     el.innerHTML = `${icons[type]} ${message}`;
                 }
             }
@@ -199,7 +202,7 @@
                     tokens.forEach(t => t.disabled = true);
                 } else {
                     btn.disabled = false;
-                    btn.innerHTML = '🎲 开始完美游戏';
+                    btn.innerHTML = '🎲 真实区块链转盘';
                     tokens.forEach(t => t.disabled = false);
                 }
             }
@@ -224,7 +227,7 @@
                 document.getElementById('wheel')?.classList.remove('spinning');
             }
 
-            showResult(result, hash = null) {
+            showResult(result, hash) {
                 this.stopSpin();
                 this.state.isPlaying = false;
                 this.updateUI(false);
@@ -238,18 +241,18 @@
 
                 if (result.isWin) {
                     icon.textContent = '🎉';
-                    title.textContent = '🎊 恭喜中奖！';
-                    msg.textContent = `等级 ${result.level} 奖励已到账`;
+                    title.textContent = '🎊 真实区块链中奖！';
+                    msg.textContent = `等级 ${result.level} - 真实奖励已发放到钱包`;
                     reward.textContent = `+${this.formatNumber(result.amount)} ${this.state.selectedToken}`;
                 } else {
                     icon.textContent = '🎯';
-                    title.textContent = '再接再厉';
-                    msg.textContent = '这次运气差一点，下次一定中！';
-                    reward.textContent = '继续努力';
+                    title.textContent = '真实区块链游戏';
+                    msg.textContent = '这次没中奖，但是真实的区块链交易！';
+                    reward.textContent = '继续真实游戏';
                 }
 
                 if (hash) {
-                    tx.innerHTML = `<a href="https://alveyscan.com/tx/${hash}" target="_blank" class="text-blue-300">查看交易</a>`;
+                    tx.innerHTML = `<a href="https://alveyscan.com/tx/${hash}" target="_blank" class="text-blue-300">查看真实交易: ${hash.slice(0, 16)}...</a>`;
                 } else {
                     tx.textContent = '';
                 }
@@ -260,17 +263,17 @@
 
             async setupNetwork() {
                 try {
-                    this.setNetwork('检查网络连接...', 'info');
+                    this.setNetwork('检查AlveyChain网络...', 'info');
                     
                     if (!window.ethereum) {
-                        throw new Error('请安装 MetaMask');
+                        throw new Error('请安装 MetaMask 才能进行真实区块链游戏');
                     }
 
                     const chainId = await window.ethereum.request({ method: 'eth_chainId' });
                     const target = '0xED5'; // AlveyChain 3797
                     
                     if (chainId !== target) {
-                        this.setNetwork('切换到 AlveyChain...', 'warning');
+                        this.setNetwork('切换到 AlveyChain 主网...', 'warning');
                         
                         try {
                             await window.ethereum.request({
@@ -285,7 +288,7 @@
                                         chainId: target,
                                         chainName: 'AlveyChain Mainnet',
                                         nativeCurrency: { name: 'ALV', symbol: 'ALV', decimals: 18 },
-                                        rpcUrls: ['https://elves-core1.alvey.io'],
+                                        rpcUrls: ['https://elves-core1.alvey.io', 'https://elves-core2.alvey.io'],
                                         blockExplorerUrls: ['https://alveyscan.com']
                                     }]
                                 });
@@ -293,7 +296,11 @@
                         }
                     }
 
-                    this.setNetwork('AlveyChain 连接成功', 'success');
+                    // 测试网络连接
+                    const provider = new ethers.providers.Web3Provider(window.ethereum);
+                    await provider.getBlockNumber();
+
+                    this.setNetwork('🟢 AlveyChain 真实网络已连接', 'success');
                     return true;
 
                 } catch (error) {
@@ -306,12 +313,18 @@
             async connectWallet() {
                 try {
                     const networkOk = await this.setupNetwork();
-                    if (!networkOk) return;
+                    if (!networkOk) {
+                        this.setStatus('请先正确连接AlveyChain网络', 'error');
+                        return;
+                    }
 
-                    this.setStatus('连接钱包中...', 'info');
+                    this.setStatus('连接真实区块链钱包...', 'loading');
 
                     const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
-                    if (!accounts.length) return;
+                    if (!accounts.length) {
+                        this.setStatus('请授权钱包连接', 'warning');
+                        return;
+                    }
 
                     this.state.wallet = {
                         address: accounts[0],
@@ -320,15 +333,24 @@
                     };
                     this.state.wallet.signer = this.state.wallet.provider.getSigner();
 
-                    // 初始化合约
+                    // 初始化真实智能合约
+                    this.setStatus('初始化真实智能合约...', 'loading');
+                    
                     this.state.contracts.mao = new ethers.Contract(this.addresses.MAO_TOKEN, this.tokenABI, this.state.wallet.signer);
                     this.state.contracts.pi = new ethers.Contract(this.addresses.PI_TOKEN, this.tokenABI, this.state.wallet.signer);
                     this.state.contracts.wheelGame = new ethers.Contract(this.addresses.WHEEL_GAME, this.gameABI, this.state.wallet.signer);
 
+                    // 验证合约连接
+                    await Promise.all([
+                        this.state.contracts.mao.symbol(),
+                        this.state.contracts.pi.symbol(),
+                        this.state.contracts.wheelGame.getPlayerHistory(this.state.wallet.address)
+                    ]);
+
                     this.updateWallet();
                     await this.updateBalances();
                     await this.loadStats();
-                    this.setStatus('🚀 完美游戏系统已就绪', 'success');
+                    this.setStatus('🚀 真实区块链系统已完全连接', 'success');
 
                 } catch (error) {
                     console.error('钱包连接失败:', error);
@@ -363,6 +385,7 @@
                     document.getElementById('piBalance').textContent = this.formatNumber(ethers.utils.formatEther(piBalance));
                 } catch (error) {
                     console.error('更新余额失败:', error);
+                    this.setStatus('余额查询失败，请检查网络', 'warning');
                 }
             }
 
@@ -392,9 +415,9 @@
                 }
             }
 
-            async startGame() {
+            async startRealBlockchainGame() {
                 if (!this.state.wallet.connected) {
-                    this.setStatus('请先连接钱包', 'warning');
+                    this.setStatus('请先连接钱包进行真实区块链游戏', 'warning');
                     return;
                 }
 
@@ -408,99 +431,138 @@
                     const tokenContract = selectedToken === 'MAO' ? this.state.contracts.mao : this.state.contracts.pi;
                     const amount = ethers.utils.parseEther(selectedToken === 'MAO' ? '100' : '1000');
                     
-                    // 检查余额
-                    this.setStatus('检查余额中...', 'info');
+                    // 真实余额检查
+                    this.setStatus('检查真实代币余额...', 'loading');
                     const balance = await tokenContract.balanceOf(this.state.wallet.address);
                     if (balance.lt(amount)) {
-                        throw new Error(`余额不足！需要 ${selectedToken === 'MAO' ? '100' : '1000'} ${selectedToken}`);
+                        throw new Error(`真实余额不足！需要 ${selectedToken === 'MAO' ? '100' : '1000'} ${selectedToken} 代币`);
                     }
 
-                    // 检查授权
-                    this.setStatus('检查授权中...', 'info');
+                    // 真实授权检查
+                    this.setStatus('检查智能合约授权...', 'loading');
                     const allowance = await tokenContract.allowance(this.state.wallet.address, this.addresses.WHEEL_GAME);
                     if (allowance.lt(amount)) {
-                        this.setStatus('授权代币中...', 'info');
+                        this.setStatus('授权智能合约访问代币...', 'loading');
                         const approveTx = await tokenContract.approve(this.addresses.WHEEL_GAME, ethers.constants.MaxUint256);
-                        await approveTx.wait(2);
-                        this.setStatus('授权成功', 'success');
+                        this.setStatus('等待授权交易确认...', 'loading');
+                        await approveTx.wait(3);
+                        this.setStatus('授权成功，准备游戏', 'success');
                     }
 
-                    this.setStatus('启动游戏中...', 'info');
+                    this.setStatus('启动真实区块链转盘...', 'loading');
                     this.startSpin();
                     
-                    try {
-                        // 尝试真实区块链调用
-                        let gameTx;
-                        if (selectedToken === 'MAO') {
-                            gameTx = await this.state.contracts.wheelGame.playMAOGame({ gasLimit: 600000 });
-                        } else {
-                            gameTx = await this.state.contracts.wheelGame.playPIGame({ gasLimit: 700000 });
-                        }
-
-                        this.setStatus('区块链确认中...', 'info');
-                        const receipt = await gameTx.wait(2);
-
-                        // 解析结果
-                        let result = null;
-                        try {
-                            const history = await this.state.contracts.wheelGame.getPlayerHistory(this.state.wallet.address);
-                            if (history.length > 0) {
-                                const lastGame = history[history.length - 1];
-                                result = {
-                                    isWin: lastGame.rewardAmount.gt(0),
-                                    amount: ethers.utils.formatEther(lastGame.rewardAmount),
-                                    level: lastGame.rewardLevel.toString()
-                                };
-                            }
-                        } catch (parseError) {
-                            console.error('解析失败，使用默认结果');
-                        }
-
-                        // 如果解析失败，使用随机结果
-                        if (!result) {
-                            const isWin = Math.random() < 0.5;
-                            result = {
-                                isWin,
-                                amount: isWin ? (selectedToken === 'MAO' ? '200' : '2000') : '0',
-                                level: isWin ? '1' : '0'
-                            };
-                        }
-
-                        setTimeout(() => {
-                            this.showResult(result, gameTx.hash);
-                            this.state.stats.totalGames++;
-                            if (result.isWin) {
-                                this.state.stats.winCount++;
-                                this.state.stats.totalReward += parseFloat(result.amount);
-                            }
-                            this.updateStats();
-                        }, 2000);
-
-                    } catch (txError) {
-                        console.error('区块链调用失败，使用模拟模式:', txError);
-                        
-                        // 模拟游戏结果
-                        const isWin = Math.random() < 0.5;
-                        const result = {
-                            isWin,
-                            amount: isWin ? (selectedToken === 'MAO' ? '200' : '2000') : '0',
-                            level: isWin ? '1' : '0'
-                        };
-
-                        setTimeout(() => {
-                            this.showResult(result);
-                            this.state.stats.totalGames++;
-                            if (result.isWin) {
-                                this.state.stats.winCount++;
-                                this.state.stats.totalReward += parseFloat(result.amount);
-                            }
-                            this.updateStats();
-                        }, 2000);
+                    // 🔗 只进行真实区块链调用 - 绝不使用模拟
+                    let gameTx;
+                    const gasOptions = {
+                        gasLimit: selectedToken === 'MAO' ? 800000 : 900000, // 充足的Gas
+                        gasPrice: ethers.utils.parseUnits('20', 'gwei') // 足够的Gas价格
+                    };
+                    
+                    if (selectedToken === 'MAO') {
+                        gameTx = await this.state.contracts.wheelGame.playMAOGame(gasOptions);
+                    } else {
+                        gameTx = await this.state.contracts.wheelGame.playPIGame(gasOptions);
                     }
 
+                    this.setStatus('真实区块链挖矿确认中...请等待', 'loading');
+                    const receipt = await gameTx.wait(5); // 等待5个确认提高可靠性
+
+                    // 🔗 真实结果解析 - 多重机制确保成功
+                    let result = null;
+                    
+                    // 方法1：事件解析
+                    try {
+                        if (receipt.events && receipt.events.length > 0) {
+                            const gameEvent = receipt.events.find(e => e.event === 'GamePlayed');
+                            if (gameEvent && gameEvent.args) {
+                                const { rewardAmount, rewardLevel } = gameEvent.args;
+                                result = {
+                                    isWin: rewardAmount.gt(0),
+                                    amount: ethers.utils.formatEther(rewardAmount),
+                                    level: rewardLevel.toString()
+                                };
+                            }
+                        }
+                    } catch (eventError) {
+                        console.log('事件解析失败，尝试其他方法');
+                    }
+                    
+                    // 方法2：日志解析
+                    if (!result && receipt.logs && receipt.logs.length > 0) {
+                        try {
+                            for (const log of receipt.logs) {
+                                try {
+                                    const parsedLog = this.state.contracts.wheelGame.interface.parseLog(log);
+                                    if (parsedLog.name === 'GamePlayed') {
+                                        const { rewardAmount, rewardLevel } = parsedLog.args;
+                                        result = {
+                                            isWin: rewardAmount.gt(0),
+                                            amount: ethers.utils.formatEther(rewardAmount),
+                                            level: rewardLevel.toString()
+                                        };
+                                        break;
+                                    }
+                                } catch (parseError) {
+                                    continue;
+                                }
+                            }
+                        } catch (logError) {
+                            console.log('日志解析失败，尝试历史查询');
+                        }
+                    }
+                    
+                    // 方法3：历史查询
+                    if (!result) {
+                        try {
+                            this.setStatus('查询真实游戏记录...', 'loading');
+                            await new Promise(resolve => setTimeout(resolve, 2000)); // 等待2秒让区块链更新
+                            
+                            const newHistory = await this.state.contracts.wheelGame.getPlayerHistory(this.state.wallet.address);
+                            if (newHistory.length > 0) {
+                                const lastGame = newHistory[newHistory.length - 1];
+                                const timeDiff = Date.now() / 1000 - lastGame.timestamp.toNumber();
+                                if (timeDiff < 300) { // 5分钟内的游戏
+                                    result = {
+                                        isWin: lastGame.rewardAmount.gt(0),
+                                        amount: ethers.utils.formatEther(lastGame.rewardAmount),
+                                        level: lastGame.rewardLevel.toString()
+                                    };
+                                }
+                            }
+                        } catch (historyError) {
+                            console.error('历史查询失败:', historyError);
+                        }
+                    }
+                    
+                    // 如果仍然无法解析结果，这是真实的区块链错误
+                    if (!result) {
+                        throw new Error('无法解析真实区块链游戏结果，请稍后重试或联系支持');
+                    }
+
+                    // 显示真实结果
+                    setTimeout(() => {
+                        this.showResult(result, gameTx.hash);
+                        this.loadStats(); // 重新加载真实统计
+                    }, 2000);
+
                 } catch (error) {
-                    console.error('游戏错误:', error);
-                    this.setStatus(`游戏错误: ${error.message}`, 'error');
+                    console.error('真实区块链游戏错误:', error);
+                    
+                    let errorMsg = error.message;
+                    if (errorMsg.includes('insufficient funds')) {
+                        errorMsg = '余额不足，请充值足够的代币和ALV';
+                    } else if (errorMsg.includes('user rejected')) {
+                        errorMsg = '用户取消了交易';
+                    } else if (errorMsg.includes('gas')) {
+                        errorMsg = 'Gas费用不足，请增加Gas费用';
+                    } else if (errorMsg.includes('network')) {
+                        errorMsg = '网络连接问题，请检查AlveyChain连接';
+                    } else if (errorMsg.includes('CALL_EXCEPTION')) {
+                        errorMsg = '智能合约调用失败，请检查网络或稍后重试';
+                    }
+
+                    this.setStatus(`真实游戏错误: ${errorMsg}`, 'error');
                     this.stopSpin();
                     this.state.isPlaying = false;
                     this.updateUI(false);
@@ -520,13 +582,15 @@
                         if (accounts.length === 0) {
                             this.state.wallet.connected = false;
                             this.updateWallet();
+                            this.setStatus('钱包已断开', 'warning');
                         } else {
                             this.connectWallet();
                         }
                     });
 
                     window.ethereum.on('chainChanged', () => {
-                        window.location.reload();
+                        this.setStatus('网络已切换，重新连接...', 'info');
+                        setTimeout(() => window.location.reload(), 1000);
                     });
                 }
             }
@@ -537,16 +601,16 @@
                 document.getElementById('selectMao')?.addEventListener('click', () => {
                     this.state.selectedToken = 'MAO';
                     this.updateTokens();
-                    this.setStatus('MAO 模式已选择', 'info');
+                    this.setStatus('MAO 真实代币模式', 'info');
                 });
                 
                 document.getElementById('selectPi')?.addEventListener('click', () => {
                     this.state.selectedToken = 'PI';
                     this.updateTokens();
-                    this.setStatus('PI 模式已选择', 'info');
+                    this.setStatus('PI 真实代币模式', 'info');
                 });
 
-                document.getElementById('spinBtn')?.addEventListener('click', () => this.startGame());
+                document.getElementById('spinBtn')?.addEventListener('click', () => this.startRealBlockchainGame());
 
                 document.getElementById('closeModal')?.addEventListener('click', () => {
                     document.getElementById('resultModal')?.classList.add('hidden');
@@ -554,9 +618,9 @@
             }
         }
 
-        // 启动完美游戏引擎
-        const game = new PerfectGameEngine();
-        game.init();
+        // 🚀 启动纯真实区块链游戏引擎 v8.4
+        const realGame = new RealBlockchainGameEngine();
+        realGame.init();
     </script>
 </body>
 </html>
