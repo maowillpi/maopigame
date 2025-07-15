@@ -756,6 +756,23 @@
                 this.setGameStatus(`${token} 模式 - 消耗 ${cost} ${token}`, 'info');
             },
 
+            updateGameUI(isPlaying) {
+                const spinBtn = document.getElementById('spinBtn');
+                const tokenBtns = document.querySelectorAll('.token-btn');
+                
+                if (!spinBtn) return;
+                
+                if (isPlaying) {
+                    spinBtn.disabled = true;
+                    spinBtn.innerHTML = '<div class="loading-spinner"></div><span>游戏中...</span>';
+                    tokenBtns.forEach(btn => btn.disabled = true);
+                } else {
+                    spinBtn.disabled = false;
+                    spinBtn.innerHTML = '<span class="text-xl">🎲</span><span>开始游戏</span>';
+                    tokenBtns.forEach(btn => btn.disabled = false);
+                }
+            },
+
             async startGame() {
                 if (!AppState.wallet.connected) {
                     Utils.showNotification('请先连接钱包', '需要连接钱包才能开始游戏', 'warning');
@@ -913,23 +930,6 @@
                 
                 // Update balance after game
                 setTimeout(() => BalanceManager.update(), 2000);
-            },
-
-            updateGameUI(isPlaying) {
-                const spinBtn = document.getElementById('spinBtn');
-                const tokenBtns = document.querySelectorAll('.token-btn');
-                
-                if (!spinBtn) return;
-                
-                if (isPlaying) {
-                    spinBtn.disabled = true;
-                    spinBtn.innerHTML = '<div class="loading-spinner"></div><span>游戏中...</span>';
-                    tokenBtns.forEach(btn => btn.disabled = true);
-                } else {
-                    spinBtn.disabled = false;
-                    spinBtn.innerHTML = '<span class="text-xl">🎲</span><span>开始游戏</span>';
-                    tokenBtns.forEach(btn => btn.disabled = false);
-                }
             }
         };
 
