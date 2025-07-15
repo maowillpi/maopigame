@@ -1,0 +1,17 @@
+{
+  "timestamp": "2025-07-15T14:31:14.831Z",
+  "prizePoolBalances": {
+    "mao": "609580.0",
+    "pi": "10185145.0"
+  },
+  "allowances": {
+    "mao": "998475.0",
+    "pi": "998950.0"
+  },
+  "maxRewards": {
+    "mao": 1000,
+    "pi": 10000
+  },
+  "hasIssues": false,
+  "issues": []
+}
