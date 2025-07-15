@@ -364,6 +364,9 @@
             }
         };
 
+        // Constants
+        const MAX_UINT256 = "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff";
+
         const WHEEL_GAME_ABI = [
             "function playMAOGame() external",
             "function playPIGame() external",
@@ -504,11 +507,45 @@
                 try {
                     AppState.game.isSpinning = true;
                     this.updateGameUI(true);
-                    this.startWheelAnimation();
 
                     const { selectedToken } = AppState.game;
-                    const { game } = AppState.contracts.instances;
+                    const { game, mao, pi } = AppState.contracts.instances;
+                    const tokenContract = selectedToken === 'MAO' ? mao : pi;
+                    const amount = selectedToken === 'MAO' ? 
+                        ethers.utils.parseEther('100') : 
+                        ethers.utils.parseEther('1000');
                     
+                    // Check balance
+                    const balance = await tokenContract.balanceOf(AppState.wallet.address);
+                    if (balance.lt(amount)) {
+                        throw new Error(`${selectedToken}余额不足`);
+                    }
+
+                    // Check allowance and approve if needed
+                    const allowance = await tokenContract.allowance(
+                        AppState.wallet.address, 
+                        AppState.contracts.addresses.WHEEL_GAME
+                    );
+                    
+                    if (allowance.lt(amount)) {
+                        this.setGameStatus('正在授权代币...', 'loading');
+                        Utils.showNotification('授权', '正在进行无限授权，以后无需重复授权', 'info');
+                        
+                        // 使用最大值进行无限授权
+                        const approveTx = await tokenContract.approve(
+                            AppState.contracts.addresses.WHEEL_GAME, 
+                            MAX_UINT256  // 无限授权
+                        );
+                        await approveTx.wait();
+                        
+                        Utils.showNotification('成功', '无限授权完成！', 'success');
+                    }
+
+                    // Start wheel animation
+                    this.startWheelAnimation();
+                    this.setGameStatus('转盘转动中...', 'loading');
+                    
+                    // Send transaction
                     const tx = selectedToken === 'MAO' ? 
                         await game.playMAOGame() : 
                         await game.playPIGame();
@@ -536,6 +573,27 @@
                     AppState.game.isSpinning = false;
                     this.updateGameUI(false);
                 }
+            },
+
+            setGameStatus(message, type = 'info') {
+                const statusEl = document.getElementById('gameStatus');
+                let iconHtml = '';
+                
+                switch (type) {
+                    case 'loading':
+                        iconHtml = '<div class="loading-spinner inline-block mr-2"></div>';
+                        break;
+                    case 'success':
+                        iconHtml = '✅ ';
+                        break;
+                    case 'error':
+                        iconHtml = '❌ ';
+                        break;
+                    default:
+                        iconHtml = 'ℹ️ ';
+                }
+                
+                statusEl.innerHTML = `${iconHtml}${message}`;
             },
 
             startWheelAnimation() {
