@@ -615,16 +615,27 @@
         // Game Manager
         const GameManager = {
             selectToken(token) {
-                if (AppState.game.isSpinning) return; // 游戏进行中不允许切换
+                console.log('selectToken called with:', token);
+                if (AppState.game.isSpinning) {
+                    console.log('Game is spinning, cannot switch');
+                    return;
+                }
                 
                 AppState.game.selectedToken = token;
+                console.log('Token selected:', AppState.game.selectedToken);
                 this.updateTokenSelection();
                 this.updateGameStatus();
             },
 
             updateTokenSelection() {
+                console.log('updateTokenSelection called');
                 const maoBtn = document.getElementById('selectMao');
                 const piBtn = document.getElementById('selectPi');
+
+                if (!maoBtn || !piBtn) {
+                    console.error('Token buttons not found');
+                    return;
+                }
 
                 if (AppState.game.selectedToken === 'MAO') {
                     maoBtn.className = 'token-btn active';
@@ -633,21 +644,31 @@
                     maoBtn.className = 'token-btn';
                     piBtn.className = 'token-btn active';
                 }
+                console.log('Token selection updated');
             },
 
             updateGameStatus() {
+                console.log('updateGameStatus called');
                 const token = AppState.game.selectedToken;
                 const cost = token === 'MAO' ? '100' : '1000';
                 this.setGameStatus(`选择了 ${token} 模式，每次消耗 ${cost} ${token}`, 'info');
             },
 
             async startGame() {
+                console.log('startGame called');
+                
                 if (!AppState.wallet.connected) {
+                    console.log('Wallet not connected');
                     Utils.showNotification('提示', '请先连接钱包', 'warning');
                     return;
                 }
 
-                if (AppState.game.isSpinning) return;
+                if (AppState.game.isSpinning) {
+                    console.log('Game already spinning');
+                    return;
+                }
+
+                console.log('Starting game with token:', AppState.game.selectedToken);
 
                 try {
                     AppState.game.isSpinning = true;
@@ -655,17 +676,24 @@
 
                     const { selectedToken } = AppState.game;
                     const { game, mao, pi } = AppState.contracts.instances;
+                    
+                    if (!game || !mao || !pi) {
+                        throw new Error('合约实例未初始化');
+                    }
+                    
                     const tokenContract = selectedToken === 'MAO' ? mao : pi;
                     const amount = selectedToken === 'MAO' ? 
                         ethers.utils.parseEther('100') : 
                         ethers.utils.parseEther('1000');
                     
+                    console.log('Checking balance...');
                     // Check balance
                     const balance = await tokenContract.balanceOf(AppState.wallet.address);
                     if (balance.lt(amount)) {
                         throw new Error(`${selectedToken}余额不足，需要${selectedToken === 'MAO' ? '100' : '1000'} ${selectedToken}`);
                     }
 
+                    console.log('Checking allowance...');
                     // Check allowance and approve if needed
                     const allowance = await tokenContract.allowance(
                         AppState.wallet.address, 
@@ -685,10 +713,12 @@
                         Utils.showNotification('成功', '无限授权完成！', 'success');
                     }
 
+                    console.log('Starting wheel animation...');
                     // Start wheel animation
                     this.startWheelAnimation();
                     this.setGameStatus('转盘转动中...', 'loading');
                     
+                    console.log('Sending transaction...');
                     // Send transaction
                     const tx = selectedToken === 'MAO' ? 
                         await game.playMAOGame() : 
@@ -732,6 +762,11 @@
 
             setGameStatus(message, type = 'info') {
                 const statusEl = document.getElementById('gameStatus');
+                if (!statusEl) {
+                    console.error('gameStatus element not found');
+                    return;
+                }
+                
                 let iconHtml = '';
                 
                 switch (type) {
@@ -753,12 +788,16 @@
 
             startWheelAnimation() {
                 const wheel = document.getElementById('wheel');
-                wheel.classList.add('spinning');
+                if (wheel) {
+                    wheel.classList.add('spinning');
+                }
             },
 
             stopWheelAnimation() {
                 const wheel = document.getElementById('wheel');
-                wheel.classList.remove('spinning');
+                if (wheel) {
+                    wheel.classList.remove('spinning');
+                }
             },
 
             showResult(result) {
@@ -798,6 +837,11 @@
                 const spinBtn = document.getElementById('spinBtn');
                 const tokenBtns = document.querySelectorAll('.token-btn');
                 
+                if (!spinBtn) {
+                    console.error('spinBtn not found');
+                    return;
+                }
+                
                 if (isPlaying) {
                     spinBtn.disabled = true;
                     spinBtn.innerHTML = '<div class="loading-spinner mx-auto"></div>';
@@ -812,35 +856,87 @@
 
         // Event Listeners
         document.addEventListener('DOMContentLoaded', () => {
-            // Wallet events
-            document.getElementById('connectBtn').addEventListener('click', WalletManager.connect);
-            document.getElementById('disconnectBtn').addEventListener('click', WalletManager.disconnect);
+            console.log('DOM Content Loaded');
             
-            // Game events
-            document.getElementById('selectMao').addEventListener('click', () => GameManager.selectToken('MAO'));
-            document.getElementById('selectPi').addEventListener('click', () => GameManager.selectToken('PI'));
-            document.getElementById('spinBtn').addEventListener('click', GameManager.startGame);
+            // Check if all required elements exist
+            const requiredElements = [
+                'connectBtn', 'disconnectBtn', 'selectMao', 'selectPi', 
+                'spinBtn', 'refreshBtn', 'clearHistory', 'closeModal'
+            ];
             
-            // UI events
-            document.getElementById('refreshBtn').addEventListener('click', BalanceManager.update);
-            document.getElementById('clearHistory').addEventListener('click', () => {
-                if (confirm('确定要清空游戏记录吗？')) {
-                    HistoryManager.clear();
+            requiredElements.forEach(id => {
+                const element = document.getElementById(id);
+                if (!element) {
+                    console.error(`Element not found: ${id}`);
+                } else {
+                    console.log(`Element found: ${id}`);
                 }
             });
-            document.getElementById('closeModal').addEventListener('click', () => {
-                document.getElementById('resultModal').classList.add('hidden');
-            });
+            
+            // Wallet events
+            const connectBtn = document.getElementById('connectBtn');
+            const disconnectBtn = document.getElementById('disconnectBtn');
+            if (connectBtn) connectBtn.addEventListener('click', WalletManager.connect);
+            if (disconnectBtn) disconnectBtn.addEventListener('click', WalletManager.disconnect);
+            
+            // Game events
+            const selectMao = document.getElementById('selectMao');
+            const selectPi = document.getElementById('selectPi');
+            const spinBtn = document.getElementById('spinBtn');
+            
+            if (selectMao) {
+                selectMao.addEventListener('click', () => {
+                    console.log('MAO button clicked');
+                    GameManager.selectToken('MAO');
+                });
+            }
+            
+            if (selectPi) {
+                selectPi.addEventListener('click', () => {
+                    console.log('PI button clicked');
+                    GameManager.selectToken('PI');
+                });
+            }
+            
+            if (spinBtn) {
+                spinBtn.addEventListener('click', () => {
+                    console.log('Spin button clicked');
+                    GameManager.startGame();
+                });
+            }
+            
+            // UI events
+            const refreshBtn = document.getElementById('refreshBtn');
+            const clearHistory = document.getElementById('clearHistory');
+            const closeModal = document.getElementById('closeModal');
+            
+            if (refreshBtn) refreshBtn.addEventListener('click', BalanceManager.update);
+            if (clearHistory) {
+                clearHistory.addEventListener('click', () => {
+                    if (confirm('确定要清空游戏记录吗？')) {
+                        HistoryManager.clear();
+                    }
+                });
+            }
+            if (closeModal) {
+                closeModal.addEventListener('click', () => {
+                    document.getElementById('resultModal').classList.add('hidden');
+                });
+            }
 
             // Initialize UI
+            console.log('Initializing UI...');
             GameManager.updateTokenSelection();
             GameManager.updateGameStatus();
             StatsManager.updateDisplay();
             
             // Auto-connect if available
             if (window.ethereum && window.ethereum.selectedAddress) {
+                console.log('Auto-connecting wallet...');
                 WalletManager.connect();
             }
+            
+            console.log('Initialization complete');
         });
     </script>
 </body>
