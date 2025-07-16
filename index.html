@@ -672,6 +672,8 @@
                     console.error('真实区块链游戏错误:', error);
                     
                     let errorMsg = error.message;
+                    
+                    // 🔧 增强错误诊断 - 更详细的错误分析
                     if (errorMsg.includes('insufficient funds')) {
                         errorMsg = '余额不足，请充值足够的代币和ALV';
                     } else if (errorMsg.includes('user rejected')) {
@@ -684,9 +686,33 @@
                         errorMsg = '网络连接问题，已自动尝试备用节点';
                     } else if (errorMsg.includes('CALL_EXCEPTION')) {
                         errorMsg = '智能合约调用失败，可能是网络拥堵，请稍后重试';
+                    } else if (errorMsg.includes('execution reverted')) {
+                        // 🔍 更详细的合约错误分析
+                        if (errorMsg.includes('Insufficient user balance')) {
+                            errorMsg = 'MAO余额不足，需要至少100个MAO代币进行游戏';
+                        } else if (errorMsg.includes('Insufficient user allowance')) {
+                            errorMsg = 'MAO授权不足，请先授权游戏合约使用你的MAO代币';
+                        } else if (errorMsg.includes('Insufficient prize pool allowance')) {
+                            errorMsg = '奖金池授权问题，请联系管理员修复';
+                        } else if (errorMsg.includes('MAO transfer failed')) {
+                            errorMsg = 'MAO转账失败，可能是余额或授权不足';
+                        } else {
+                            errorMsg = '智能合约执行失败，请检查余额和授权状态';
+                        }
+                    } else {
+                        // 🔍 为未知错误提供更多信息
+                        errorMsg = `游戏调用失败: ${errorMsg.substring(0, 100)}...请检查MAO余额和授权`;
                     }
 
-                    this.setStatus(`游戏错误: ${errorMsg}`, 'error');
+                    this.setStatus(`❌ ${errorMsg}`, 'error');
+                    
+                    // 🔧 添加诊断建议
+                    setTimeout(() => {
+                        if (errorMsg.includes('余额') || errorMsg.includes('授权')) {
+                            this.setStatus('💡 建议：检查MetaMask中的MAO余额(≥100个)和ALV余额(≥0.01个)', 'warning');
+                        }
+                    }, 3000);
+                    
                     this.stopSpin();
                     this.state.isPlaying = false;
                     this.updateUI(false);
