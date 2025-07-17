@@ -27,12 +27,12 @@
         <div class="glass rounded-2xl p-6 mb-8">
             <div id="walletDisconnected">
                 <button id="connectBtn" class="game-btn mx-auto block">连接 MetaMask</button>
-            </div>
+    </div>
             <div id="walletConnected" class="hidden">
                 <div class="text-center mb-4">
                     <span class="text-green-400">已连接:</span>
                     <span id="walletAddress" class="font-mono"></span>
-                </div>
+            </div>
                 <div class="grid grid-cols-2 gap-4 mb-6">
                     <div class="glass rounded-xl p-4 text-center">
                         <div class="text-2xl mb-2">🐱</div>
@@ -43,17 +43,17 @@
                         <div class="text-2xl mb-2">🥧</div>
                         <div class="text-green-400 text-2xl font-bold" id="piBalance">0</div>
                         <div class="text-sm">PI</div>
-                    </div>
                 </div>
-                
+            </div>
+
                 <!-- Token Selection -->
                 <div class="flex justify-center mb-6">
                     <div class="glass rounded-xl p-2 flex gap-2">
                         <button id="selectMao" class="token-btn active">🐱 MAO (100)</button>
                         <button id="selectPi" class="token-btn">🥧 PI (1000)</button>
-                    </div>
                 </div>
-                
+            </div>
+            
                 <!-- Wheel -->
                 <div class="flex justify-center mb-6">
                     <div class="relative">
@@ -61,46 +61,46 @@
                             <div class="absolute inset-0 flex items-center justify-center">
                                 <div class="w-16 h-16 bg-white rounded-full flex items-center justify-center">
                                     <span class="text-2xl">🎯</span>
-                                </div>
                             </div>
-                        </div>
+                            </div>
+                            </div>
                         <div class="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-2">
                             <div class="w-0 h-0 border-l-4 border-r-4 border-b-8 border-transparent border-b-yellow-400"></div>
-                        </div>
-                    </div>
-                </div>
-                
+                            </div>
+                            </div>
+                            </div>
+                            
                 <!-- Game Button -->
                 <div class="text-center">
                     <button id="spinBtn" class="game-btn">🎲 智能转盘</button>
                     <div id="gameStatus" class="mt-4 text-sm">🧠 智能系统就绪 - 保证50%中奖率</div>
+                        </div>
+                    </div>
                 </div>
-            </div>
-        </div>
-        
+
         <!-- Stats -->
         <div class="glass rounded-2xl p-6">
             <h3 class="text-xl font-semibold mb-4">📊 智能统计</h3>
             <div class="grid grid-cols-4 gap-4">
-                <div class="text-center">
+                    <div class="text-center">
                     <div class="text-2xl font-bold text-blue-400" id="totalGames">0</div>
                     <div class="text-sm">总局数</div>
                 </div>
-                <div class="text-center">
+                            <div class="text-center">
                     <div class="text-2xl font-bold text-green-400" id="winCount">0</div>
                     <div class="text-sm">胜利数</div>
-                </div>
-                <div class="text-center">
+                            </div>
+                            <div class="text-center">
                     <div class="text-2xl font-bold text-yellow-400" id="winRate">0%</div>
                     <div class="text-sm">胜率</div>
-                </div>
-                <div class="text-center">
+                            </div>
+                            <div class="text-center">
                     <div class="text-2xl font-bold text-purple-400" id="totalReward">0</div>
                     <div class="text-sm">总奖励</div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-            </div>
-        </div>
-    </div>
 
     <!-- Result Modal -->
     <div id="resultModal" class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center hidden">
@@ -110,8 +110,8 @@
             <p id="resultMessage" class="mb-4"></p>
             <div id="resultReward" class="text-3xl font-bold text-yellow-400 mb-6"></div>
             <button id="closeModal" class="game-btn">继续游戏</button>
-        </div>
-    </div>
+                    </div>
+                </div>
 
     <script>
         // 🧠 革命性智能游戏引擎
@@ -131,9 +131,9 @@
                 };
                 
                 this.addresses = {
-                    MAO_TOKEN: "0x22f49bcb3dad370a9268ba3fca33cb037ca3d022",
-                    PI_TOKEN: "0xfd4680e25e05b3435c7f698668d1ce80d2a9f444"
-                };
+            MAO_TOKEN: "0x22f49bcb3dad370a9268ba3fca33cb037ca3d022",
+            PI_TOKEN: "0xfd4680e25e05b3435c7f698668d1ce80d2a9f444"
+        };
 
                 this.tokenABI = [
                     "function balanceOf(address owner) external view returns (uint256)",
@@ -267,7 +267,7 @@
                 const tokenBtns = document.querySelectorAll('.token-btn');
                 
                 if (isPlaying) {
-                    spinBtn.disabled = true;
+                spinBtn.disabled = true;
                     spinBtn.innerHTML = '<div class="loading mx-auto"></div>';
                     tokenBtns.forEach(btn => btn.disabled = true);
                 } else {
@@ -395,7 +395,7 @@
                     connected?.classList.remove('hidden');
                     const walletAddr = document.getElementById('walletAddress');
                     if (walletAddr) walletAddr.textContent = this.formatAddress(this.state.wallet.address);
-                } else {
+                    } else {
                     disconnected?.classList.remove('hidden');
                     connected?.classList.add('hidden');
                 }
@@ -415,7 +415,7 @@
                     
                     if (maoEl) maoEl.textContent = this.formatNumber(ethers.utils.formatEther(maoBalance));
                     if (piEl) piEl.textContent = this.formatNumber(ethers.utils.formatEther(piBalance));
-                } catch (error) {
+            } catch (error) {
                     console.error('更新余额失败:', error);
                 }
             }
@@ -524,7 +524,7 @@
                         if (accounts.length === 0) {
                             this.state.wallet.connected = false;
                             this.updateWalletUI();
-                        } else {
+            } else {
                             this.connectWallet();
                         }
                     });
@@ -570,4 +570,4 @@
         gameEngine.initialize();
     </script>
 </body>
-</html>
+</html> 
